@@ -8,11 +8,10 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import model.Users;
 import util.MailUtil;
 
-public class UserDAO extends DBContext {
+public class UserDAO {
 
     private String lastErrorMessage;
 
@@ -34,8 +33,7 @@ public class UserDAO extends DBContext {
 
     public boolean isEmailExists(String email) {
         String sql = "SELECT COUNT(*) FROM Users WHERE email = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
             if (rs.next() && rs.getInt(1) > 0) {
@@ -49,8 +47,7 @@ public class UserDAO extends DBContext {
 
     public Users getUserByEmail(String email) {
         String sql = "SELECT user_id, name, email, password, role, status, created_at FROM Users WHERE email = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -64,8 +61,7 @@ public class UserDAO extends DBContext {
 
     public Users getUserById(int userId) {
         String sql = "SELECT user_id, name, email, password, role, status, created_at FROM Users WHERE user_id = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -78,9 +74,8 @@ public class UserDAO extends DBContext {
     }
 
     public int signup(Users user) {
-        String sql = "INSERT INTO Users (name, email, password, role, status, created_at) VALUES (?, ?, ?, ?, ?, GETDATE())";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        String sql = "INSERT INTO Users (name, email, password, role, status, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, user.getName());
             ps.setString(2, user.getEmail());
             ps.setString(3, user.getPassword());
@@ -100,9 +95,9 @@ public class UserDAO extends DBContext {
     }
 
     public Users signin(String email, String password) {
-        String sql = "SELECT user_id, name, email, password, role, status, created_at FROM Users WHERE email = ? AND password = ? AND status = 'Active'";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        String sql = "SELECT user_id, name, email, password, role, status, created_at "
+                + "FROM Users WHERE email = ? AND password = ? AND status = 'Active'";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ps.setString(2, password);
             ResultSet rs = ps.executeQuery();
@@ -117,15 +112,13 @@ public class UserDAO extends DBContext {
 
     public boolean updateProfile(Users user) {
         String sql = "UPDATE Users SET name = ?, email = ?, role = ?, status = ? WHERE user_id = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getName());
             ps.setString(2, user.getEmail());
             ps.setString(3, user.getRole());
             ps.setString(4, user.getStatus());
             ps.setInt(5, user.getUser_id());
-            int rows = ps.executeUpdate();
-            return rows > 0;
+            return ps.executeUpdate() > 0;
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -134,8 +127,7 @@ public class UserDAO extends DBContext {
 
     public boolean updatePasswordByUserId(int userId, String newPassword) {
         String sql = "UPDATE Users SET password = ? WHERE user_id = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, newPassword);
             ps.setInt(2, userId);
             return ps.executeUpdate() > 0;
@@ -147,8 +139,7 @@ public class UserDAO extends DBContext {
 
     public boolean updatePasswordByEmail(String email, String newPassword) {
         String sql = "UPDATE Users SET password = ? WHERE email = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, newPassword);
             ps.setString(2, email);
             return ps.executeUpdate() > 0;
@@ -166,7 +157,7 @@ public class UserDAO extends DBContext {
             return false;
         }
         // Generate 6-digit OTP
-        String token = String.format("%06d", (int)(Math.random() * 1_000_000));
+        String token = String.format("%06d", (int) (Math.random() * 1_000_000));
         Timestamp expiresAt = new Timestamp(System.currentTimeMillis() + 10 * 60 * 1000); // 10 minutes
         boolean stored = storePasswordResetToken(user.getUser_id(), token, expiresAt);
         if (!stored) {
@@ -182,9 +173,8 @@ public class UserDAO extends DBContext {
     }
 
     public boolean storePasswordResetToken(int userId, String token, Timestamp expiresAt) {
-        String sql = "INSERT INTO PasswordResets (user_id, token, expires_at, created_at) VALUES (?, ?, ?, GETDATE())";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        String sql = "INSERT INTO PasswordResets (user_id, token, expires_at, created_at) VALUES (?, ?, ?, NOW())";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ps.setString(2, token);
             ps.setTimestamp(3, expiresAt);
@@ -196,9 +186,8 @@ public class UserDAO extends DBContext {
     }
 
     public Integer getUserIdByValidToken(String token) {
-        String sql = "SELECT TOP 1 user_id FROM PasswordResets WHERE token = ? AND expires_at > GETDATE() ORDER BY reset_id DESC";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        String sql = "SELECT user_id FROM PasswordResets WHERE token = ? AND expires_at > NOW() ORDER BY reset_id DESC LIMIT 1";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, token);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -211,10 +200,11 @@ public class UserDAO extends DBContext {
     }
 
     public Integer getUserIdByValidOtp(String email, String otp) {
-        String sql = "SELECT TOP 1 pr.user_id FROM PasswordResets pr JOIN Users u ON pr.user_id = u.user_id "
-                + "WHERE u.email = ? AND pr.token = ? AND pr.expires_at > GETDATE() ORDER BY pr.reset_id DESC";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        String sql = "SELECT pr.user_id FROM PasswordResets pr "
+                + "JOIN Users u ON pr.user_id = u.user_id "
+                + "WHERE u.email = ? AND pr.token = ? AND pr.expires_at > NOW() "
+                + "ORDER BY pr.reset_id DESC LIMIT 1";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ps.setString(2, otp);
             ResultSet rs = ps.executeQuery();
@@ -254,8 +244,7 @@ public class UserDAO extends DBContext {
 
     public void deleteUsedResetTokens(int userId) {
         String sql = "DELETE FROM PasswordResets WHERE user_id = ?";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ps.executeUpdate();
         } catch (SQLException ex) {
@@ -265,27 +254,28 @@ public class UserDAO extends DBContext {
 
     public List<Users> getAllUsers() {
         List<Users> users = new ArrayList<>();
-        String sql = "SELECT user_id, name, email, password, role, status, created_at FROM Users";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
+        String sql = "SELECT * FROM Users";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                users.add(mapResultSetToUser(rs));
+                Users u = mapResultSetToUser(rs);
+                System.out.println("DEBUG USER: " + u.getUser_id() + " - " + u.getName());
+                users.add(u);
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
         return users;
     }
+    
 
     public List<Users> getUsersByPage(int page, int pageSize) {
         List<Users> users = new ArrayList<>();
-        String sql = "SELECT user_id, name, email, password, role, status, created_at FROM Users ORDER BY user_id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-        try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+        String sql = "SELECT user_id, name, email, password, role, status, created_at "
+                + "FROM Users ORDER BY user_id LIMIT ? OFFSET ?";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             int offset = (page - 1) * pageSize;
-            ps.setInt(1, offset);
-            ps.setInt(2, pageSize);
+            ps.setInt(1, pageSize);
+            ps.setInt(2, offset);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 users.add(mapResultSetToUser(rs));
@@ -296,4 +286,3 @@ public class UserDAO extends DBContext {
         return users;
     }
 }
-
