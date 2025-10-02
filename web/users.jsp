@@ -8,15 +8,23 @@
 <h2>Danh sách Users</h2>
 <table border="1" cellpadding="5" cellspacing="0">
     <tr>
-        <th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Password</th>
+        <th>Role</th>
+        <th>Status</th>
+      
     </tr>
     <c:forEach var="u" items="${users}">
         <tr>
-            <td>${u.user_id}</td>
-            <td>${u.name}</td>
-            <td>${u.email}</td>
-            <td>${u.role}</td>
-            <td>${u.status}</td>
+            <td>${u.getUser_id()}</td>
+            <td>${u.getName()}</td>
+            <td>${u.getEmail()}</td>
+            <td>${u.getPassword()}</td>
+            <td>${u.getRole()}</td>
+            <td>${u.getStatus()}</td>
+            
         </tr>
     </c:forEach>
 </table>

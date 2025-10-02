@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import model.Users;
@@ -24,10 +25,14 @@ public class UserDAO {
         user.setUser_id(rs.getInt("user_id"));
         user.setName(rs.getString("name"));
         user.setEmail(rs.getString("email"));
+        user.setPhone(rs.getString("phone"));
         user.setPassword(rs.getString("password"));
+        user.setDate_of_birth(rs.getDate("date_of_birth"));
+        user.setGender(rs.getString("gender"));
+        user.setAvatar(rs.getString("avatar"));
+        user.setAddress(rs.getString("address"));
         user.setRole(rs.getString("role"));
         user.setStatus(rs.getString("status"));
-        user.setCreated_at(rs.getTimestamp("created_at"));
         return user;
     }
 
@@ -46,7 +51,7 @@ public class UserDAO {
     }
 
     public Users getUserByEmail(String email) {
-        String sql = "SELECT user_id, name, email, password, role, status, created_at FROM Users WHERE email = ?";
+        String sql = "SELECT * FROM Users WHERE email = ?";
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
@@ -60,7 +65,7 @@ public class UserDAO {
     }
 
     public Users getUserById(int userId) {
-        String sql = "SELECT user_id, name, email, password, role, status, created_at FROM Users WHERE user_id = ?";
+        String sql = "SELECT * FROM Users WHERE user_id = ?";
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
@@ -74,13 +79,19 @@ public class UserDAO {
     }
 
     public int signup(Users user) {
-        String sql = "INSERT INTO Users (name, email, password, role, status, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
+        String sql = "INSERT INTO Users (name, email, phone, password, date_of_birth, gender, avatar, address, role, status, created_at) "
+                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, user.getName());
             ps.setString(2, user.getEmail());
-            ps.setString(3, user.getPassword());
-            ps.setString(4, user.getRole() == null ? "User" : user.getRole());
-            ps.setString(5, user.getStatus() == null ? "Active" : user.getStatus());
+            ps.setString(3, user.getPhone());
+            ps.setString(4, user.getPassword());
+            ps.setDate(5, user.getDate_of_birth());
+            ps.setString(6, user.getGender());
+            ps.setString(7, user.getAvatar());
+            ps.setString(8, user.getAddress());
+            ps.setString(9, user.getRole() == null ? "User" : user.getRole());
+            ps.setString(10, user.getStatus() == null ? "Active" : user.getStatus());
             int affected = ps.executeUpdate();
             if (affected > 0) {
                 ResultSet keys = ps.getGeneratedKeys();
@@ -95,8 +106,7 @@ public class UserDAO {
     }
 
     public Users signin(String email, String password) {
-        String sql = "SELECT user_id, name, email, password, role, status, created_at "
-                + "FROM Users WHERE email = ? AND password = ? AND status = 'Active'";
+        String sql = "SELECT * FROM Users WHERE email = ? AND password = ? AND status = 'Active'";
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ps.setString(2, password);
@@ -111,13 +121,18 @@ public class UserDAO {
     }
 
     public boolean updateProfile(Users user) {
-        String sql = "UPDATE Users SET name = ?, email = ?, role = ?, status = ? WHERE user_id = ?";
+        String sql = "UPDATE Users SET name = ?, email = ?, phone = ?, date_of_birth = ?, gender = ?, avatar = ?, address = ?, role = ?, status = ? WHERE user_id = ?";
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getName());
             ps.setString(2, user.getEmail());
-            ps.setString(3, user.getRole());
-            ps.setString(4, user.getStatus());
-            ps.setInt(5, user.getUser_id());
+            ps.setString(3, user.getPhone());
+            ps.setDate(4, user.getDate_of_birth());
+            ps.setString(5, user.getGender());
+            ps.setString(6, user.getAvatar());
+            ps.setString(7, user.getAddress());
+            ps.setString(8, user.getRole());
+            ps.setString(9, user.getStatus());
+            ps.setInt(10, user.getUser_id());
             return ps.executeUpdate() > 0;
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -149,6 +164,8 @@ public class UserDAO {
         return false;
     }
 
+    // --- phần reset password giữ nguyên vì không phụ thuộc schema Users ---
+
     public boolean requestPasswordReset(String email) {
         lastErrorMessage = null;
         Users user = getUserByEmail(email);
@@ -156,9 +173,8 @@ public class UserDAO {
             lastErrorMessage = "Email không tồn tại trong hệ thống";
             return false;
         }
-        // Generate 6-digit OTP
         String token = String.format("%06d", (int) (Math.random() * 1_000_000));
-        Timestamp expiresAt = new Timestamp(System.currentTimeMillis() + 10 * 60 * 1000); // 10 minutes
+        Timestamp expiresAt = new Timestamp(System.currentTimeMillis() + 10 * 60 * 1000);
         boolean stored = storePasswordResetToken(user.getUser_id(), token, expiresAt);
         if (!stored) {
             lastErrorMessage = "Không thể lưu mã đặt lại mật khẩu (token)";
@@ -201,9 +217,9 @@ public class UserDAO {
 
     public Integer getUserIdByValidOtp(String email, String otp) {
         String sql = "SELECT pr.user_id FROM PasswordResets pr "
-                + "JOIN Users u ON pr.user_id = u.user_id "
-                + "WHERE u.email = ? AND pr.token = ? AND pr.expires_at > NOW() "
-                + "ORDER BY pr.reset_id DESC LIMIT 1";
+                   + "JOIN Users u ON pr.user_id = u.user_id "
+                   + "WHERE u.email = ? AND pr.token = ? AND pr.expires_at > NOW() "
+                   + "ORDER BY pr.reset_id DESC LIMIT 1";
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ps.setString(2, otp);
@@ -257,21 +273,17 @@ public class UserDAO {
         String sql = "SELECT * FROM Users";
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                Users u = mapResultSetToUser(rs);
-                System.out.println("DEBUG USER: " + u.getUser_id() + " - " + u.getName());
-                users.add(u);
+                users.add(mapResultSetToUser(rs));
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
         return users;
     }
-    
 
     public List<Users> getUsersByPage(int page, int pageSize) {
         List<Users> users = new ArrayList<>();
-        String sql = "SELECT user_id, name, email, password, role, status, created_at "
-                + "FROM Users ORDER BY user_id LIMIT ? OFFSET ?";
+        String sql = "SELECT * FROM Users ORDER BY user_id LIMIT ? OFFSET ?";
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             int offset = (page - 1) * pageSize;
             ps.setInt(1, pageSize);

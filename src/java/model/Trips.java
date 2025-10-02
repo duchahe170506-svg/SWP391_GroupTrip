@@ -5,46 +5,46 @@ import java.sql.Date;
 import java.sql.Timestamp;
 
 public class Trips {
-
-    private int trip_id;
-    private int group_id;
+    private int tripId;
+    private int groupId;
     private String name;
     private String location;
-    private Date start_date;
-    private Date end_date;
+    private Date startDate;
+    private Date endDate;
     private BigDecimal budget;
     private String status;
-    private Timestamp created_at;
+    private Timestamp createdAt;
+    
 
     public Trips() {
     }
 
-    public Trips(int trip_id, int group_id, String name, String location, Date start_date, Date end_date, BigDecimal budget, String status, Timestamp created_at) {
-        this.trip_id = trip_id;
-        this.group_id = group_id;
+    public Trips(int tripId, int groupId, String name, String location, Date startDate, Date endDate, BigDecimal budget, String status, Timestamp createdAt) {
+        this.tripId = tripId;
+        this.groupId = groupId;
         this.name = name;
         this.location = location;
-        this.start_date = start_date;
-        this.end_date = end_date;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.budget = budget;
         this.status = status;
-        this.created_at = created_at;
+        this.createdAt = createdAt;
     }
 
-    public int getTrip_id() {
-        return trip_id;
+    public int getTripId() {
+        return tripId;
     }
 
-    public void setTrip_id(int trip_id) {
-        this.trip_id = trip_id;
+    public void setTripId(int tripId) {
+        this.tripId = tripId;
     }
 
-    public int getGroup_id() {
-        return group_id;
+    public int getGroupId() {
+        return groupId;
     }
 
-    public void setGroup_id(int group_id) {
-        this.group_id = group_id;
+    public void setGroupId(int groupId) {
+        this.groupId = groupId;
     }
 
     public String getName() {
@@ -63,20 +63,20 @@ public class Trips {
         this.location = location;
     }
 
-    public Date getStart_date() {
-        return start_date;
+    public Date getStartDate() {
+        return startDate;
     }
 
-    public void setStart_date(Date start_date) {
-        this.start_date = start_date;
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 
-    public Date getEnd_date() {
-        return end_date;
+    public Date getEndDate() {
+        return endDate;
     }
 
-    public void setEnd_date(Date end_date) {
-        this.end_date = end_date;
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
     public BigDecimal getBudget() {
@@ -95,18 +95,11 @@ public class Trips {
         this.status = status;
     }
 
-    public Timestamp getCreated_at() {
-        return created_at;
+    public Timestamp getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreated_at(Timestamp created_at) {
-        this.created_at = created_at;
-    }
-
-    @Override
-    public String toString() {
-        return "Trips{" + "trip_id=" + trip_id + ", group_id=" + group_id + ", name=" + name + ", location=" + location + ", start_date=" + start_date + ", end_date=" + end_date + ", budget=" + budget + ", status=" + status + ", created_at=" + created_at + '}';
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
     }
 }
-
-

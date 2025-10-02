@@ -1,5 +1,6 @@
 package model;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 
 public class Users {
@@ -7,33 +8,32 @@ public class Users {
     private int user_id;
     private String name;
     private String email;
+    private String phone;
     private String password;
+    private Date date_of_birth;
+    private String gender;
+    private String avatar;
+    private String address;
     private String role;
     private String status;
-    private Timestamp created_at;
+    
 
     public Users() {
     }
-
-    public Users(int user_id, String name, String email, String password, String role, String status) {
+    
+    public Users(int user_id, String name, String email, String phone, String password, Date date_of_birth,
+                 String gender, String avatar, String address, String role, String status) {
         this.user_id = user_id;
         this.name = name;
         this.email = email;
+        this.phone = phone;
         this.password = password;
+        this.date_of_birth = date_of_birth;
+        this.gender = gender;
+        this.avatar = avatar;
+        this.address = address;
         this.role = role;
         this.status = status;
-    }
-
-    
-    
-    public Users(int user_id, String name, String email, String password, String role, String status, Timestamp created_at) {
-        this.user_id = user_id;
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.status = status;
-        this.created_at = created_at;
     }
 
     public int getUser_id() {
@@ -60,12 +60,52 @@ public class Users {
         this.email = email;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Date getDate_of_birth() {
+        return date_of_birth;
+    }
+
+    public void setDate_of_birth(Date date_of_birth) {
+        this.date_of_birth = date_of_birth;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public String getRole() {
@@ -84,16 +124,21 @@ public class Users {
         this.status = status;
     }
 
-    public Timestamp getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(Timestamp created_at) {
-        this.created_at = created_at;
-    }
 
     @Override
     public String toString() {
-        return "Users{" + "user_id=" + user_id + ", name=" + name + ", email=" + email + ", password=" + password + ", role=" + role + ", status=" + status + ", created_at=" + created_at + '}';
+        return "Users{" +
+                "user_id=" + user_id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", password='" + password + '\'' +
+                ", date_of_birth=" + date_of_birth +
+                ", gender='" + gender + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", address='" + address + '\'' +
+                ", role='" + role + '\'' +
+                ", status='" + status + '\'' +
+                '}';
     }
 }
