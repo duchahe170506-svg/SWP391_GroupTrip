@@ -27,7 +27,6 @@ public class UserDAO {
         user.setPassword(rs.getString("password"));
         user.setRole(rs.getString("role"));
         user.setStatus(rs.getString("status"));
-        user.setCreated_at(rs.getTimestamp("created_at"));
         return user;
     }
 

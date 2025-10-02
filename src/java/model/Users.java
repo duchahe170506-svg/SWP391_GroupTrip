@@ -10,7 +10,6 @@ public class Users {
     private String password;
     private String role;
     private String status;
-    private Timestamp created_at;
 
     public Users() {
     }
@@ -33,7 +32,7 @@ public class Users {
         this.password = password;
         this.role = role;
         this.status = status;
-        this.created_at = created_at;
+
     }
 
     public int getUser_id() {
@@ -84,16 +83,8 @@ public class Users {
         this.status = status;
     }
 
-    public Timestamp getCreated_at() {
-        return created_at;
-    }
-
-    public void setCreated_at(Timestamp created_at) {
-        this.created_at = created_at;
-    }
-
     @Override
     public String toString() {
-        return "Users{" + "user_id=" + user_id + ", name=" + name + ", email=" + email + ", password=" + password + ", role=" + role + ", status=" + status + ", created_at=" + created_at + '}';
+        return "Users{" + "user_id=" + user_id + ", name=" + name + ", email=" + email + ", password=" + password + ", role=" + role + ", status=" + status + ", created_at=" + '}';
     }
 }
