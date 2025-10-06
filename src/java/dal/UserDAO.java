@@ -79,8 +79,8 @@ public class UserDAO {
     }
 
     public int signup(Users user) {
-        String sql = "INSERT INTO Users (name, email, phone, password, date_of_birth, gender, avatar, address, role, status, created_at) "
-                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+        String sql = "INSERT INTO Users (name, email, phone, password, date_of_birth, gender, avatar, address, role, status) "
+                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, user.getName());
             ps.setString(2, user.getEmail());
@@ -296,5 +296,13 @@ public class UserDAO {
             ex.printStackTrace();
         }
         return users;
+    }
+    
+    public static void main(String[] args) {
+        UserDAO ud = new UserDAO();
+        Users u = (Users) ud.getUserById(1);
+        u.setName("NguyenVanABC");
+        ud.updateProfile(u);
+        System.out.println(u.toString());
     }
 }
