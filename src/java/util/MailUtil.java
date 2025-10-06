@@ -94,5 +94,23 @@ public class MailUtil {
                 + "</div>";
         return sendHtml(toEmail, subject, html);
     }
-}
 
+    public static boolean sendEmail(String to, String subject, String body) {
+        try {
+            Session session = createSession();
+            MimeMessage message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(FROM_EMAIL));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
+            message.setSubject(subject, "UTF-8");
+            message.setText(body, "UTF-8");
+            message.setSentDate(new Date());
+
+            Transport.send(message);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+}

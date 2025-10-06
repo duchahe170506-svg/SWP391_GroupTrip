@@ -297,4 +297,28 @@ public class UserDAO {
         }
         return users;
     }
+    
+    public Users getGroupLeader(int groupId) {
+    String sql = "SELECT u.* FROM GroupMembers gm " +
+                 "JOIN Users u ON gm.user_id = u.user_id " +
+                 "WHERE gm.group_id = ? AND gm.role = 'Leader' LIMIT 1";
+    try (Connection conn = DBConnect.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, groupId);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                Users leader = new Users();
+                leader.setUser_id(rs.getInt("user_id"));
+                leader.setName(rs.getString("name"));
+                leader.setEmail(rs.getString("email"));
+                leader.setPassword(rs.getString("password"));
+                return leader;
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+
 }

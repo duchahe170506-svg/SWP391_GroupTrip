@@ -1,36 +1,43 @@
 package model;
 
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.Timestamp;
+import java.util.Date;
 
 public class Trips {
     private int tripId;
     private int groupId;
     private String name;
+    private String description;
     private String location;
     private Date startDate;
     private Date endDate;
     private BigDecimal budget;
-    private String status;
-    private Timestamp createdAt;
-    
+    private String coverImage;
+    private String tripType;   // "Du lịch nghỉ dưỡng", "Foodtour", ...
+    private String status;     // Active / Blocked
+    private Date createdAt;
 
-    public Trips() {
-    }
+    // Constructors
+    public Trips() {}
 
-    public Trips(int tripId, int groupId, String name, String location, Date startDate, Date endDate, BigDecimal budget, String status, Timestamp createdAt) {
+    public Trips(int tripId, int groupId, String name, String description, String location,
+                 Date startDate, Date endDate, BigDecimal budget, String coverImage,
+                 String tripType, String status, Date createdAt) {
         this.tripId = tripId;
         this.groupId = groupId;
         this.name = name;
+        this.description = description;
         this.location = location;
         this.startDate = startDate;
         this.endDate = endDate;
         this.budget = budget;
+        this.coverImage = coverImage;
+        this.tripType = tripType;
         this.status = status;
         this.createdAt = createdAt;
     }
 
+    // Getters and Setters
     public int getTripId() {
         return tripId;
     }
@@ -53,6 +60,14 @@ public class Trips {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getLocation() {
@@ -87,6 +102,22 @@ public class Trips {
         this.budget = budget;
     }
 
+    public String getCoverImage() {
+        return coverImage;
+    }
+
+    public void setCoverImage(String coverImage) {
+        this.coverImage = coverImage;
+    }
+
+    public String getTripType() {
+        return tripType;
+    }
+
+    public void setTripType(String tripType) {
+        this.tripType = tripType;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -95,11 +126,11 @@ public class Trips {
         this.status = status;
     }
 
-    public Timestamp getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 }

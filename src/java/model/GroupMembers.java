@@ -8,6 +8,9 @@ public class GroupMembers {
     private int user_id;
     private String role;
     private Timestamp joined_at;
+    
+    private String name;
+    private String email;
 
     public GroupMembers() {
     }
@@ -17,6 +20,15 @@ public class GroupMembers {
         this.user_id = user_id;
         this.role = role;
         this.joined_at = joined_at;
+    }
+
+    public GroupMembers(int group_id, int user_id, String role, Timestamp joined_at, String name, String email) {
+        this.group_id = group_id;
+        this.user_id = user_id;
+        this.role = role;
+        this.joined_at = joined_at;
+        this.name = name;
+        this.email = email;
     }
 
     public int getGroup_id() {
@@ -51,6 +63,24 @@ public class GroupMembers {
         this.joined_at = joined_at;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    
+    
     @Override
     public String toString() {
         return "GroupMembers{" + "group_id=" + group_id + ", user_id=" + user_id + ", role=" + role + ", joined_at=" + joined_at + '}';
