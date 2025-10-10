@@ -1,3 +1,6 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
 <html>
 
@@ -307,6 +310,147 @@
             </div>
         </div>
     </div>
+
+    <header id="header">
+        <nav class="header-top py-1">
+            <div class="container">
+                <div class="d-flex flex-wrap justify-content-between align-items-center text-white">
+                    <div class="newsletter"><a href="#">
+                            <svg class="me-1" width="18" height="18">
+                            <use xlink:href="#mail"></use>
+                            </svg>
+                        </a>
+                        NEWSLETTER
+                    </div>
+                    <ul class="social-links text-white d-flex flex-wrap list-unstyled m-0">
+                        <li class="social">
+                            <a href="#">
+                                <svg class="me-1" width="16" height="16">
+                                <use xlink:href="#facebook"></use>
+                                </svg>
+                            </a>
+                        </li>
+                        <li class="social ms-4">
+                            <a href="#">
+                                <svg class="me-1" width="16" height="16">
+                                <use xlink:href="#twitter"></use>
+                                </svg>
+                            </a>
+                        </li>
+                        <li class="social ms-4">
+                            <a href="#">
+                                <svg class="me-1" width="16" height="16">
+                                <use xlink:href="#pinterest"></use>
+                                </svg>
+                            </a>
+                        </li>
+                        <li class="social ms-4">
+                            <a href="#">
+                                <svg class="me-1" width="16" height="16">
+                                <use xlink:href="#instagram"></use>
+                                </svg>
+                            </a>
+                        </li>
+                        <li class="social ms-4">
+                            <a href="#">
+                                <svg class="me-1" width="16" height="16">
+                                <use xlink:href="#youtube"></use>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </nav>
+        <nav class="logo text-center my-2">
+            <div class="container ">
+                <a href="index.jsp"> <img src="images/logo.png" alt="logo" width="200"></a>
+            </div>
+
+        </nav>
+        <nav id="primary-header " class="navbar navbar-expand-lg py-2 border-top">
+
+            <div class="container ">
+
+                <button class="navbar-toggler border-0 d-flex d-lg-none order-3 p-2 shadow-none" type="button"
+                        data-bs-toggle="offcanvas" data-bs-target="#bdNavbar" aria-controls="bdNavbar" aria-expanded="false">
+                    <svg class="navbar-icon" width="60" height="60">
+                    <use xlink:href="#navbar-icon"></use>
+                    </svg>
+                </button>
+                <div class="header-bottom offcanvas offcanvas-end" id="bdNavbar" aria-labelledby="bdNavbarOffcanvasLabel">
+                    <div class="offcanvas-header px-4 pb-0">
+                        <button type="button" class="btn-close btn-close-black mt-2" data-bs-dismiss="offcanvas" aria-label="Close"
+                                data-bs-target="#bdNavbar"></button>
+                    </div>
+                    <div class="offcanvas-body align-items-center justify-content-center">
+                        <ul class="navbar-nav align-items-center mb-2 mb-lg-0">
+                            <li class="nav-item px-3">
+                                <a class="nav-link active p-0" aria-current="page" href="index.jsp">Home</a>
+                            </li>
+                            <li class="nav-item px-3">
+                                <a class="nav-link p-0" href="index.jsp">List Trip</a>
+                            </li>
+                            <li class="nav-item px-3">
+                                <a class="nav-link p-0" href="index.jsp">My Trip</a>
+                            </li>
+                            <li class="nav-item px-3">
+                                <a class="nav-link p-0" href="gallery.html">About Us</a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+                <div class="nav-icon">
+                    <ul class="list-unstyled d-flex justify-content-between align-items-center m-0">
+                        <c:if test="${not empty sessionScope.currentUser}">
+                            <li class="nav-icons pe-3 d-flex align-items-center text-black">
+                                <span>Welcome, ${sessionScope.currentUser.name}!</span>
+                            </li>
+                            <li class="nav-icons pe-3">
+                                <a href="/group-trip/login">
+                                    <svg class="me-1" width="16" height="16">
+                                    <use xlink:href="#user"></use>
+                                    </svg>
+                                </a>
+                            </li>
+                            <li class="nav-icons search-item pe-3">
+                                <a href="#" class="search-button">
+                                    <svg class="me-1" width="16" height="16">
+                                    <use xlink:href="#search"></use>
+                                    </svg>
+                                </a>
+                            </li>
+                            <li class="nav-icons pe-3">
+                                <a href="/group-trip/logout" class="text-black">LOGOUT</a>
+                            </li>
+                        </c:if>
+
+                        <!-- Nếu chưa đăng nhập -->
+                        <c:if test="${empty sessionScope.currentUser}">
+                            <li class="nav-icons pe-3">
+                                <a href="/group-trip/login">
+                                    <svg class="me-1" width="16" height="16">
+                                    <use xlink:href="#user"></use>
+                                    </svg>
+                                </a>
+                            </li>
+
+                            <li class="nav-icons search-item pe-3">
+                                <a href="#" class="search-button">
+                                    <svg class="me-1" width="16" height="16">
+                                    <use xlink:href="#search"></use>
+                                    </svg>
+                                </a>
+                            </li>
+                        </c:if>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
     <section id="slider">
         <div class="swiper slider position-relative">
             <div class="swiper-wrapper">
@@ -747,6 +891,16 @@
                 </div>
 
             </div>
+
+        </footer>
+    </div>
+
+
+    <div class="container">
+        <footer class=" align-items-center text-center py-2">
+            © 2024 TravelMile - All rights reserved
+            Free Website Template:<a href="https://templatesjungle.com/" class="text-decoration-underline"
+                                     target="_blank">TemplatesJungle</a></p>
 
         </footer>
     </div>
