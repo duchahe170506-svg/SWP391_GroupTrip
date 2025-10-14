@@ -24,7 +24,7 @@ public class JoinTripServlet extends HttpServlet {
             throws ServletException, IOException {
 
         int tripId = Integer.parseInt(request.getParameter("id"));
-        int userId = 13; // giả sử user đang login
+        int userId = 4; // giả sử user đang login
 
         // Kiểm tra số lần request
         int count = joinDAO.countRequestByUser(tripId, userId);

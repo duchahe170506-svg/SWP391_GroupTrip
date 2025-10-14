@@ -8,6 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import model.GroupJoinRequests;
 import model.Groups;
@@ -20,8 +21,8 @@ public class GroupJoinRequestsServlet extends HttpServlet {
     private GroupJoinRequestDAO requestDAO = new GroupJoinRequestDAO();
     private GroupMembersDAO memberDAO = new GroupMembersDAO();
     private UserDAO userDAO = new UserDAO();
-    private TravelGroupsDAO travelGroupsDAO= new TravelGroupsDAO();
-    private GroupMembersDAO groupMembersDAO= new GroupMembersDAO();
+    private TravelGroupsDAO travelGroupsDAO = new TravelGroupsDAO();
+    private GroupMembersDAO groupMembersDAO = new GroupMembersDAO();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -29,6 +30,17 @@ public class GroupJoinRequestsServlet extends HttpServlet {
         List<GroupJoinRequests> requests = requestDAO.getRequestsByGroup(groupId);
         req.setAttribute("requests", requests);
         req.setAttribute("groupId", groupId);
+
+        List<Users> userList = new ArrayList<>();
+
+        for (GroupJoinRequests r : requests) {
+            Users u = userDAO.getUserById(r.getUser_id());
+            if (u != null && !userList.contains(u)) {
+                userList.add(u);
+            }
+        }
+
+        req.setAttribute("userList", userList);
         req.getRequestDispatcher("/views/join-requests.jsp").forward(req, resp);
     }
 
@@ -38,7 +50,7 @@ public class GroupJoinRequestsServlet extends HttpServlet {
         int groupId = Integer.parseInt(req.getParameter("groupId"));
         String action = req.getParameter("action");
 
-        int reviewedBy = 14; // fix cứng leader đang login giả định
+        int reviewedBy = 1; // fix cứng leader đang login giả định
 
         GroupJoinRequests request = requestDAO.getRequestById(requestId);
         if (request == null) {

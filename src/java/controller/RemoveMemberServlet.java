@@ -1,60 +1,43 @@
+package controller;
 
-import dal.GroupMembersDAO;
-import dal.UserDAO;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
 import java.io.IOException;
-import model.Users;
-import util.MailUtil;
+import dal.GroupMembersDAO;
+import jakarta.servlet.annotation.WebServlet;
 
 @WebServlet("/group/remove-member")
 public class RemoveMemberServlet extends HttpServlet {
-
     private GroupMembersDAO memberDAO = new GroupMembersDAO();
-    private UserDAO userDAO = new UserDAO();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String userIdParam = req.getParameter("userId");
-        if(userIdParam == null || userIdParam.isEmpty()) {
-            resp.sendRedirect("manage?groupId=5");
-            return;
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            int groupId = 8;
+            int userId = 13;
+            int removedBy = 14;
+            String reason = request.getParameter("reason");
+
+            boolean ok = memberDAO.removeMember(groupId, userId, removedBy, reason);
+
+            if (ok) {
+                request.setAttribute("success", "Đã xóa thành viên thành công");
+            } else {
+                request.setAttribute("error", "Không thể xóa thành viên");
+            }
+
+            // load lại danh sách members
+            request.setAttribute("members", memberDAO.getMembersByGroup(groupId));
+            request.setAttribute("groupId", groupId);
+
+            // forward về lại trang quản lý nhóm
+            request.getRequestDispatcher("/views/group-manage.jsp").forward(request, response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi: " + e.getMessage());
+            request.getRequestDispatcher("/views/group-manage.jsp").forward(request, response);
         }
-
-        int groupId = 5;
-        int userId = Integer.parseInt(userIdParam);
-
-        int leaderId = 14; // cứng
-
-        // Chỉ leader mới xóa được
-        if(leaderId != 14) {
-            resp.sendRedirect("manage?groupId=" + groupId);
-            return;
-        }
-
-        // Không xóa leader gốc
-        if(!memberDAO.isGroupCreator(groupId, userId)) {
-            // Lấy thông tin member và leader trước khi xóa
-            Users member = userDAO.getUserById(userId);
-            Users leader = userDAO.getUserById(leaderId);
-            String groupName = memberDAO.getGroupName(groupId);
-
-            // Xóa member
-            memberDAO.removeMember(groupId, userId);
-
-            // Gửi mail thông báo cho member
-            String subject = "Bạn đã bị xóa khỏi nhóm " + groupName;
-            String body = "Xin chào " + member.getName() + ",\n\n"
-                    + "Bạn đã bị xóa khỏi nhóm \"" + groupName + "\" bởi " + leader.getName() + ".\n\n"
-                    + "Cảm ơn bạn đã tham gia và hy vọng gặp lại trong các chuyến đi khác.\n\n"
-                    + "Trân trọng,\nGroupTrip Team";
-
-            MailUtil.sendEmail(member.getEmail(), subject, body);
-        }
-
-        resp.sendRedirect("manage?groupId=" + groupId);
     }
 }

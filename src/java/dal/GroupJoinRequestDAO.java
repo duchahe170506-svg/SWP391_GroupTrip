@@ -1,5 +1,6 @@
 package dal;
 
+import static dal.DBConnect.getConnection;
 import java.sql.*;
 
 import java.sql.Connection;

@@ -58,6 +58,20 @@
                        value="<c:out value='${form_location}'/>" placeholder="Đà Nẵng, Quảng Nam, Thừa Thiên Huế"/>
             </div>
 
+            <!-- 🟩 Địa điểm tập trung -->
+            <div>
+                <label for="meeting_point">📍 Địa điểm tập trung</label>
+                <input type="text" id="meeting_point" name="meeting_point"
+                       value="<c:out value='${form_meeting_point}'/>" placeholder="VD: Cổng trường Đại học FPT Cần Thơ"/>
+            </div>
+
+            <!-- 🟩 Số người tối thiểu -->
+            <div>
+                <label for="min_participants">👥 Số người tối thiểu</label>
+                <input type="number" id="min_participants" name="min_participants" min="1"
+                       value="<c:out value='${form_minParticipants}'/>" placeholder="VD: 5"/>
+            </div>
+
             <!-- Ngày đi -->
             <div>
                 <label for="startDate">Ngày đi</label>
@@ -80,20 +94,26 @@
             </div>
 
             <!-- Ảnh cover -->
-<div>
-    <label for="coverImage">Ảnh bìa (URL)</label>
-    <input type="text" id="coverImage" name="coverImage"
-           value="<c:out value='${form_coverImage}'/>" placeholder="https://.../cover.jpg"/>
-</div>
+            <div>
+                <label for="coverImage">Ảnh bìa (URL)</label>
+                <input type="text" id="coverImage" name="coverImage"
+                       value="<c:out value='${form_coverImage}'/>" placeholder="https://.../cover.jpg"/>
+            </div>
 
-<!-- Ảnh phụ -->
-<div class="full">
-    <label>Ảnh chi tiết (tối đa 3 URL)</label>
-    <input type="text" name="image1" placeholder="https://.../img1.jpg" value="${form_image1}"/>
-    <input type="text" name="image2" placeholder="https://.../img2.jpg" value="${form_image2}"/>
-    <input type="text" name="image3" placeholder="https://.../img3.jpg" value="${form_image3}"/>
-</div>
+            <!-- Số người tối đa -->
+            <div>
+                <label for="maxParticipants">Số người tham gia tối đa</label>
+                <input type="number" id="maxParticipants" name="maxParticipants" min="1"
+                       value="<c:out value='${form_maxParticipants}'/>" placeholder="VD: 10"/>
+            </div>
 
+            <!-- Ảnh phụ -->
+            <div class="full">
+                <label>Ảnh chi tiết (tối đa 3 URL)</label>
+                <input type="text" name="image1" placeholder="https://.../img1.jpg" value="${form_image1}"/>
+                <input type="text" name="image2" placeholder="https://.../img2.jpg" value="${form_image2}"/>
+                <input type="text" name="image3" placeholder="https://.../img3.jpg" value="${form_image3}"/>
+            </div>
 
             <!-- Loại chuyến đi -->
             <div>
@@ -117,6 +137,7 @@
                     <c:set var="s" value="${empty form_status ? 'Active' : form_status}"/>
                     <option value="Active"  ${s=='Active' ? 'selected' : ''}>Active</option>
                     <option value="Blocked" ${s=='Blocked' ? 'selected' : ''}>Blocked</option>
+                    <option value="Private" ${s=='Private' ? 'selected' : ''}>Private</option>
                 </select>
             </div>
 

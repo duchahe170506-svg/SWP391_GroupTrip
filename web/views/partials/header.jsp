@@ -16,16 +16,16 @@
         <meta name="keywords" content="">
         <meta name="description" content="">
         <!--Bootstrap ================================================== -->
-        <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/css/bootstrap.min.css">
 
         <!--vendor css ================================================== -->
-        <link rel="stylesheet" type="text/css" href="assets/css/vendor.css">
+        <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/css/vendor.css">
 
         <!--Link Swiper's CSS ================================================== -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
 
         <!-- Style Sheet ================================================== -->
-        <link rel="stylesheet" type="text/css" href="assets/style.css">
+        <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/assets/style.css">
 
         <!-- Google Fonts ================================================== -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -162,7 +162,7 @@
         </nav>
         <nav class="logo text-center my-2">
             <div class="container ">
-                <a href="index.jsp"> <img src="images/logo.png" alt="logo" width="200"></a>
+                <a href="index.jsp"> <img src="${pageContext.request.contextPath}/images/logo.png" alt="logo" width="200"></a>
             </div>
 
         </nav>
@@ -183,14 +183,14 @@
                     </div>
                     <div class="offcanvas-body align-items-center justify-content-center">
                         <ul class="navbar-nav align-items-center mb-2 mb-lg-0">
-                            <li class="nav-item px-3">
-                                <a class="nav-link active p-0" aria-current="page" href="index.jsp">Home</a>
+                           <li class="nav-item px-3">
+                                <a class="nav-link active p-0" aria-current="page" href="${pageContext.request.contextPath}/index.html">Home</a>
                             </li>
                             <li class="nav-item px-3">
-                                <a class="nav-link p-0" href="index.jsp">List Trip</a>
+                                <a class="nav-link p-0" href="${pageContext.request.contextPath}/trips">List Trip</a>
                             </li>
                             <li class="nav-item px-3">
-                                <a class="nav-link p-0" href="index.jsp">My Trip</a>
+                                <a class="nav-link p-0" href="${pageContext.request.contextPath}/mytrips">My Trip</a>
                             </li>
                             <li class="nav-item px-3">
                                 <a class="nav-link p-0" href="gallery.html">About Us</a>
@@ -247,10 +247,10 @@
             </div>
         </nav>
     </header>
-    <script src="assets/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="assets/js/bootstrap.bundle.min.js"></script>
-    <script type="text/javascript" src="assets/js/plugins.js"></script>
+    <script src="${pageContext.request.contextPath}/assets/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="${pageContext.request.contextPath}/assets/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="${pageContext.request.contextPath}/assets/js/plugins.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
-    <script type="text/javascript" src="assets/js/script.js"></script>
+    <script type="text/javascript" src="${pageContext.request.contextPath}/assets/js/script.js"></script>
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
 </html>

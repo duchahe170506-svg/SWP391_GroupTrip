@@ -22,12 +22,11 @@ public class GroupManageServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        
-        int groupId = 5;
 
+        int groupId = Integer.parseInt(req.getParameter("groupId"));
+        
         // danh sách thành viên
         List<GroupMembers> members = memberDAO.getMembersByGroup(groupId);
-
 
         // đếm số yêu cầu join chưa duyệt
         List<GroupJoinRequests> requests = requestDAO.getRequestsByGroup(groupId);

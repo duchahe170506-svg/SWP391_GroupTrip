@@ -1,3 +1,4 @@
+
 package dal;
 
 import model.TripImages;
@@ -44,3 +45,4 @@ public class TripImagesDAO {
         return list;
     }
 }
+

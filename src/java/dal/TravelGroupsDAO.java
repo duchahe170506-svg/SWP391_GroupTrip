@@ -1,3 +1,4 @@
+
 package dal;
 
 import java.sql.*;
@@ -26,7 +27,7 @@ public class TravelGroupsDAO {
         }
         return -1;
     }
-
+    
     public Groups getGroupById(int groupId) {
         String sql = "SELECT * FROM TravelGroups WHERE group_id = ?";
         try (Connection conn = DBConnect.getConnection();
@@ -47,5 +48,4 @@ public class TravelGroupsDAO {
         }
         return null;
     }
-
 }
