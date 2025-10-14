@@ -1,50 +1,64 @@
 package model;
 
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.Timestamp;
+import java.util.Date;
 
 public class Trips {
-
-    private int trip_id;
-    private int group_id;
+    private int tripId;
+    private int groupId;
     private String name;
+    private String description;
     private String location;
-    private Date start_date;
-    private Date end_date;
+    private String meeting_point;     // 🆕 Địa điểm tập trung
+    private Date startDate;
+    private Date endDate;
     private BigDecimal budget;
-    private String status;
-    private Timestamp created_at;
+    private String coverImage;
+    private int min_participants;     // 🆕 Số người tối thiểu
+    private int max_participants;
+    private String tripType;          // "Du lịch nghỉ dưỡng", "Foodtour", ...
+    private String status;            // Active / Blocked / Private
+    private Date createdAt;
 
     public Trips() {
     }
 
-    public Trips(int trip_id, int group_id, String name, String location, Date start_date, Date end_date, BigDecimal budget, String status, Timestamp created_at) {
-        this.trip_id = trip_id;
-        this.group_id = group_id;
+    public Trips(int tripId, int groupId, String name, String description, String location,
+                 String meeting_point, Date startDate, Date endDate,
+                 BigDecimal budget, String coverImage,
+                 int min_participants, int max_participants,
+                 String tripType, String status, Date createdAt) {
+        this.tripId = tripId;
+        this.groupId = groupId;
         this.name = name;
+        this.description = description;
         this.location = location;
-        this.start_date = start_date;
-        this.end_date = end_date;
+        this.meeting_point = meeting_point;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.budget = budget;
+        this.coverImage = coverImage;
+        this.min_participants = min_participants;
+        this.max_participants = max_participants;
+        this.tripType = tripType;
         this.status = status;
-        this.created_at = created_at;
+        this.createdAt = createdAt;
     }
 
-    public int getTrip_id() {
-        return trip_id;
+    public int getTripId() {
+        return tripId;
     }
 
-    public void setTrip_id(int trip_id) {
-        this.trip_id = trip_id;
+    public void setTripId(int tripId) {
+        this.tripId = tripId;
     }
 
-    public int getGroup_id() {
-        return group_id;
+    public int getGroupId() {
+        return groupId;
     }
 
-    public void setGroup_id(int group_id) {
-        this.group_id = group_id;
+    public void setGroupId(int groupId) {
+        this.groupId = groupId;
     }
 
     public String getName() {
@@ -55,6 +69,14 @@ public class Trips {
         this.name = name;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public String getLocation() {
         return location;
     }
@@ -63,20 +85,28 @@ public class Trips {
         this.location = location;
     }
 
-    public Date getStart_date() {
-        return start_date;
+    public String getMeeting_point() {
+        return meeting_point;
     }
 
-    public void setStart_date(Date start_date) {
-        this.start_date = start_date;
+    public void setMeeting_point(String meeting_point) {
+        this.meeting_point = meeting_point;
     }
 
-    public Date getEnd_date() {
-        return end_date;
+    public Date getStartDate() {
+        return startDate;
     }
 
-    public void setEnd_date(Date end_date) {
-        this.end_date = end_date;
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
     public BigDecimal getBudget() {
@@ -87,6 +117,38 @@ public class Trips {
         this.budget = budget;
     }
 
+    public String getCoverImage() {
+        return coverImage;
+    }
+
+    public void setCoverImage(String coverImage) {
+        this.coverImage = coverImage;
+    }
+
+    public int getMin_participants() {
+        return min_participants;
+    }
+
+    public void setMin_participants(int min_participants) {
+        this.min_participants = min_participants;
+    }
+
+    public int getMax_participants() {
+        return max_participants;
+    }
+
+    public void setMax_participants(int max_participants) {
+        this.max_participants = max_participants;
+    }
+
+    public String getTripType() {
+        return tripType;
+    }
+
+    public void setTripType(String tripType) {
+        this.tripType = tripType;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -95,18 +157,32 @@ public class Trips {
         this.status = status;
     }
 
-    public Timestamp getCreated_at() {
-        return created_at;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreated_at(Timestamp created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override
     public String toString() {
-        return "Trips{" + "trip_id=" + trip_id + ", group_id=" + group_id + ", name=" + name + ", location=" + location + ", start_date=" + start_date + ", end_date=" + end_date + ", budget=" + budget + ", status=" + status + ", created_at=" + created_at + '}';
+        return "Trips{" +
+                "tripId=" + tripId +
+                ", groupId=" + groupId +
+                ", name=" + name +
+                ", description=" + description +
+                ", location=" + location +
+                ", meeting_point=" + meeting_point +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", budget=" + budget +
+                ", coverImage=" + coverImage +
+                ", min_participants=" + min_participants +
+                ", max_participants=" + max_participants +
+                ", tripType=" + tripType +
+                ", status=" + status +
+                ", createdAt=" + createdAt +
+                '}';
     }
 }
-
-

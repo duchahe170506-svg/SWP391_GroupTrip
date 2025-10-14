@@ -1,0 +1,1243 @@
+/*
+Theme Name: Travel miles
+Theme URI: https://templatesjungle.com/
+Author: TemplatesJungle
+Author URI: https://templatesjungle.com/
+Description: Travel miles is a blog template.
+Version: 1.1
+*/
+
+/*--------------------------------------------------------------
+This is main CSS file that contains custom style rules used in this template
+--------------------------------------------------------------*/
+
+/*------------------------------------*\
+    Table of contents
+\*------------------------------------*/
+
+/*------------------------------------------------
+
+CSS STRUCTURE:
+
+1. VARIABLES
+
+2. GENERAL TYPOGRAPHY
+  2.1 General Styles
+  2.2 Background Color
+  2.3 Section
+    - Section Paddings
+    - Section Margins
+    - Section Title
+    - Content width
+  2.4 Buttons
+    - Primary Buttons
+    - Outline Buttons
+
+3. CONTENT ELEMENTS
+  - Dropdown
+  - Form
+  - Svg Color
+- Swiper
+- Modal
+
+4. SITE STRUCTURE
+  4.1 Header
+  4.2 Slider Section
+  4.3 About Section
+  4.4 Services Section
+  4.5 Projects Section
+
+5. PAGES STYLE
+  5.1 About page
+  5.2 Blog page  
+  5.3 reviews page
+  5.4 faqs page
+  5.5 Account page 
+
+  
+/*--------------------------------------------------------------
+/** 1. VARIABLES
+--------------------------------------------------------------*/
+:root {
+  --primary-color: #1D1D1D;
+  --black-color: #1D1D1D;
+  --white-color:#ffffff;
+  --light-black-color: #7A7A7A;
+  --dark-color: #707070;
+  --primary-color-200: #77A096;
+  --primary-color-400: #c4e9ed;
+  --gray-color: #E6E6E6;
+  --bs-body-bg: #ffffff;
+  --bs-dark-rgb: 80, 80, 80;
+  --bs-gray-100: #707070;
+  --bs-gray-300: #DCDCDC;
+  --bs-primary-text-emphasis: var(--primary-color);
+  --bs-light-rgb: rgba(255, 255, 255, 1);
+  --bs-primary-rgb: 253, 140, 78;
+  --light-color: #ffffff;
+  --swiper-theme-color: #111 !important;
+  --cadet-blue-color: #9AB4B7;
+}
+
+/* Fonts */
+:root {
+  --heading-font: "Cormorant Garamond", serif;
+  --body-font: "Mulish", sans-serif;
+}
+/* hover effect */
+
+.btn-arrow {
+  position: relative;
+  transition: 300ms ease-out;
+}
+
+
+.btn-arrow:hover span {
+  transform: translate3d(-0.8rem, 0, 0);
+}
+
+.btn-arrow svg {
+  color: var(--dark-color);
+  position: absolute;
+  width: 0.9em;
+  right: 25%;
+  opacity: 0;
+  top: 52%;
+  transform: translateY(-50%);
+  transition: all 300ms ease-out;
+  will-change: right, opacity;
+}
+
+.btn-arrow svg * {
+  stroke-width: 5;
+}
+
+.btn-arrow:hover svg {
+  opacity: 1;
+  right: 1.4rem;
+}
+
+/* - Search Bar
+------------------------------------------------------------- */
+.search-box {
+  background: var(--gray-color);
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 20px;
+  right: 120px;
+  cursor: pointer;
+  z-index: 9;
+}
+
+.search-box input.search-input {
+  font-size: 1.3em;
+  width: 70%;
+  height: 30px;
+  padding: 25px;
+  border-radius: 80px;
+  border-color: rgb(0 0 0 / 25%);
+  background: transparent;
+}
+
+.search-box svg {
+  width: 22px;
+  height: 22px;
+  color: var(--primary-color);
+}
+
+.search-box svg.search {
+  margin-left: -50px;
+}
+
+
+/** Search Form
+--------------------------------------------------------------*/
+.search-form input[type="search"].search-field {
+  border: none;
+  background: #f1f1f1;
+  width: 100%;
+  border-radius: 50px;
+  padding: 10px 40px;
+}
+
+.search-form input[type="search"].search-field::focus {
+  border-color: #af9aaa;
+}
+
+.search-form button {
+  position: absolute;
+  top: 6px;
+  right: 9px;
+  background: transparent;
+  border: none;
+}
+
+
+
+/** Search Popup
+--------------------------------------------------------------*/
+
+svg.search {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.search-popup {
+  background-color: #fff;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 9999;
+  -webkit-transition: opacity 0.3s 0s, visibility 0s 0.3s;
+  -moz-transition: opacity 0.3s 0s, visibility 0s 0.3s;
+  transition: opacity 0.3s 0s, visibility 0s 0.3s;
+}
+
+.search-popup.is-visible {
+  opacity: 1;
+  visibility: visible;
+  cursor: -webkit-image-set(url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cpath fill='%23FFF' d='M20 1l-1-1-9 9-9-9-1 1 9 9-9 9 1 1 9-9 9 9 1-1-9-9'/%3E%3C/svg%3E") 1x, url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cpath fill='%23000' d='M20 1l-1-1-9 9-9-9-1 1 9 9-9 9 1 1 9-9 9 9 1-1-9-9'/%3E%3C/svg%3E") 2x), pointer;
+  cursor: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cpath fill='%23000' d='M20 1l-1-1-9 9-9-9-1 1 9 9-9 9 1 1 9-9 9 9 1-1-9-9'/%3E%3C/svg%3E"), pointer;
+  -webkit-transition: opacity 0.3s 0s, visibility 0s 0s;
+  -moz-transition: opacity 0.3s 0s, visibility 0s 0s;
+  transition: opacity 0.3s 0s, visibility 0s 0s;
+}
+
+.search-popup-container {
+  background-color: transparent;
+  position: relative;
+  top: 50%;
+  margin: 0 auto;
+  padding: 0;
+  width: 90%;
+  max-width: 800px;
+  text-align: center;
+  box-shadow: none;
+  cursor: default;
+  -webkit-transform: translateY(-40px);
+  transform: translateY(-40px);
+  -webkit-backface-visibility: hidden;
+  -webkit-transition-property: -webkit-transform;
+  transition-property: transform;
+  -webkit-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+}
+
+.is-visible .search-popup-container {
+  -webkit-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.search-popup-form {
+  position: relative;
+  margin: 0 0 3em 0;
+}
+
+.search-popup-form .form-control {
+  padding: 0 0 .375em 0;
+  font-size: 2em;
+}
+
+.search-popup-form #search-popup-submit {
+  display: none;
+}
+
+.search-popup .search-popup-close {
+  display: block;
+  position: absolute;
+  top: 2em;
+  right: 2em;
+  margin: -0.5em;
+  padding: 0.5em;
+  line-height: 0;
+}
+
+.search-popup .search-popup-close:hover {
+  -webkit-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+
+.search-popup .search-popup-close i {
+  display: block;
+  position: relative;
+  width: 1em;
+  height: 1em;
+  fill: rgba(0, 0, 0, 0.5);
+}
+
+.search-popup .search-popup-close:hover i {
+  fill: rgba(0, 0, 0, 1);
+}
+
+.search-popup .cat-list-title {
+  margin-top: 40px;
+  margin-bottom: 10px;
+  font-size: 0.6em;
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.search-popup .cat-list {
+  margin: 0;
+  list-style-type: none;
+}
+
+.search-popup .cat-list-item {
+  display: inline-block;
+  margin-bottom: 0;
+  letter-spacing: 0.015em;
+  font-size: 2em;
+}
+
+.search-popup .cat-list-item a {
+  position: relative;
+}
+
+.search-popup .cat-list-item a::after {
+  background: none repeat scroll 0 0 #fff;
+  content: "";
+  height: 1px;
+  border-bottom: 1px solid #ff9697;
+  left: 0;
+  opacity: 0;
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  -webkit-transition: height 0.3s, opacity 0.3s, -webkit-transform 0.3s;
+  transition: height 0.3s, opacity 0.3s, transform 0.3s;
+  -webkit-transform: translateY(-5px);
+  transform: translateY(-5px);
+}
+
+.search-popup .cat-list-item a:hover::after {
+  height: 1px;
+  opacity: 1;
+  -webkit-transform: translateY(2px);
+  transform: translateY(2px);
+}
+
+.search-popup .cat-list-item::after {
+  content: "/";
+  padding: 0 5px;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.5);
+  vertical-align: text-top;
+}
+
+.search-popup .cat-list-item:last-child::after {
+  display: none;
+}
+
+@media only screen and (max-width: 991px) {
+
+  .search-popup .cat-list-item,
+  .search-popup-form .form-control {
+    font-size: 1.425em;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .search-popup .search-popup-close {
+    top: 1em;
+    right: 1em;
+  }
+}
+
+@media only screen and (max-width: 575px) {
+
+  .search-popup .cat-list-item,
+  .search-popup-form .form-control {
+    font-size: 1.125em;
+  }
+
+  .search-popup .search-popup-close {
+    top: 1em;
+    right: 1em;
+  }
+}
+
+.search-popup input[type="search"] {
+  font-size: 24px;
+  height: 60px;
+  padding: 26px;
+}
+
+.search-popup .search-form button {
+  top: 12px;
+  right: 15px;
+}
+
+.search-popup .search-form button svg {
+  height: 28px;
+  width: 28px;
+}
+
+
+
+/* offcanvas styling */
+.btn-close {
+  --bs-btn-close-focus-shadow: none;
+}
+
+/*----------------------------------------------*/
+/* 2 GENERAL TYPOGRAPHY
+  /*----------------------------------------------*/
+
+/* 2.1 General Styles
+  /*----------------------------------------------*/
+*,
+*::before,
+*::after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--body-font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 164%;
+  letter-spacing: 0.32px;
+  color: var(--dark-color);
+  margin: 0;
+}
+
+p {
+  color: var(--dark-color);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: 0.3s ease-in-out;
+}
+
+
+
+.text-light {
+  color: var(--light-color) !important;
+}
+
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.text-black {
+  color: var(--black-color) !important;
+}
+
+/* 2.2 Background Color
+  /*----------------------------------------------*/
+.bg-light {
+  background-color: var(--light-color) !important;
+}
+
+.bg-primary {
+  background-color: var(--light-color) !important;
+}
+
+.bg-gray {
+  background-color: var(--bs-gray-100) !important;
+}
+
+.bg-accent-gradient {
+  background: linear-gradient(90deg, #18A7E4 0%, #1BADEC 0.01%, #0A9CDB 100%);
+}
+
+.bg-primary-200 {
+  background-color: var(--primary-color-200) !important;
+}
+
+.bg-primary-dim {
+  background-color: var(--bs-primary-rgb) !important;
+}
+
+/*--------------------------------------------------------------
+  /** 2.3 Section
+  --------------------------------------------------------------*/
+/* - Section Padding
+  --------------------------------------------------------------*/
+.padding-small {
+  padding-top: 120px;
+  padding-bottom: 120px;
+}
+
+.padding-medium {
+  padding-top: 10em;
+  padding-bottom: 10em;
+}
+
+.padding-large {
+  padding-top: 12em;
+  padding-bottom: 12em;
+}
+
+/* - Section Margin
+  --------------------------------------------------------------*/
+.margin-small {
+  margin-top: 8.125em;
+  margin-bottom: 8.125em;
+}
+
+.margin-medium {
+  margin-top: 10em;
+  margin-bottom: 10em;
+}
+
+.margin-large {
+  margin-top: 12em;
+  margin-bottom: 12em;
+}
+
+
+/* - Section Title
+  --------------------------------------------------------------*/
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--black-color);
+  font-family: var(--heading-font);
+  text-transform: uppercase;
+
+  letter-spacing: 0.84px;
+  line-height: 115%;
+}
+
+h6 {
+  color: var( --bs-gray-100);
+  font-family: var(--body-font);
+  font-size: 16px;
+  text-transform: capitalize;
+}
+p{
+  color: var( --bs-gray-100);
+  font-family: var(--body-font);
+  font-size: 16px;
+  text-transform: capitalize;
+}
+.display-1 {
+  font-size: 48px;
+}
+
+/* - Content width
+  --------------------------------------------------------------*/
+.container-md {
+  max-width: 1465px;
+}
+
+.container-lg {
+  max-width: 1750px;
+}
+
+/* Animation */
+@media (min-width: 200px) {
+  .animate {
+    animation-duration: 0.3s;
+    -webkit-animation-duration: 0.3s;
+    animation-fill-mode: both;
+    -webkit-animation-fill-mode: both;
+  }
+}
+
+/* Animate Slide */
+@keyframes slide {
+  0% {
+    transform: translateY(1rem);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0rem);
+    opacity: 1;
+  }
+
+  0% {
+    transform: translateY(1rem);
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes slide {
+  0% {
+    -webkit-transform: transform;
+    -webkit-opacity: 0;
+  }
+
+  100% {
+    -webkit-transform: translateY(0);
+    -webkit-opacity: 1;
+  }
+
+  0% {
+    -webkit-transform: translateY(1rem);
+    -webkit-opacity: 0;
+  }
+}
+
+.slide {
+  -webkit-animation-name: slide;
+  animation-name: slide;
+}
+
+/*--------------------------------------------------------------
+  /** 2.4 Buttons
+  --------------------------------------------------------------*/
+.btn {
+  --bs-btn-padding-x: 2rem;
+  --bs-btn-padding-y: 1rem;
+  --bs-btn-font-size: 1rem;
+  --bs-btn-font-weight: 400;
+  text-transform: uppercase;
+  border-radius: 60px;
+  letter-spacing: 0.1rem;
+  transition: all 0.4s ease-in-out;
+}
+
+.btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--primary-color);
+  --bs-btn-border-color: var(--primary-color);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #f37735;
+  --bs-btn-hover-border-color: #f37735;
+  --bs-btn-focus-shadow-rgb: 49, 132, 253;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #f37735;
+  --bs-btn-active-border-color: #f37735;
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: #f37735;
+  --bs-btn-disabled-border-color: #f37735;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--primary-color);
+  --bs-btn-border-color: var(--primary-color);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--primary-color);
+  --bs-btn-hover-border-color: var(--primary-color);
+  --bs-btn-focus-shadow-rgb: 13, 110, 253;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--primary-color);
+  --bs-btn-active-border-color: var(--primary-color);
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: var(--primary-color);
+  --bs-btn-disabled-bg: transparent;
+  --bs-btn-disabled-border-color: var(--primary-color);
+  --bs-gradient: none;
+}
+
+
+
+/*--------------------------------------------------------------
+  /** 3.CONTENT ELEMENTS
+  --------------------------------------------------------------*/
+
+/* Dropdown
+  ------------------------------------------------------------- */
+.dropdown-item {
+  color: var(--dark-color);
+}
+
+.dropdown-item.active,
+.dropdown-item:hover,
+.dropdown-item:active {
+  color: var(--dark-color);
+  background-color: var(--bs-gray-300);
+}
+
+/* Form
+  ------------------------------------------------------------- */
+.form-check-input:checked {
+  background-color: var(--primary-color-200);
+  border-color: var(--primary-color-200);
+  box-shadow: none;
+}
+.bg-primary {
+  background-color: var(--primary-color-200) !important;
+}
+
+.form-check-input:focus {
+  border-color: var(--primary-color);
+  outline: 0;
+  box-shadow: none;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--dark-color);
+  outline: 0;
+  box-shadow: none;
+}
+
+input,
+select,
+textarea {
+  border-color: var(--dark-color);
+  outline: 0;
+  box-shadow: none;
+}
+
+select:focus {
+  box-shadow: none;
+}
+
+/* Svg Color
+  ------------------------------------------------------------- */
+.header-top svg:hover {
+  color: var(--gray-color);
+}
+
+/* Swiper
+  ------------------------------------------------------------- */
+.swiper-horizontal>.swiper-pagination-bullets .swiper-pagination-bullet,
+.swiper-pagination-horizontal.swiper-pagination-bullets .swiper-pagination-bullet {
+  margin: 0 12px;
+}
+
+.slider-pagination .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  border-radius: 20px;
+  background: #FFFFFF;
+  opacity: inherit;
+}
+
+.slider-pagination .swiper-pagination-bullet-active {
+  background: var(--primary-color-200);
+  outline: 1px solid #77A096;
+  outline-offset: 2px;
+}
+
+.testimonial-pagination .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+}
+
+.testimonial-pagination .swiper-pagination-bullet-active {
+  background: var(--primary-color-200);
+}
+
+
+/* modal video override
+  ------------------------------------------------------------- */
+.modal-dialog {
+  max-width: 800px;
+  margin: auto;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.modal-content {
+  padding: 0;
+  background-color: #f5f3ef;
+  border: none;
+  border-radius: 0
+}
+
+/*----------------------------------------------*/
+/* 4 SITE STRUCTURE */
+/*----------------------------------------------*/
+
+/* 4.1 Header
+  /*----------------------------------------------*/
+.header-top {
+  background-color: var(--primary-color-200);
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.nav-icon {
+  color: var(--primary-color)
+}
+.nav-icon svg:hover{
+  color:var(--primary-color-200)
+}
+
+a.nav-link {
+  text-transform: uppercase;
+  color: var(--primary-color);
+  font-size: 14px;
+}
+
+a.nav-link:focus {
+  color: var(--light-black-color);
+}
+
+a.nav-link.active,
+a.nav-link:hover {
+  color: var(--primary-color-200) !important;
+  outline: none;
+}
+
+#primary-header .dropdown .search::after {
+  content: none;
+}
+
+#primary-header .search-dropdown .dropdown-menu {
+  width: 260px;
+}
+
+#primary-header .search-dropdown .dropdown-menu input {
+  min-width: 100%;
+}
+
+#primary-header .search-dropdown .dropdown-menu button {
+  padding: 0 12px;
+  min-height: -webkit-fill-available;
+  border-radius: 0.25rem;
+}
+
+@media (max-width: 999px) {
+  a.nav-link {
+    font-size: 30px;
+    padding: 15px 0 15px 0 !important;
+  }
+}
+
+
+/* 4.2 Slider Section
+  /*----------------------------------------------*/
+section#slider .banner-content {
+  width: 40%;
+  background: rgba(253, 253, 253, 0.90);
+}
+
+section#slider .main-slider-button-next,
+.main-slider-button-prev {
+  z-index: 111111;
+  height: fit-content;
+  opacity: 0.9;
+}
+
+section#slider .main-slider-button-next.swiper-button-disabled,
+.main-slider-button-prev.swiper-button-disabled {
+  opacity: 0.6;
+}
+
+@media only screen and (max-width: 999px) {
+  section#slider .banner-content {
+    width: 66%;
+  }
+}
+
+/* places section */
+/*----------------------------------------------*/
+.category-content.large-category {
+  top: 8%;
+  bottom: 8%;
+  right: 6%;
+  left: 6%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid white;
+}
+
+
+/*--- button read-more Effects
+-----------------------------------------------*/
+a.button {
+  margin: 10px;
+  font-size: 20px;
+  font-family: var( --body-font);
+  font-size: 14px;
+}
+
+.arrow {
+  color:var(--light-black-color);
+  margin: 1em 0;
+
+  &::after {
+      display: inline-block;
+      padding-left: 8px;
+      content: "\1F852"; 
+      -webkit-transition: transform 0.3s ease-out;
+      -moz-transition: transform 0.3s ease-out;
+      -ms-transition: transform 0.3s ease-out;
+      -o-transition: transform 0.3s ease-out;
+      transition: transform 0.3s ease-out;
+  }
+
+  &:hover {
+    color:var(--light-black-color);
+      &::after {
+          -webkit-transform: translateX(4px);
+          -moz-transform: translateX(4px);
+          -ms-transform: translateX(4px);
+          -o-transform: translateX(4px);
+          transform: translateX(4px);
+      }
+  }
+}
+
+
+/*--- Image hover Effects
+-----------------------------------------------*/
+.image-zoom-effect {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.image-zoom-effect .image-holder {
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  transform: scale(1);
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.image-zoom-effect:hover .image-holder {
+  transform: scale(0.95);
+}
+
+.image-zoom-effect img {
+  transform: scale(1);
+  will-change: transform;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: 0;
+}
+
+.image-zoom-effect:hover img {
+  transform: scale(1.1);
+}
+
+/* blog */
+aside{
+  height: fit-content;
+}
+/* 4.3 About Section
+  /*----------------------------------------------*/
+svg.play-icon {
+  animation: play 1.5s alternate infinite ease-in;
+}
+
+@keyframes play {
+  0% {
+    transform: scale(.8);
+  }
+
+  100% {
+    transform: scale(1.1);
+  }
+
+}
+
+
+/* 4.4 Services Section
+  /*----------------------------------------------*/
+.service-post img.service-img {
+  transition: all 0.5s ease-in-out;
+}
+
+.service-post:hover img.service-img {
+  opacity: 0.2;
+}
+
+
+/* 4.5 Projects Section
+  /*----------------------------------------------*/
+
+button.filter-button {
+  border: 0;
+  background: transparent;
+  text-transform: uppercase;
+  transition: all 0.5s ease-in-out;
+  border-radius: 20px;
+}
+
+button.filter-button.active,
+button.filter-button:hover {
+  background: var(--primary-color-200) !important;
+}
+
+/*----------------------------------------------*/
+/* 5 PAGES STYLE */
+/*----------------------------------------------*/
+
+/*--------------------------------------------------------------
+  5.1 About page 
+  --------------------------------------------------------------*/
+
+.breadcrumb-item+.breadcrumb-item::before {
+  color: var(--bs-light);
+}
+
+
+/*--------------------------------------------------------------
+    5.2 Blog page 
+    --------------------------------------------------------------*/
+/* blog-single */
+.blog-date {
+  color: var(--primary-color-200);
+}
+/*---- blog-card section style start ----*/
+.blog-date {
+  color: #222222;
+  font-size: 0.875rem;
+  font-family: var(--body-font);
+  letter-spacing: 0.0875rem;
+  line-height: 180%;
+}
+
+a.blog-link:hover {
+  color: var(--light-text-color);
+}
+
+
+
+/*---- featured section style start ----*/
+.feature-title {
+  color: var(--dark-color);
+  font-size: 2.25rem;
+  font-family: Inter;
+  text-transform: capitalize;
+}
+
+button.filter-button {
+  border: none;
+  background: transparent;
+  color: var(--light-text-color);
+  text-align: center;
+  font-size: 1rem;
+  font-family: var(--heading-font);
+  font-weight: 300;
+  letter-spacing: 0.02rem;
+}
+
+button.filter-button.active {
+  color: var(--white-color);
+  padding: 0.56rem 1.19rem;
+  border-radius: 30px;
+
+}
+
+button.filter-button:hover {
+  color: var(--white-color);
+  padding: 0.56rem 1.19rem;
+  border-radius: 30px;
+}
+
+
+
+
+/*---- blog-block section style start ----*/
+.blog-block-heading {
+  color: #FFF;
+}
+
+.header-overlay {
+  top: 170%;
+}
+
+/* Image zoom effect on hover */
+.image-zoom {
+  overflow: hidden;
+}
+
+.image-zoom img {
+  transition: transform 0.3s ease-out;
+}
+
+.image-zoom:hover img {
+  transform: scale(1.1);
+}
+
+
+
+
+/* <!-- blog-single page style start ================================================== --> */
+@media only screen and (max-width: 768px) {
+  .blog-nav-heading {
+    display: none;
+  }
+}
+
+
+/* <!-- blog page style start ================================================== --> */
+.blog-swipe {
+  color: var(--grey-color);
+}
+
+.blog-swipe:hover,
+.blog-swipe.active {
+  color: var(--dark-color);
+}
+
+/* Comment */
+.commentorImg {
+  width: 50px;
+  height: 50px;
+  margin-right: 20px;
+}
+
+iconify-icon.blog-icon {
+  padding-top: 6px;
+  color: var(--dark-color);
+}
+
+.pagination {
+  
+  --bs-pagination-font-size: 20px;
+  --bs-pagination-color: var( --dark-color);
+
+  --bs-pagination-border-width: var(--bs-border-width);
+  --bs-pagination-border-color: none;
+  --bs-pagination-border-radius: var(--bs-border-radius);
+  --bs-pagination-hover-color: var(--primary-color-200);
+  
+  --bs-pagination-hover-border-color: var(--bs-border-color);
+  --bs-pagination-focus-color: none;
+  --bs-pagination-focus-bg: none;
+  --bs-pagination-focus-box-shadow: none;
+  --bs-pagination-active-color: #fff;
+  --bs-pagination-active-bg:var(--primary-color-200);
+  --bs-pagination-active-border-color:var(--primary-color-200);
+  --bs-pagination-disabled-color: var(--primary-color-200);
+  --bs-pagination-disabled-bg:var(--primary-color-200);
+  --bs-pagination-disabled-border-color: var(--primary-color-200);
+  display: flex;
+  padding-left: 0;
+  list-style: none;}
+  
+.page-link {
+  
+  border:none;
+  
+}
+.active>.page-link, .page-link.active {
+  z-index: 3;
+  color: var(--primary-color-200);
+  background-color:white;
+  border-color: none;
+}
+
+
+
+/*--------------------------------------------------------------
+   5.3 reviews page
+  --------------------------------------------------------------*/
+
+.reviews-components {
+  box-shadow: 0px 12px 90px rgba(12, 12, 12, 0.06);
+}
+
+iconify-icon.quote {
+  font-size: 60px;
+  color: var(--primary-color);
+}
+
+.rate {
+  color: var(--primary-color);
+}
+
+
+
+/*--------------------------------------------------------------
+  5.4 faqs page 
+  --------------------------------------------------------------*/
+/*--------------------------------------------------------------
+faqs page style start
+--------------------------------------------------------------*/
+.accordion-button:not(.collapsed) {
+  color: var(--body-text-color);
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.accordion {
+  --bs-accordion-color: var(--light-text-color);
+  --bs-accordion-bg: none;
+  --bs-accordion-btn-color: var(--body-text-color);
+}
+
+.accordion-item {
+  border: none;
+}
+
+.accordion-button:not(.collapsed)::after {
+  background-image: url('https://api.iconify.design/eva/arrow-down-fill.svg?color=%2341403e');
+
+}
+
+.accordion-button::after {
+  background-image: url('https://api.iconify.design/eva/arrow-down-fill.svg?color=%2341403e');
+}
+
+.accordion-button:focus {
+  z-index: 3;
+  border-color: none;
+  box-shadow: none;
+}
+
+/*--------------------------------------------------------------
+  5.5 account page 
+  --------------------------------------------------------------*/
+
+  /*--------------------------------------------------------------
+Account page style start
+--------------------------------------------------------------*/
+.nav-tabs .nav-item.show .nav-link.account-tab,
+.nav-tabs .nav-link.account-tab {
+  color: var(--bs-body-color);
+}
+
+.nav-tabs .nav-item.show .nav-link.account-tab,
+.nav-tabs .nav-link.account-tab.active {
+  color: var(--accent-color);
+}
+
+/* accordian style override  */
+
+.accordion {
+  --bs-accordion-border-color: var(--primary-color);
+  --bs-accordion-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, border-radius 0.15s ease;
+  --bs-accordion-btn-icon: url('https://api.iconify.design/ion/caret-down.svg?color=%23d06051&width=30');
+  --bs-accordion-btn-active-icon: url('https://api.iconify.design/ion/caret-down.svg?color=%23d06051&width=30');
+  --bs-accordion-border-radius: 0px;
+}
+
+.accordion-header {
+  margin-bottom: 0;
+  border-top: 1px solid var(--primary-color);
+}
+
+.accordion-button {
+  font-family: var(--heading-font);
+  font-weight: var(--heading-font-weight);
+  color: var(--heading-color);
+  line-height: var(--heading-line-height);
+  letter-spacing: 0.065rem;
+  text-transform: uppercase;
+}
+
+.accordion-button:focus {
+  box-shadow: none;
+}
+
+.accordion-button:not(.collapsed) {
+  color: var(--heading-color);
+  background-color: transparent;
+  box-shadow: none;
+}
+
+
+
