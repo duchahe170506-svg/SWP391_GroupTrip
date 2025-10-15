@@ -6,17 +6,36 @@ public class GroupMembers {
 
     private int group_id;
     private int user_id;
-    private String role;
+    private String role;          // Leader / Member
+    private String status;        // Active / Removed / Left
     private Timestamp joined_at;
+    private Timestamp removed_at;
+
+    // Thông tin bổ sung từ Users
+    private String name;
+    private String email;
 
     public GroupMembers() {
     }
 
-    public GroupMembers(int group_id, int user_id, String role, Timestamp joined_at) {
+    public GroupMembers(int group_id, int user_id, String role, String status, Timestamp joined_at, Timestamp removed_at) {
         this.group_id = group_id;
         this.user_id = user_id;
         this.role = role;
+        this.status = status;
         this.joined_at = joined_at;
+        this.removed_at = removed_at;
+    }
+
+    public GroupMembers(int group_id, int user_id, String role, String status, Timestamp joined_at, Timestamp removed_at, String name, String email) {
+        this.group_id = group_id;
+        this.user_id = user_id;
+        this.role = role;
+        this.status = status;
+        this.joined_at = joined_at;
+        this.removed_at = removed_at;
+        this.name = name;
+        this.email = email;
     }
 
     public int getGroup_id() {
@@ -43,6 +62,14 @@ public class GroupMembers {
         this.role = role;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public Timestamp getJoined_at() {
         return joined_at;
     }
@@ -51,10 +78,41 @@ public class GroupMembers {
         this.joined_at = joined_at;
     }
 
+    public Timestamp getRemoved_at() {
+        return removed_at;
+    }
+
+    public void setRemoved_at(Timestamp removed_at) {
+        this.removed_at = removed_at;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     @Override
     public String toString() {
-        return "GroupMembers{" + "group_id=" + group_id + ", user_id=" + user_id + ", role=" + role + ", joined_at=" + joined_at + '}';
+        return "GroupMembers{" +
+                "group_id=" + group_id +
+                ", user_id=" + user_id +
+                ", role='" + role + '\'' +
+                ", status='" + status + '\'' +
+                ", joined_at=" + joined_at +
+                ", removed_at=" + removed_at +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                '}';
     }
 }
-
-

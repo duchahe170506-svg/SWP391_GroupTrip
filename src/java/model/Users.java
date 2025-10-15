@@ -16,7 +16,7 @@ public class Users {
     private String address;
     private String role;
     private String status;
-    
+
 
     public Users() {
     }
@@ -34,6 +34,18 @@ public class Users {
         this.address = address;
         this.role = role;
         this.status = status;
+    }
+
+
+    
+    public Users(int user_id, String name, String email, String password, String role, String status, Timestamp created_at) {
+        this.user_id = user_id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.status = status;
+
     }
 
     public int getUser_id() {
@@ -125,20 +137,6 @@ public class Users {
     }
 
 
-    @Override
-    public String toString() {
-        return "Users{" +
-                "user_id=" + user_id +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
-                ", password='" + password + '\'' +
-                ", date_of_birth=" + date_of_birth +
-                ", gender='" + gender + '\'' +
-                ", avatar='" + avatar + '\'' +
-                ", address='" + address + '\'' +
-                ", role='" + role + '\'' +
-                ", status='" + status + '\'' +
-                '}';
-    }
+
+    
 }

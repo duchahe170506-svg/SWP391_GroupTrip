@@ -1,44 +1,64 @@
 package model;
 
+import java.sql.Time;
+import java.sql.Timestamp;
+
 public class Itinerary {
-
-    private int itinerary_id;
-    private int trip_id;
-    private int day_number;
+    private int itineraryId;
+    private int tripId;
+    private int dayNumber;
+    private String title;
     private String description;
+    private Time startTime;
+    private Time endTime;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
 
-    public Itinerary() {
-    }
+    public Itinerary() {}
 
-    public Itinerary(int itinerary_id, int trip_id, int day_number, String description) {
-        this.itinerary_id = itinerary_id;
-        this.trip_id = trip_id;
-        this.day_number = day_number;
+    public Itinerary(int itineraryId, int tripId, int dayNumber, String title, String description,
+                     Time startTime, Time endTime, Timestamp createdAt, Timestamp updatedAt) {
+        this.itineraryId = itineraryId;
+        this.tripId = tripId;
+        this.dayNumber = dayNumber;
+        this.title = title;
         this.description = description;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
-    public int getItinerary_id() {
-        return itinerary_id;
+    public int getItineraryId() {
+        return itineraryId;
     }
 
-    public void setItinerary_id(int itinerary_id) {
-        this.itinerary_id = itinerary_id;
+    public void setItineraryId(int itineraryId) {
+        this.itineraryId = itineraryId;
     }
 
-    public int getTrip_id() {
-        return trip_id;
+    public int getTripId() {
+        return tripId;
     }
 
-    public void setTrip_id(int trip_id) {
-        this.trip_id = trip_id;
+    public void setTripId(int tripId) {
+        this.tripId = tripId;
     }
 
-    public int getDay_number() {
-        return day_number;
+    public int getDayNumber() {
+        return dayNumber;
     }
 
-    public void setDay_number(int day_number) {
-        this.day_number = day_number;
+    public void setDayNumber(int dayNumber) {
+        this.dayNumber = dayNumber;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {
@@ -49,10 +69,50 @@ public class Itinerary {
         this.description = description;
     }
 
+    public Time getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Time startTime) {
+        this.startTime = startTime;
+    }
+
+    public Time getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Time endTime) {
+        this.endTime = endTime;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     @Override
     public String toString() {
-        return "Itinerary{" + "itinerary_id=" + itinerary_id + ", trip_id=" + trip_id + ", day_number=" + day_number + ", description=" + description + '}';
+        return "Itinerary{" +
+                "itineraryId=" + itineraryId +
+                ", tripId=" + tripId +
+                ", dayNumber=" + dayNumber +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }
-
-
