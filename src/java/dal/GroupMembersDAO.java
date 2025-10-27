@@ -242,4 +242,174 @@ public class GroupMembersDAO {
         }
         return false;
     }
+
+    public boolean isLeader(int groupId, int userId) {
+        String sql = "SELECT * FROM GroupMembers WHERE group_id = ? AND user_id = ? AND role = 'Leader'";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, groupId);
+            ps.setInt(2, userId);
+            ResultSet rs = ps.executeQuery();
+            return rs.next(); // có tồn tại record => là Leader
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public int countActiveMembers(int groupId) {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM GroupMembers WHERE group_id = ? AND status = 'Active'";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, groupId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+    public boolean isMember(int groupId, int userId) {
+        String sql = "SELECT 1 FROM GroupMembers WHERE group_id=? AND user_id=? LIMIT 1";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, groupId);
+            ps.setInt(2, userId);
+            ResultSet rs = ps.executeQuery();
+            return rs.next(); // nếu có record, user là thành viên
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean leaveGroup(int groupId, int userId, String reason) throws SQLException {
+        Connection conn = null;
+        try {
+            conn = DBConnect.getConnection();
+            conn.setAutoCommit(false);
+
+            // 0️⃣ Lấy role hiện tại
+            String roleSql = "SELECT role FROM GroupMembers WHERE group_id=? AND user_id=? AND status='Active'";
+            String role = null;
+            try (PreparedStatement ps = conn.prepareStatement(roleSql)) {
+                ps.setInt(1, groupId);
+                ps.setInt(2, userId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        role = rs.getString("role");
+                    } else {
+                        conn.rollback();
+                        return false; // user không còn trong nhóm
+                    }
+                }
+            }
+
+          
+            if ("Leader".equals(role)) {
+                // Kiểm tra CoLeader còn tồn tại
+                String checkCoLeaderSql = "SELECT COUNT(*) FROM GroupMembers WHERE group_id=? AND role='CoLeader' AND status='Active'";
+                int coLeaderCount = 0;
+                try (PreparedStatement ps = conn.prepareStatement(checkCoLeaderSql)) {
+                    ps.setInt(1, groupId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            coLeaderCount = rs.getInt(1);
+                        }
+                    }
+                }
+
+                if (coLeaderCount == 0) {
+                    conn.rollback();
+                    return false; 
+                }
+
+                // Kiểm tra đã có Leader mới chưa
+                String checkLeaderSql = "SELECT COUNT(*) FROM GroupMembers WHERE group_id=? AND role='Leader' AND status='Active' AND user_id<>?";
+                try (PreparedStatement ps = conn.prepareStatement(checkLeaderSql)) {
+                    ps.setInt(1, groupId);
+                    ps.setInt(2, userId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next() && rs.getInt(1) == 0) {
+                            conn.rollback();
+                            return false; // Chưa bầu Leader mới → không thể rời
+                        }
+                    }
+                }
+            }
+
+            // 2️⃣ Cập nhật GroupMembers
+            String updateSql = "UPDATE GroupMembers SET status='Left', removed_at=NOW() WHERE group_id=? AND user_id=? AND status='Active'";
+            try (PreparedStatement ps = conn.prepareStatement(updateSql)) {
+                ps.setInt(1, groupId);
+                ps.setInt(2, userId);
+                ps.executeUpdate();
+            }
+
+            // 3️⃣ Thêm record vào MemberRemovals
+            String insertSql = "INSERT INTO MemberRemovals (group_id, removed_user_id, removed_by, reason) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
+                ps.setInt(1, groupId);
+                ps.setInt(2, userId);
+                ps.setInt(3, userId); // tự rời
+                ps.setString(4, reason);
+                ps.executeUpdate();
+            }
+
+            // 4️⃣ Tạo notification cho Leader/CoLeader còn lại
+            String notifSql = "INSERT INTO Notifications (user_id, content) "
+                    + "SELECT user_id, CONCAT('Thành viên ', ?, ' đã rời nhóm') "
+                    + "FROM GroupMembers WHERE group_id=? AND role IN ('Leader','CoLeader') AND status='Active'";
+            try (PreparedStatement ps = conn.prepareStatement(notifSql)) {
+                ps.setString(1, getUserNameById(userId));
+                ps.setInt(2, groupId);
+                ps.executeUpdate();
+            }
+
+            conn.commit();
+            return true;
+        } catch (SQLException e) {
+            if (conn != null) {
+                conn.rollback();
+            }
+            throw e;
+        } finally {
+            if (conn != null) {
+                conn.setAutoCommit(true);
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        }
+    }
+
+    public String getUserNameById(int userId) throws SQLException {
+        String sql = "SELECT name FROM Users WHERE user_id=?";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("name");
+                } else {
+                    return "Người dùng không xác định";
+                }
+            }
+        }
+    }
+    
+    public boolean updateRoleByRole(int groupId, String oldRole, String newRole) {
+    String sql = "UPDATE GroupMembers SET role=? WHERE group_id=? AND role=?";
+    try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, newRole);
+        ps.setInt(2, groupId);
+        ps.setString(3, oldRole);
+        return ps.executeUpdate() > 0;
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
+
 }
