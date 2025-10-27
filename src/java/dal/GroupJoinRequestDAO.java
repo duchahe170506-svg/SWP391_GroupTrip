@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 import model.GroupJoinRequests;
+import model.Users;
 
 public class GroupJoinRequestDAO extends DBConnect {
 
@@ -78,29 +79,6 @@ public class GroupJoinRequestDAO extends DBConnect {
         return list;
     }
 
-    public GroupJoinRequests getRequestById(int requestId) {
-        String sql = "SELECT * FROM GroupJoinRequests WHERE request_id=?";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, requestId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return new GroupJoinRequests(
-                            rs.getInt("request_id"),
-                            rs.getInt("group_id"),
-                            rs.getInt("user_id"),
-                            rs.getString("status"),
-                            rs.getTimestamp("requested_at"),
-                            rs.getTimestamp("reviewed_at"),
-                            rs.getInt("reviewed_by")
-                    );
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     // Cập nhật trạng thái cho tất cả request của 1 user trong group
     public void updateStatusByUserAndGroup(int userId, int groupId, String status, int reviewedBy) {
         String sql = "UPDATE GroupJoinRequests SET status=?, reviewed_at=NOW(), reviewed_by=? WHERE user_id=? AND group_id=?";
@@ -117,7 +95,13 @@ public class GroupJoinRequestDAO extends DBConnect {
 
     // Đếm số yêu cầu pending trong group
     public int countPendingRequests(int groupId) {
-        String sql = "SELECT COUNT(*) FROM GroupJoinRequests WHERE group_id=? AND status='PENDING'";
+        String sql = """
+        SELECT COUNT(*) 
+        FROM GroupJoinRequests 
+        WHERE group_id = ? 
+          AND status = 'PENDING' 
+          AND (invited_by = 0 OR invited_by IS NULL)
+    """;
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, groupId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -129,6 +113,54 @@ public class GroupJoinRequestDAO extends DBConnect {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public List<GroupJoinRequests> getUserRequests(int groupId) {
+        List<GroupJoinRequests> list = new ArrayList<>();
+        String sql = "SELECT * FROM GroupJoinRequests WHERE group_id=? AND (invited_by IS NULL OR invited_by=0)";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, groupId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    GroupJoinRequests req = new GroupJoinRequests();
+                    req.setRequest_id(rs.getInt("request_id"));
+                    req.setGroup_id(rs.getInt("group_id"));
+                    req.setUser_id(rs.getInt("user_id"));
+                    req.setStatus(rs.getString("status"));
+                    req.setRequested_at(rs.getTimestamp("requested_at"));
+                    req.setReviewed_at(rs.getTimestamp("reviewed_at"));
+                    req.setReviewed_by(rs.getInt("reviewed_by"));
+                    req.setInvited_by(rs.getInt("invited_by"));
+                    list.add(req);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<GroupJoinRequests> getLeaderInvites(int groupId) {
+        List<GroupJoinRequests> list = new ArrayList<>();
+        String sql = "SELECT * FROM GroupJoinRequests WHERE group_id=? AND invited_by IS NOT NULL AND invited_by <> 0";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, groupId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    GroupJoinRequests req = new GroupJoinRequests();
+                    req.setRequest_id(rs.getInt("request_id"));
+                    req.setGroup_id(rs.getInt("group_id"));
+                    req.setUser_id(rs.getInt("user_id"));
+                    req.setStatus(rs.getString("status"));
+                    req.setRequested_at(rs.getTimestamp("requested_at"));
+                    req.setInvited_by(rs.getInt("invited_by"));
+                    list.add(req);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
     public boolean approveRequestAndAddMember(int requestId, int groupId, int userId, int leaderId) {
@@ -153,6 +185,133 @@ public class GroupJoinRequestDAO extends DBConnect {
                 conn.rollback();
                 throw ex;
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public String sendInvite(int groupId, String email, int invitedBy) {
+        UserDAO userDAO = new UserDAO();
+        GroupMembersDAO memberDAO = new GroupMembersDAO();
+
+        Users invitedUser = userDAO.getUserByEmail(email);
+        if (invitedUser == null) {
+            return "❌ Người dùng không tồn tại";
+        }
+
+        int userId = invitedUser.getUser_id();
+
+        if (memberDAO.isMember(groupId, userId)) {
+            return "❌ Người dùng này đã là thành viên nhóm";
+        }
+
+        GroupJoinRequests existing = getRequestByUserAndGroup(userId, groupId);
+        if (existing != null) {
+            String status = existing.getStatus();
+
+            if ("INVITED".equalsIgnoreCase(status) || "PENDING".equalsIgnoreCase(status)) {
+                return "❌ Người dùng này đã có lời mời hoặc yêu cầu đang chờ xử lý";
+            }
+
+            if ("CANCELLED".equalsIgnoreCase(status)
+                    || "REJECTED".equalsIgnoreCase(status)
+                    || "EXPIRED".equalsIgnoreCase(status)) {
+                deleteRequest(existing.getRequest_id());
+            }
+        }
+
+        String sql = """
+        INSERT INTO GroupJoinRequests(group_id, user_id, status, invited_by)
+        VALUES (?, ?, 'INVITED', ?)
+    """;
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, groupId);
+            ps.setInt(2, userId);
+            ps.setInt(3, invitedBy);
+            int inserted = ps.executeUpdate();
+            if (inserted > 0) {
+                return "✅ Gửi lời mời thành công cho " + invitedUser.getName();
+            } else {
+                return "❌ Gửi lời mời thất bại";
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "❌ Lỗi hệ thống, vui lòng thử lại";
+        }
+    }
+
+    public boolean deleteRequest(int requestId) {
+        String sql = "DELETE FROM GroupJoinRequests WHERE request_id=?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, requestId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public GroupJoinRequests getRequestByUserAndGroup(int userId, int groupId) {
+        String sql = "SELECT * FROM GroupJoinRequests WHERE user_id=? AND group_id=?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, groupId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                GroupJoinRequests r = new GroupJoinRequests();
+                r.setRequest_id(rs.getInt("request_id"));
+                r.setGroup_id(rs.getInt("group_id"));
+                r.setUser_id(rs.getInt("user_id"));
+                r.setStatus(rs.getString("status"));
+                r.setRequested_at(rs.getTimestamp("requested_at"));
+                r.setReviewed_at(rs.getTimestamp("reviewed_at"));
+                r.setReviewed_by(rs.getInt("reviewed_by"));
+                r.setInvited_by(rs.getInt("invited_by"));
+                return r;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public GroupJoinRequests getRequestById(int requestId) {
+        String sql = "SELECT * FROM GroupJoinRequests WHERE request_id=?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, requestId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                GroupJoinRequests r = new GroupJoinRequests();
+                r.setRequest_id(rs.getInt("request_id"));
+                r.setGroup_id(rs.getInt("group_id"));
+                r.setUser_id(rs.getInt("user_id"));
+                r.setStatus(rs.getString("status"));
+                r.setRequested_at(rs.getTimestamp("requested_at"));
+                r.setReviewed_at(rs.getTimestamp("reviewed_at"));
+                r.setReviewed_by((Integer) rs.getObject("reviewed_by"));
+                r.setInvited_by((Integer) rs.getObject("invited_by"));
+                return r;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean cancelInvite(int requestId, int actorId) {
+        String sql = """
+            UPDATE GroupJoinRequests
+            SET status='CANCELLED', reviewed_at=NOW(), reviewed_by=?
+            WHERE request_id=? AND status='INVITED' AND invited_by=? AND reviewed_by IS NULL
+        """;
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, actorId);
+            ps.setInt(2, requestId);
+            ps.setInt(3, actorId);
+            int updated = ps.executeUpdate();
+            return updated > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -9,13 +9,14 @@ public class GroupJoinRequests {
     private String status;
     private Timestamp requested_at;
     private Timestamp reviewed_at;
-    private int reviewed_by;
+    private Integer reviewed_by;
+    private Integer invited_by;
 
     public GroupJoinRequests() {
     }
 
     public GroupJoinRequests(int request_id, int group_id, int user_id, String status,
-                             Timestamp requested_at, Timestamp reviewed_at, int reviewed_by) {
+                             Timestamp requested_at, Timestamp reviewed_at, int reviewed_by, int invited_by) {
         this.request_id = request_id;
         this.group_id = group_id;
         this.user_id = user_id;
@@ -23,6 +24,16 @@ public class GroupJoinRequests {
         this.requested_at = requested_at;
         this.reviewed_at = reviewed_at;
         this.reviewed_by = reviewed_by;
+        this.invited_by = invited_by;
+    }
+
+    public GroupJoinRequests(int request_id, int group_id, int user_id, String status, Timestamp requested_at, Timestamp reviewed_at) {
+        this.request_id = request_id;
+        this.group_id = group_id;
+        this.user_id = user_id;
+        this.status = status;
+        this.requested_at = requested_at;
+        this.reviewed_at = reviewed_at;
     }
 
     public GroupJoinRequests(int request_id, int group_id, int user_id, String status, Timestamp requested_at) {
@@ -31,6 +42,16 @@ public class GroupJoinRequests {
         this.user_id = user_id;
         this.status = status;
         this.requested_at = requested_at;
+    }
+
+    public GroupJoinRequests(int request_id, int group_id, int user_id, String status, Timestamp requested_at, Timestamp reviewed_at, int reviewed_by) {
+        this.request_id = request_id;
+        this.group_id = group_id;
+        this.user_id = user_id;
+        this.status = status;
+        this.requested_at = requested_at;
+        this.reviewed_at = reviewed_at;
+        this.reviewed_by = reviewed_by;
     }
 
     
@@ -83,11 +104,21 @@ public class GroupJoinRequests {
         this.reviewed_at = reviewed_at;
     }
 
-    public int getReviewed_by() {
+    public Integer getReviewed_by() {
         return reviewed_by;
     }
 
-    public void setReviewed_by(int reviewed_by) {
+    public void setReviewed_by(Integer reviewed_by) {
         this.reviewed_by = reviewed_by;
     }
+
+    public Integer getInvited_by() {
+        return invited_by;
+    }
+
+    public void setInvited_by(Integer invited_by) {
+        this.invited_by = invited_by;
+    }
+
+    
 }
