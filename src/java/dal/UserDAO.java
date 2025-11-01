@@ -8,7 +8,10 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import model.Users;
 import util.MailUtil;
 
@@ -80,7 +83,7 @@ public class UserDAO {
 
     public int signup(Users user) {
         String sql = "INSERT INTO Users (name, email, phone, password, date_of_birth, gender, avatar, address, role, status) "
-                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, user.getName());
             ps.setString(2, user.getEmail());
@@ -165,7 +168,6 @@ public class UserDAO {
     }
 
     // --- phần reset password giữ nguyên vì không phụ thuộc schema Users ---
-
     public boolean requestPasswordReset(String email) {
         lastErrorMessage = null;
         Users user = getUserByEmail(email);
@@ -217,9 +219,9 @@ public class UserDAO {
 
     public Integer getUserIdByValidOtp(String email, String otp) {
         String sql = "SELECT pr.user_id FROM PasswordResets pr "
-                   + "JOIN Users u ON pr.user_id = u.user_id "
-                   + "WHERE u.email = ? AND pr.token = ? AND pr.expires_at > NOW() "
-                   + "ORDER BY pr.reset_id DESC LIMIT 1";
+                + "JOIN Users u ON pr.user_id = u.user_id "
+                + "WHERE u.email = ? AND pr.token = ? AND pr.expires_at > NOW() "
+                + "ORDER BY pr.reset_id DESC LIMIT 1";
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             ps.setString(2, otp);
@@ -297,28 +299,48 @@ public class UserDAO {
         }
         return users;
     }
-    
+
     public Users getGroupLeader(int groupId) {
-    String sql = "SELECT u.* FROM GroupMembers gm " +
-                 "JOIN Users u ON gm.user_id = u.user_id " +
-                 "WHERE gm.group_id = ? AND gm.role = 'Leader' LIMIT 1";
-    try (Connection conn = DBConnect.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setInt(1, groupId);
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                Users leader = new Users();
-                leader.setUser_id(rs.getInt("user_id"));
-                leader.setName(rs.getString("name"));
-                leader.setEmail(rs.getString("email"));
-                leader.setPassword(rs.getString("password"));
-                return leader;
+        String sql = "SELECT u.* FROM GroupMembers gm "
+                + "JOIN Users u ON gm.user_id = u.user_id "
+                + "WHERE gm.group_id = ? AND gm.role = 'Leader' LIMIT 1";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, groupId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Users leader = new Users();
+                    leader.setUser_id(rs.getInt("user_id"));
+                    leader.setName(rs.getString("name"));
+                    leader.setEmail(rs.getString("email"));
+                    leader.setPassword(rs.getString("password"));
+                    return leader;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Map<Integer, String> getUserNamesByIds(Set<Integer> ids) throws SQLException {
+        Map<Integer, String> userMap = new HashMap<>();
+        if (ids == null || ids.isEmpty()) {
+            return userMap;
+        }
+
+        String placeholders = String.join(",", java.util.Collections.nCopies(ids.size(), "?"));
+        String sql = "SELECT user_id, name FROM Users WHERE user_id IN (" + placeholders + ")";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            int i = 1;
+            for (int id : ids) {
+                ps.setInt(i++, id);
+            }
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                userMap.put(rs.getInt("user_id"), rs.getString("name"));
             }
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        return userMap;
     }
-    return null;
-}
 
 }

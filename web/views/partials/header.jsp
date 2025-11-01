@@ -183,7 +183,7 @@
                     </div>
                     <div class="offcanvas-body align-items-center justify-content-center">
                         <ul class="navbar-nav align-items-center mb-2 mb-lg-0">
-                           <li class="nav-item px-3">
+                            <li class="nav-item px-3">
                                 <a class="nav-link active p-0" aria-current="page" href="${pageContext.request.contextPath}/index.html">Home</a>
                             </li>
                             <li class="nav-item px-3">
@@ -199,7 +199,12 @@
                         </ul>
                     </div>
                 </div>
-                <div class="nav-icon">
+                <div class="nav-icon" style="
+                     position: absolute !important;
+                     right: 20px !important;
+                     top: 50% !important;
+                     transform: translateY(-50%) !important;
+                     ">
                     <ul class="list-unstyled d-flex justify-content-between align-items-center m-0">
                         <c:if test="${not empty sessionScope.currentUser}">
                             <li class="nav-icons pe-3 d-flex align-items-center text-black">
@@ -244,6 +249,7 @@
                         </c:if>
                     </ul>
                 </div>
+
             </div>
         </nav>
     </header>

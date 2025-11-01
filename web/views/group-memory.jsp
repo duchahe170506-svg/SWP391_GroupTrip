@@ -96,9 +96,10 @@
                 margin-right: 5px;
             }
             .reaction-btn.active {
-                background: #1877f2;
-                color: white;
+                background-color: #ffe066;
+                transform: scale(1.1);
             }
+
             .reaction-btn:hover {
                 background: #d8dadf;
             }
@@ -133,15 +134,17 @@
                 flex-wrap: wrap;
             }
             .btn {
-                padding: 5px 10px;
-                border: none;
-                border-radius: 4px;
-                color: #fff;
-                cursor: pointer;
-                transition: 0.3s;
+                padding: 5px 10px !important;
+                border: none !important;
+                border-radius: 4px !important;
+                color: #fff !important;
+                background-color: #77a096 !important;
+                cursor: pointer !important;
+                transition: 0.3s !important;
             }
+
             .btn-add {
-                background-color: #27ae60;
+                background-color: #77a096;
             }
             .btn-edit {
                 background-color: #2980b9;
@@ -288,11 +291,19 @@
                             <input type="hidden" name="action" value="react">
                             <input type="hidden" name="memoryId" value="${m.memoryId}">
                             <input type="hidden" name="groupId" value="${groupId}">
-                            <button class="reaction-btn" name="type" value="Like">👍 Like</button>
-                            <button class="reaction-btn" name="type" value="Love">❤️ Love</button>
-                            <button class="reaction-btn" name="type" value="Haha">😂 Haha</button>
+
+                            <button class="reaction-btn ${m.userReaction eq 'Like' ? 'active' : ''}" name="type" value="Like">👍</button>
+                            <button class="reaction-btn ${m.userReaction eq 'Love' ? 'active' : ''}" name="type" value="Love">❤️</button>
+                            <button class="reaction-btn ${m.userReaction eq 'Haha' ? 'active' : ''}" name="type" value="Haha">😂</button>
+                            <button class="reaction-btn ${m.userReaction eq 'Wow' ? 'active' : ''}" name="type" value="Wow">😮</button>
+                            <button class="reaction-btn ${m.userReaction eq 'Sad' ? 'active' : ''}" name="type" value="Sad">😢</button>
+                            <button class="reaction-btn ${m.userReaction eq 'Angry' ? 'active' : ''}" name="type" value="Angry">😡</button>
+
                             <span class="reaction-count">Reactions: ${m.reactionsCount}</span>
                         </form>
+
+
+
 
                         <div class="comments">
                             <c:forEach var="cmt" items="${m.comments}">
@@ -340,17 +351,20 @@
                         </form>
 
                         <div class="memory-controls">
-                            <button class="btn btn-edit" 
-                                    data-id="${m.memoryId}" 
-                                    data-title="${m.title}" 
-                                    data-content="${m.content}" 
-                                    data-img="${m.imageUrl}">✏️ Sửa</button>
-                            <form action="${pageContext.request.contextPath}/group-memories" method="post" style="display:inline;">
-                                <input type="hidden" name="action" value="delete">
-                                <input type="hidden" name="memoryId" value="${m.memoryId}">
-                                <input type="hidden" name="groupId" value="${groupId}">
-                                <button type="submit" class="btn btn-cls" onclick="return confirm('Xóa bài này?')">🗑️ Xóa</button>
-                            </form>
+                            <c:if test="${m.userId == currentUser.user_id}">
+                                <button class="btn btn-edit" 
+                                        data-id="${m.memoryId}" 
+                                        data-title="${m.title}" 
+                                        data-content="${m.content}" 
+                                        data-img="${m.imageUrl}">✏️ Sửa</button>
+                                <form action="${pageContext.request.contextPath}/group-memories" method="post" style="display:inline;">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="memoryId" value="${m.memoryId}">
+                                    <input type="hidden" name="groupId" value="${groupId}">
+                                    <button type="submit" class="btn btn-cls" onclick="return confirm('Xóa bài này?')">🗑️ Xóa</button>
+                                </form>
+                            </c:if>
+
                             <button type="button" class="btn btn-share"
                                     data-memory-id="${m.memoryId}"
                                     data-group-id="${groupId}"
@@ -401,8 +415,8 @@
 
                 <!-- Thông tin kỷ niệm -->
                 <div id="shareMemoryInfo" style="margin-bottom:10px;">
-                    <p><strong>Tiêu đề:</strong> <span id="shareTitle"></span></p>
-                    <p><strong>Nội dung:</strong> <span id="shareContent"></span></p>
+                    <p><strong>Tiêu đề:</strong> <span id="shareTitleDisplay"></span></p>
+                    <p><strong>Nội dung:</strong> <span id="shareContentDisplay"></span></p>
                     <img id="shareImage" src="" alt="Ảnh kỷ niệm" style="max-width:200px; max-height:150px; display:none; border-radius:6px;">
                 </div>
 
@@ -411,6 +425,9 @@
                     <input type="hidden" name="action" value="share">
                     <input type="hidden" name="memoryId" id="shareMemoryId">
                     <input type="hidden" name="groupId" id="shareGroupId">
+                    <input type="hidden" name="title" id="shareTitle">
+                    <input type="hidden" name="content" id="shareContent">
+                    <input type="hidden" name="imageUrl" id="shareImageInput">
                     <label>Chọn quyền riêng tư:</label>
                     <select name="privacy" id="privacySelect">
                         <option value="Public">Công khai</option>
@@ -452,6 +469,7 @@
                 document.getElementById('oldImageUrl').value = '';
                 document.getElementById('imagePreview').style.display = 'none';
                 document.getElementById('modalMemory').style.display = 'block';
+                document.getElementById('memoryImageFile').required = true;
             };
 
             document.querySelectorAll('.btn-edit').forEach(btn => {
@@ -470,6 +488,7 @@
                         document.getElementById('imagePreview').style.display = 'none';
                     }
                     document.getElementById('modalMemory').style.display = 'block';
+                    document.getElementById('memoryImageFile').required = false;
                 };
             });
 
@@ -479,7 +498,7 @@
 
             document.querySelectorAll('.btn-share').forEach(btn => {
                 btn.onclick = function () {
-                    // Lấy thông tin kỷ niệm từ data-attributes
+
                     const memoryId = this.dataset.memoryId;
                     const groupId = this.dataset.groupId;
                     const title = this.dataset.title || '';
@@ -488,9 +507,12 @@
 
                     document.getElementById('shareMemoryId').value = memoryId;
                     document.getElementById('shareGroupId').value = groupId;
+                    document.getElementById('shareTitle').value = title;
+                    document.getElementById('shareContent').value = content;
+                    document.getElementById('shareImageInput').value = img;
 
-                    document.getElementById('shareTitle').textContent = title;
-                    document.getElementById('shareContent').textContent = content;
+                    document.getElementById('shareTitleDisplay').textContent = title;
+                    document.getElementById('shareContentDisplay').textContent = content;
 
                     const shareImage = document.getElementById('shareImage');
                     if (img) {

@@ -323,11 +323,10 @@
                         <h3>Lời mời từ thành viên nhóm</h3>
                         <table>
                             <tr>
-                                <th>Leader mời</th>
+                                <th>Thành viên mời</th>
                                 <th>Người được mời</th>
                                 <th>Thời gian</th>
                                 <th>Trạng thái</th>
-                                <th>Người duyệt</th>
                                 <th>Hành động</th>
                             </tr>
                             <c:forEach var="r" items="${leaderInvites}">
@@ -336,16 +335,7 @@
                                     <td>${userMap[r.user_id]}</td>
                                     <td><fmt:formatDate value="${r.requested_at}" pattern="dd/MM/yyyy HH:mm"/></td>
                                     <td>${r.status}</td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${r.reviewed_by != null}">
-                                                ${userMap[r.reviewed_by]}
-                                            </c:when>
-                                            <c:otherwise>
-                                                <span style="color:gray;">Chưa duyệt</span>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </td>
+                                   
                                     <td>
                                         <c:if test="${r.status eq 'INVITED' 
                                                       && sessionScope.currentUser != null 

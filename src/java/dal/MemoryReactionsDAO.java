@@ -79,13 +79,13 @@ public class MemoryReactionsDAO extends DBConnect {
     }
 
     public String getUserReactionType(int memoryId, int userId) {
-        String sql = "SELECT reaction_type FROM MemoryReactions WHERE memory_id=? AND user_id=?";
+        String sql = "SELECT type FROM MemoryReactions WHERE memory_id=? AND user_id=?";
         try (Connection c = getConnection(); PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, memoryId);
             ps.setInt(2, userId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return rs.getString("reaction_type");
+                return rs.getString("type");
             }
         } catch (Exception e) {
             e.printStackTrace();

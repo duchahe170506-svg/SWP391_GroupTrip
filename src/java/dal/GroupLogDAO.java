@@ -5,7 +5,9 @@ import model.GroupJoinRequests;
 import model.MemberRemovals;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GroupLogDAO extends DBConnect {
 
@@ -31,29 +33,32 @@ public class GroupLogDAO extends DBConnect {
     }
 
     public List<GroupJoinRequests> getJoinRequestsHistory(int groupId) throws SQLException {
-    List<GroupJoinRequests> list = new ArrayList<>();
-    String sql = "SELECT * FROM GroupJoinRequests WHERE group_id = ? AND status IN ('ACCEPTED','REJECTED','INVITED') ORDER BY reviewed_at DESC";
-    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setInt(1, groupId);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            GroupJoinRequests r = new GroupJoinRequests();
-            r.setRequest_id(rs.getInt("request_id"));
-            r.setGroup_id(rs.getInt("group_id"));
-            r.setUser_id(rs.getInt("user_id"));
-            r.setStatus(rs.getString("status"));
-            r.setRequested_at(rs.getTimestamp("requested_at"));
-            r.setReviewed_at(rs.getTimestamp("reviewed_at"));
-            int revBy = rs.getInt("reviewed_by");
-            if (!rs.wasNull()) r.setReviewed_by(revBy);
-            int invBy = rs.getInt("invited_by");
-            if (!rs.wasNull()) r.setInvited_by(invBy);
-            list.add(r);
+        List<GroupJoinRequests> list = new ArrayList<>();
+        String sql = "SELECT * FROM GroupJoinRequests WHERE group_id = ? AND status IN ('ACCEPTED','REJECTED','INVITED') ORDER BY reviewed_at DESC";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, groupId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                GroupJoinRequests r = new GroupJoinRequests();
+                r.setRequest_id(rs.getInt("request_id"));
+                r.setGroup_id(rs.getInt("group_id"));
+                r.setUser_id(rs.getInt("user_id"));
+                r.setStatus(rs.getString("status"));
+                r.setRequested_at(rs.getTimestamp("requested_at"));
+                r.setReviewed_at(rs.getTimestamp("reviewed_at"));
+                int revBy = rs.getInt("reviewed_by");
+                if (!rs.wasNull()) {
+                    r.setReviewed_by(revBy);
+                }
+                int invBy = rs.getInt("invited_by");
+                if (!rs.wasNull()) {
+                    r.setInvited_by(invBy);
+                }
+                list.add(r);
+            }
         }
+        return list;
     }
-    return list;
-}
-
 
     public List<MemberRemovals> getRemovalHistory(int groupId) throws SQLException {
         List<MemberRemovals> list = new ArrayList<>();
@@ -74,4 +79,29 @@ public class GroupLogDAO extends DBConnect {
         }
         return list;
     }
+
+    public List<Map<String, Object>> getAnnouncementLogs(int groupId) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        String sql = "SELECT n.sender_id, u.name AS sender_name, n.message, n.created_at "
+                + "FROM Notifications n "
+                + "JOIN Users u ON n.sender_id = u.user_id "
+                + "WHERE n.type = 'GROUP_ANNOUNCEMENT' AND n.related_id = ? "
+                + "ORDER BY n.created_at DESC";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, groupId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Map<String, Object> log = new HashMap<>();
+                log.put("sender_id", rs.getInt("sender_id"));
+                log.put("sender_name", rs.getString("sender_name"));
+                log.put("message", rs.getString("message"));
+                log.put("time", rs.getTimestamp("created_at"));
+                list.add(log);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error fetching announcement logs: " + e.getMessage());
+        }
+        return list;
+    }
+
 }

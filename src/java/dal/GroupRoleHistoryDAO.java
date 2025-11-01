@@ -13,10 +13,11 @@ import java.util.List;
  *
  * @author quang
  */
-public class GroupRoleHistoryDAO extends DBConnect{
-        public boolean addHistory(GroupRoleHistory history) {
-        String sql = "INSERT INTO GroupRoleHistory (group_id, user_id, old_role, new_role, changed_by, changed_at) " +
-                     "VALUES (?, ?, ?, ?, ?, NOW())";
+public class GroupRoleHistoryDAO extends DBConnect {
+
+    public boolean addHistory(GroupRoleHistory history) {
+        String sql = "INSERT INTO GroupRoleHistory (group_id, user_id, old_role, new_role, changed_by, changed_at) "
+                + "VALUES (?, ?, ?, ?, ?, NOW())";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, history.getGroup_id());
             ps.setInt(2, history.getUser_id());
@@ -75,4 +76,16 @@ public class GroupRoleHistoryDAO extends DBConnect{
         history.setChanged_at(rs.getTimestamp("changed_at"));
         return history;
     }
+
+    public boolean changeMemberRole(int groupId, int userId, String oldRole, String newRole, int changedBy) {
+        GroupRoleHistoryDAO roleDao = new GroupRoleHistoryDAO();
+        NotificationDAO notiDao = new NotificationDAO();
+        boolean success = roleDao.addHistory(new GroupRoleHistory(0, groupId, userId, oldRole, newRole, changedBy, null));
+        if (success) {
+            String message = "Your role in group #" + groupId + " has been changed from " + oldRole + " to " + newRole + ".";
+            notiDao.createNotification(changedBy, userId, "ROLE_CHANGE", groupId, message);
+        }
+        return success;
+    }
+
 }
