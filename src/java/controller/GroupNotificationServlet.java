@@ -1,34 +1,31 @@
 package controller;
 
-import dal.UserDAO;
-import dal.GroupLogDAO;
-import dal.TravelGroupsDAO;
-import dal.TripDAO;
-import model.GroupJoinRequests;
-import model.GroupRoleHistory;
-import model.MemberRemovals;
-
-import jakarta.servlet.ServletException;
+import dal.*;
+import model.*;
+import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
+import jakarta.servlet.http.*;
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import model.Groups;
-import model.Trips;
+import java.util.*;
 
 @WebServlet("/group/notifications")
 public class GroupNotificationServlet extends HttpServlet {
+
     private TripDAO tripDAO = new TripDAO();
     private TravelGroupsDAO travelGroupsDAO = new TravelGroupsDAO();
+    private GroupLogDAO logDAO = new GroupLogDAO();
+    private UserDAO userDAO = new UserDAO();
+    private NotificationDAO notificationDAO = new NotificationDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        Users currentUser = (Users) session.getAttribute("currentUser");
+        if (currentUser == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+
         String groupIdParam = request.getParameter("groupId");
         if (groupIdParam == null || groupIdParam.isEmpty()) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing groupId parameter");
@@ -45,44 +42,82 @@ public class GroupNotificationServlet extends HttpServlet {
 
         Groups group = travelGroupsDAO.getGroupById(groupId);
         Trips trip = (group != null) ? tripDAO.getTripById(group.getGroup_id()) : null;
-
-        GroupLogDAO logDAO = new GroupLogDAO();
-        UserDAO userDAO = new UserDAO();
+        boolean isLeader = travelGroupsDAO.isLeader(currentUser.getUser_id(), groupId);
 
         try {
+            // Lấy tất cả log
             List<GroupRoleHistory> roleLogs = logDAO.getRoleHistory(groupId);
             List<GroupJoinRequests> joinLogs = logDAO.getJoinRequestsHistory(groupId);
             List<MemberRemovals> removalLogs = logDAO.getRemovalHistory(groupId);
+            List<Map<String, Object>> announcementLogs = logDAO.getAnnouncementLogs(groupId);
 
-            Map<Integer, String> userMap = new HashMap<>();
+            Set<Integer> userIds = new HashSet<>();
             for (GroupRoleHistory r : roleLogs) {
-                userMap.put(r.getUser_id(), userDAO.getUserById(r.getUser_id()).getName());
-                userMap.put(r.getChanged_by(), userDAO.getUserById(r.getChanged_by()).getName());
+                userIds.add(r.getUser_id());
+                userIds.add(r.getChanged_by());
             }
             for (GroupJoinRequests r : joinLogs) {
-                userMap.put(r.getUser_id(), userDAO.getUserById(r.getUser_id()).getName());
-                if (r.getReviewed_by() != null) userMap.put(r.getReviewed_by(), userDAO.getUserById(r.getReviewed_by()).getName());
-                if (r.getInvited_by() != null) userMap.put(r.getInvited_by(), userDAO.getUserById(r.getInvited_by()).getName());
+                userIds.add(r.getUser_id());
+                if (r.getReviewed_by() != null) {
+                    userIds.add(r.getReviewed_by());
+                }
+                if (r.getInvited_by() != null) {
+                    userIds.add(r.getInvited_by());
+                }
             }
             for (MemberRemovals r : removalLogs) {
-                userMap.put(r.getRemoved_user_id(), userDAO.getUserById(r.getRemoved_user_id()).getName());
-                userMap.put(r.getRemoved_by(), userDAO.getUserById(r.getRemoved_by()).getName());
+                userIds.add(r.getRemoved_user_id());
+                userIds.add(r.getRemoved_by());
             }
 
-        
-            List<LogEntry> allLogs = new java.util.ArrayList<>();
+            Map<Integer, String> userMap = userDAO.getUserNamesByIds(userIds);
 
-            for (GroupRoleHistory r : roleLogs) allLogs.add(new LogEntry("role-change", r.getChanged_at(), r));
-            for (GroupJoinRequests r : joinLogs) allLogs.add(new LogEntry("join-invite", r.getRequested_at(), r));
-            for (MemberRemovals r : removalLogs) allLogs.add(new LogEntry("removal", r.getRemoved_at(), r));
+            List<Map<String, Object>> allLogs = new ArrayList<>();
+            for (GroupRoleHistory r : roleLogs) {
+                if (r.getChanged_at() != null) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("type", "role-change");
+                    map.put("time", r.getChanged_at());
+                    map.put("log", r);
+                    allLogs.add(map);
+                }
+            }
+            for (GroupJoinRequests r : joinLogs) {
+                if (r.getRequested_at() != null) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("type", "join-invite");
+                    map.put("time", r.getRequested_at());
+                    map.put("log", r);
+                    allLogs.add(map);
+                }
+            }
+            for (MemberRemovals r : removalLogs) {
+                if (r.getRemoved_at() != null) {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("type", "removal");
+                    map.put("time", r.getRemoved_at());
+                    map.put("log", r);
+                    allLogs.add(map);
+                }
+            }
+            Set<String> seenAnnouncements = new HashSet<>();
+            for (Map<String, Object> aLog : announcementLogs) {
+                String key = aLog.get("message") + "|" + aLog.get("time"); // key duy nhất
+                if (!seenAnnouncements.contains(key)) {
+                    aLog.put("type", "announcement");
+                    allLogs.add(aLog);
+                    seenAnnouncements.add(key);
+                }
+            }
 
-      
-            allLogs.sort((a,b) -> b.getTime().compareTo(a.getTime()));
+            allLogs.sort((a, b) -> ((Date) b.get("time")).compareTo((Date) a.get("time")));
 
             request.setAttribute("allLogs", allLogs);
             request.setAttribute("userMap", userMap);
             request.setAttribute("trip", trip);
             request.setAttribute("groupId", groupId);
+            request.setAttribute("isLeader", isLeader);
+            request.setAttribute("currentUser", currentUser);
 
             request.getRequestDispatcher("/views/group-notification.jsp").forward(request, response);
 
@@ -91,21 +126,27 @@ public class GroupNotificationServlet extends HttpServlet {
         }
     }
 
-
-    public static class LogEntry {
-        private String type;
-        private java.util.Date time;
-        private Object log;
-
-        public LogEntry(String type, java.util.Date time, Object log) {
-            this.type = type;
-            this.time = time;
-            this.log = log;
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        Users currentUser = (Users) session.getAttribute("currentUser");
+        if (currentUser == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
         }
 
-        public String getType() { return type; }
-        public java.util.Date getTime() { return time; }
-        public Object getLog() { return log; }
+        int groupId = Integer.parseInt(request.getParameter("groupId"));
+        String message = request.getParameter("message");
+
+        if (!travelGroupsDAO.isLeader(currentUser.getUser_id(), groupId)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "You are not allowed to send announcements.");
+            return;
+        }
+
+        List<Integer> activeMembers = travelGroupsDAO.getActiveMemberIds(groupId);
+        activeMembers.remove(Integer.valueOf(currentUser.getUser_id()));
+        notificationDAO.createBulkNotifications(currentUser.getUser_id(), activeMembers, "GROUP_ANNOUNCEMENT", groupId, message);
+
+        doGet(request, response);
     }
 }
-

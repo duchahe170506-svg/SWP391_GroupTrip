@@ -318,4 +318,117 @@ public class GroupJoinRequestDAO extends DBConnect {
         return false;
     }
 
+    public String respondToInvite(int requestId, int userId, String action) {
+        String sqlGet = """
+        SELECT gjr.group_id, gjr.invited_by, t.name AS trip_name, t.start_date, t.end_date, t.max_participants
+        FROM GroupJoinRequests gjr
+        JOIN Trips t ON gjr.group_id = t.group_id
+        WHERE gjr.request_id = ? AND gjr.user_id = ?
+    """;
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sqlGet)) {
+
+            ps.setInt(1, requestId);
+            ps.setInt(2, userId);
+            ResultSet rs = ps.executeQuery();
+
+            if (!rs.next()) {
+                return "❌ Lời mời không tồn tại hoặc không thuộc về bạn";
+            }
+
+            int groupId = rs.getInt("group_id");
+            int inviterId = rs.getInt("invited_by");
+            String tripName = rs.getString("trip_name");
+            Date start = rs.getDate("start_date");
+            Date end = rs.getDate("end_date");
+            int maxParticipants = rs.getInt("max_participants");
+
+            // Lấy tên người dùng hiện tại
+            String userName = null;
+            try (PreparedStatement psUser = conn.prepareStatement("SELECT name FROM Users WHERE user_id=?")) {
+                psUser.setInt(1, userId);
+                ResultSet rsUser = psUser.executeQuery();
+                if (rsUser.next()) {
+                    userName = rsUser.getString("name");
+                } else {
+                    userName = "Người dùng";
+                }
+            }
+
+            if (action.equalsIgnoreCase("REJECT")) {
+                try (PreparedStatement psReject = conn.prepareStatement(
+                        "UPDATE GroupJoinRequests SET status='REJECTED', reviewed_at=NOW(), reviewed_by=? WHERE request_id=?")) {
+                    psReject.setInt(1, userId);
+                    psReject.setInt(2, requestId);
+                    psReject.executeUpdate();
+                }
+
+                try (PreparedStatement psNoti = conn.prepareStatement(
+                        "INSERT INTO Notifications (sender_id, user_id, type, related_id, message) VALUES (?, ?, 'JOIN_RESPONSE', ?, ?)")) {
+                    psNoti.setInt(1, userId);
+                    psNoti.setInt(2, inviterId);
+                    psNoti.setInt(3, groupId);
+                    psNoti.setString(4, "❌ " + userName + " đã từ chối lời mời tham gia chuyến đi '" + tripName + "'.");
+                    psNoti.executeUpdate();
+                }
+
+                return "❌ Bạn đã từ chối lời mời.";
+            }
+
+            // Kiểm tra số lượng thành viên
+            try (PreparedStatement psCount = conn.prepareStatement(
+                    "SELECT COUNT(*) FROM GroupMembers WHERE group_id=? AND status='Active'")) {
+                psCount.setInt(1, groupId);
+                ResultSet rsc = psCount.executeQuery();
+                if (rsc.next() && rsc.getInt(1) >= maxParticipants) {
+                    return "⚠️ Nhóm đã đủ số lượng thành viên, không thể tham gia.";
+                }
+            }
+
+            // Kiểm tra trùng thời gian
+            try (PreparedStatement psOverlap = conn.prepareStatement(
+                    "SELECT COUNT(*) FROM Trips t "
+                    + "JOIN GroupMembers gm ON t.group_id = gm.group_id "
+                    + "WHERE gm.user_id=? AND gm.status='Active' AND NOT (t.end_date < ? OR t.start_date > ?)")) {
+                psOverlap.setInt(1, userId);
+                psOverlap.setDate(2, start);
+                psOverlap.setDate(3, end);
+                ResultSet rso = psOverlap.executeQuery();
+                if (rso.next() && rso.getInt(1) > 0) {
+                    return "⚠️ Thời gian chuyến đi này trùng với một chuyến khác bạn đã tham gia.";
+                }
+            }
+
+            conn.setAutoCommit(false);
+            try (PreparedStatement psAccept = conn.prepareStatement(
+                    "UPDATE GroupJoinRequests SET status='ACCEPTED', reviewed_at=NOW(), reviewed_by=? WHERE request_id=?"); PreparedStatement psMember = conn.prepareStatement(
+                            "INSERT INTO GroupMembers (group_id, user_id, role, joined_at) VALUES (?, ?, 'Member', NOW())"); PreparedStatement psNoti = conn.prepareStatement(
+                            "INSERT INTO Notifications (sender_id, user_id, type, related_id, message) VALUES (?, ?, 'JOIN_RESPONSE', ?, ?)")) {
+
+                psAccept.setInt(1, userId);
+                psAccept.setInt(2, requestId);
+                psAccept.executeUpdate();
+
+                psMember.setInt(1, groupId);
+                psMember.setInt(2, userId);
+                psMember.executeUpdate();
+
+                psNoti.setInt(1, userId);
+                psNoti.setInt(2, inviterId);
+                psNoti.setInt(3, groupId);
+                psNoti.setString(4, "✅ " + userName + " đã chấp nhận tham gia chuyến đi '" + tripName + "'.");
+                psNoti.executeUpdate();
+
+                conn.commit();
+                return "✅ Bạn đã chấp nhận và tham gia nhóm thành công!";
+            } catch (SQLException ex) {
+                conn.rollback();
+                throw ex;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "❌ Lỗi hệ thống, vui lòng thử lại.";
+        }
+    }
 }

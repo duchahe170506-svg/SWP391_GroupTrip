@@ -358,8 +358,8 @@ public class GroupMembersDAO {
             }
 
             // 4️⃣ Tạo notification cho Leader/CoLeader còn lại
-            String notifSql = "INSERT INTO Notifications (user_id, content) "
-                    + "SELECT user_id, CONCAT('Thành viên ', ?, ' đã rời nhóm') "
+            String notifSql = "INSERT INTO Notifications (user_id, type, message) "
+                    + "SELECT user_id,'GENERAL', CONCAT('Thành viên ', ?, ' đã rời nhóm') "
                     + "FROM GroupMembers WHERE group_id=? AND role IN ('Leader','CoLeader') AND status='Active'";
             try (PreparedStatement ps = conn.prepareStatement(notifSql)) {
                 ps.setString(1, getUserNameById(userId));

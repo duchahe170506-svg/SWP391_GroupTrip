@@ -5,137 +5,165 @@
     <title>Sign up</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
     <style>
-        .card {
-            position: relative;
-            overflow: hidden;
-            max-width: 520px;
-            width: 100%;
-            background: #fff;
-            border-radius: 10px;
-            padding: 30px 40px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        }
+    /* ===============================
+       SIGNUP FORM STYLES (isolated)
+    =============================== */
+    .signup-card {
+        position: relative;
+        overflow: hidden;
+        max-width: 520px;
+        width: 100%;
+        background: #fff;
+        border-radius: 10px;
+        padding: 30px 40px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        margin: 50px auto;
+        font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    }
 
-        h1 {
-            text-transform: uppercase;
-            text-align: center;
-            margin-bottom: 20px;
-        }
+    .signup-card h1 {
+        text-transform: uppercase;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #222;
+        font-size: 26px;
+    }
 
-        .form-group {
-            margin-bottom: 18px;
-            position: relative;
-        }
+    .signup-card .form-group {
+        margin-bottom: 18px;
+        position: relative;
+    }
 
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #333;
-        }
+    .signup-card label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: #333;
+    }
 
-        input {
-            width: 100%;
-            padding: 10px 40px 10px 12px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-            transition: 0.2s;
-        }
+    .signup-card input {
+        width: 100%;
+        padding: 10px 40px 10px 12px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+        transition: 0.2s;
+        font-size: 15px;
+        background: #fff;
+    }
 
-        input:focus {
-            border-color: #007bff;
-            outline: none;
-            box-shadow: 0 0 4px rgba(0,123,255,0.2);
-        }
+    .signup-card input:focus {
+        border-color: #007bff;
+        outline: none;
+        box-shadow: 0 0 4px rgba(0,123,255,0.25);
+    }
 
-        .toggle-password {
-            position: absolute;
-            right: 12px;
-            top: 36px;
-            cursor: pointer;
-            color: #777;
-            font-size: 16px;
-        }
+    .signup-card .toggle-password {
+        position: absolute;
+        right: 12px;
+        top: 48px;
+        cursor: pointer;
+        color: #777;
+        font-size: 16px;
+        transition: color 0.2s;
+    }
 
-        .toggle-password:hover {
-            color: #333;
-        }
+    .signup-card .toggle-password:hover {
+        color: #333;
+    }
 
-        .btn.primary {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.25s;
-        }
+    .signup-card .btn.primary {
+        background-color: #77a096;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.25s;
+        width: 100%;
+        font-size: 15px;
+    }
 
-        .btn.primary:hover:enabled {
-            background-color: #0056b3;
-        }
+    .signup-card .btn.primary:hover:enabled {
+        background-color: #0056b3;
+    }
 
-        .btn.primary:disabled {
-            background-color: #aaa;
-            cursor: not-allowed;
-        }
+    .signup-card .btn.primary:disabled {
+        background-color: #aaa;
+        cursor: not-allowed;
+    }
 
-        .alert.error {
-            color: red;
-            text-align: center;
-            margin-bottom: 10px;
-        }
+    .signup-card .alert.error {
+        color: red;
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 15px;
+    }
 
-        .checklist {
-            margin: 15px 0;
-            padding: 0;
-            list-style: none;
-            font-size: 14px;
-            color: #555;
-        }
+    .signup-card .checklist {
+        margin: 15px 0;
+        padding: 0;
+        list-style: none;
+        font-size: 14px;
+        color: #555;
+    }
 
-        .checklist li {
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-        }
+    .signup-card .checklist li {
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+    }
 
-        .checklist i {
-            margin-right: 8px;
-        }
+    .signup-card .checklist i {
+        margin-right: 8px;
+        font-size: 15px;
+    }
 
-        .checklist i.fa-circle-xmark { color: red; }
-        .checklist i.fa-circle-check { color: green; }
+    .signup-card .checklist i.fa-circle-xmark { color: red; }
+    .signup-card .checklist i.fa-circle-check { color: green; }
 
-        .form-meta {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-        }
+    .signup-card .form-meta {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        margin-top: 10px;
+    }
 
-        .form-meta a {
-            color: #007bff;
-            text-decoration: none;
-        }
+    .signup-card .form-meta a {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: 500;
+    }
 
-        .form-meta a:hover {
-            text-decoration: underline;
-        }
+    .signup-card .form-meta a:hover {
+        text-decoration: underline;
+    }
 
-        #matchMsg {
-            color: red;
-            font-size: 14px;
-            margin-top: 4px;
-            display: none;
+    .signup-card #matchMsg {
+        color: red;
+        font-size: 14px;
+        margin-top: 4px;
+        display: none;
+    }
+
+    /* ========== Responsive tweaks ========== */
+    @media (max-width: 600px) {
+        .signup-card {
+            padding: 25px;
         }
-    </style>
+        .signup-card h1 {
+            font-size: 22px;
+        }
+    }
+</style>
+
+   
 </head>
 <body>
 
-<div class="card">
+<div class="signup-card">
     <h1>Sign up</h1>
 
     <c:if test="${not empty error}">

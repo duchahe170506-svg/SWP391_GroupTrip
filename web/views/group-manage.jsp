@@ -134,84 +134,126 @@
                     <li><a href="#">🎯 Activities</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/manage/tasks?groupId=${groupId}">🧾 Tasks</a></li>
                     <li><a href="#">💰 Expense</a></li>
-                    <li><a href="${pageContext.request.contextPath}/group-memories">📸 Memories</a></li>
-                    <li><a href="#">🔔 Notification</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group-memories?groupId=${groupId}">📸 Memories</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/notifications?groupId=${groupId}">🔔 Notification</a></li>
                 </ul>
             </div>
 
             <!-- ==== NỘI DUNG PHẢI ==== -->
             <div class="content">
                 <div class="container">
-                    <h2>Quản lý nhóm (ID: ${groupId})</h2>
+                    <h2>Thành viên (Chuyến đi: ${trip.name})</h2>
+                    <br>
 
-                    <c:if test="${not empty param.error}">
-                        <div style="background:#fee2e2;color:#991b1b;padding:10px;border-radius:6px;margin-bottom:12px;">
-                            ${fn:escapeXml(param.error)}
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
+
+                        <form action="${pageContext.request.contextPath}/group/invite" method="post"
+                              style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; max-width:450px;">
+                            <input type="hidden" name="groupId" value="${groupId}" />
+                            <input type="email" name="email" placeholder="Nhập email người được mời" required
+                                   style="flex:1; min-width:200px; padding:6px 10px; border:1px solid #ccc; border-radius:4px;">
+                            <button type="submit" class="btn" style="padding:6px 14px; flex:0 0 auto;">Mời thành viên</button>
+                        </form>
+
+                        <form action="${pageContext.request.contextPath}/group/leave" method="post"
+                              onsubmit="return confirmLeave();" style="display:flex; align-items:center; gap:8px;">
+                            <input type="hidden" name="groupId" value="${groupId}" />
+                            <input type="hidden" name="userId" value="${sessionScope.currentUser.user_id}" />
+                            <input type="text" name="reason" placeholder="Lý do rời nhóm" required
+                                   style="width:250px; padding:6px; border:1px solid #ccc; border-radius:4px;">
+                            <button type="submit" class="btn btn-del">Rời nhóm</button>
+                        </form>
+
+                    </div>
+
+
+                    <script>
+                        function confirmLeave() {
+                            let reason = document.querySelector('input[name="reason"]').value;
+                            if (reason.trim() === "") {
+                                alert("Vui lòng nhập lý do rời nhóm!");
+                                return false;
+                            }
+                            return confirm("Bạn có chắc chắn muốn rời nhóm không?");
+                        }
+                    </script>        
+
+                    <c:if test="${not empty sessionScope.successMessage}">
+                        <div style="background:#ecfdf5;color:#065f46;padding:10px;border-radius:6px;margin-bottom:10px;">
+                            ${sessionScope.successMessage}
                         </div>
+                        <c:remove var="successMessage" scope="session"/>
+                    </c:if>
+
+                    <c:if test="${not empty sessionScope.errorMessage}">
+                        <div style="background:#fee2e2;color:#991b1b;padding:10px;border-radius:6px;margin-bottom:10px;">
+                            ${sessionScope.errorMessage}
+                        </div>
+                        <c:remove var="errorMessage" scope="session"/>
+                    </c:if>
+
+
+                    <!-- Thông báo -->
+                    <c:if test="${not empty param.error}">
+                        <div class="msg error">${fn:escapeXml(param.error)}</div>
                     </c:if>
                     <c:if test="${not empty param.success}">
-                        <div style="background:#ecfdf5;color:#065f46;padding:10px;border-radius:6px;margin-bottom:12px;">
-                            ${fn:escapeXml(param.success)}
+                        <div class="msg success">${fn:escapeXml(param.success)}</div>
+                    </c:if>
+                    <c:if test="${not empty param.inviteError}">
+                        <div style="background:#fee2e2;color:#991b1b;padding:10px;border-radius:6px;margin-bottom:10px;">
+                            ${fn:escapeXml(param.inviteError)}
                         </div>
                     </c:if>
 
-                    <h3>Thành viên</h3>
+                    <c:if test="${not empty param.inviteSuccess}">
+                        <div style="background:#ecfdf5;color:#065f46;padding:10px;border-radius:6px;margin-bottom:10px;">
+                            ${fn:escapeXml(param.inviteSuccess)}
+                        </div>
+                    </c:if>    
+
+
                     <table>
                         <tr>
                             <th>Tên</th>
                             <th>Email</th>
                             <th>Vai trò</th>
                             <th>Ngày tham gia</th>
-                            <th>Trạng thái</th>
-                            <th>Ngày rời nhóm</th>
-                            <th>Chỉnh sửa vai trò</th>
-                            <th>Xóa</th>
+                                <c:if test="${sessionScope.currentUser != null && sessionScope.currentUser.user_id == leaderId}">
+                                <th>Chỉnh sửa vai trò</th>
+                                <th>Xóa</th>
+                                </c:if>
                         </tr>
                         <c:forEach var="m" items="${members}">
                             <tr>
-                                <td>
-                                    <c:url var="userDetailUrl" value="/user/detail">
-                                        <c:param name="id" value="${m.user_id}" />
-                                    </c:url>
-                                    <a href="${userDetailUrl}">${m.name}</a>
-
-                                </td>
+                                <td>${m.name}</td>
                                 <td>${m.email}</td>
                                 <td>${m.role}</td>
                                 <td><fmt:formatDate value="${m.joined_at}" pattern="dd/MM/yyyy HH:mm"/></td>
-                                <td>
-                                    <c:choose>
-                                        <c:when test="${m.status eq 'Active'}">
-                                            <span style="color:green;">Đang hoạt động</span>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <span style="color:red;">Đã rời nhóm</span>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </td>
-                                <td>
-                                    <c:if test="${not empty m.removed_at}">
-                                        <fmt:formatDate value="${m.removed_at}" pattern="dd/MM/yyyy HH:mm"/>
-                                    </c:if>
-                                </td>
-
-
-                                <td>
-                                    <c:if test="${m.user_id ne 1 and m.status eq 'Active'}">
-                                        <c:url var="editUrl" value="/group/edit-role">
+                                <c:if test="${sessionScope.currentUser != null && sessionScope.currentUser.user_id == leaderId && m.user_id != leaderId}">
+                                    <td>
+                                        <c:url var="toggleUrl" value="/group/edit-role">
                                             <c:param name="groupId" value="${groupId}"/>
                                             <c:param name="userId" value="${m.user_id}"/>
+                                            <c:param name="action" value="toggle"/>
                                         </c:url>
-                                        <a class="btn btn-edit" href="${editUrl}">Đổi role</a>
-                                    </c:if>
-                                </td>
-                                <td>
-                                    <c:if test="${m.user_id ne 1 and m.status eq 'Active'}">
+                                        <a class="btn btn-edit" href="${toggleUrl}" onclick="return confirm('Bạn có chắc muốn đổi role người này không?');">Đổi role</a>
+
+                                        <c:url var="promoteUrl" value="/group/edit-role">
+                                            <c:param name="groupId" value="${groupId}"/>
+                                            <c:param name="userId" value="${m.user_id}"/>
+                                            <c:param name="action" value="promoteLeader"/>
+                                        </c:url>
+                                        <a class="btn btn-edit" href="${promoteUrl}" 
+                                           onclick="return confirm('Bạn có chắc muốn phong người này làm Leader không?');">Phong Leader</a>
+                                    </td>
+                                    <td>
+
                                         <form action="${pageContext.request.contextPath}/group/remove-member" method="post" style="display:inline;"
                                               onsubmit="return confirm('Bạn có chắc muốn xóa thành viên này?');">
                                             <input type="hidden" name="groupId" value="${groupId}">
                                             <input type="hidden" name="userId" value="${m.user_id}">
-                                            <input type="hidden" name="removedBy" value="${currentUser.user_id}">
+                                            <input type="hidden" name="removedBy" value="${leaderId}">
                                             <input type="text" name="reason" placeholder="Lý do xóa" required style="width:120px;">
                                             <button type="submit" class="btn btn-del">Xóa</button>
                                         </form>
@@ -222,14 +264,136 @@
                     </table>
 
                     <br>
-                    <h3>Yêu cầu tham gia nhóm</h3>
-                    <c:url var="reqUrl" value="/group/join-requests">
-                        <c:param name="groupId" value="${groupId}"/>
-                    </c:url>
-                    <a class="btn" href="${reqUrl}">Xem yêu cầu (${pendingCount} mới)</a>
+
+                    <!-- Yêu cầu tham gia từ người dùng -->
+                    <c:if test="${not empty userRequests}">
+                        <h3>Yêu cầu tham gia từ người dùng</h3>
+                        <table>
+                            <tr>
+                                <th>Người gửi</th>
+                                <th>Thời gian</th>
+                                <th>Trạng thái</th>
+                                <th>Người duyệt</th>
+                                <th>Hành động</th>
+                            </tr>
+                            <c:forEach var="r" items="${userRequests}">
+                                <tr>
+                                    <td><a href="#" 
+                                           class="user-info-link" 
+                                           data-name="${userMap[r.user_id]}" 
+                                           data-email="${emailMap[r.user_id]}"
+                                           data-id="${r.user_id}">
+                                            ${userMap[r.user_id]}
+                                        </a></td>
+                                    <td><fmt:formatDate value="${r.requested_at}" pattern="dd/MM/yyyy HH:mm"/></td>
+                                    <td>${r.status}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${r.reviewed_by != null}">
+                                                ${userMap[r.reviewed_by]}
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span style="color:gray;">Chưa duyệt</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td>
+                                        <c:if test="${r.status eq 'PENDING' 
+                                                      && sessionScope.currentUser != null 
+                                                      && leaderId != null 
+                                                      && sessionScope.currentUser.user_id eq leaderId}">
+                                              <form action="${pageContext.request.contextPath}/group/manage" method="post" style="display:inline">
+                                                  <input type="hidden" name="requestId" value="${r.request_id}" />
+                                                  <input type="hidden" name="groupId" value="${r.group_id}" />
+                                                  <button type="submit" class="btn-edit" name="action" value="approve">Chấp nhận</button>
+                                                  <button type="submit" class="btn-del" name="action" value="reject">Từ chối</button>
+                                              </form>
+                                        </c:if>
+
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </table>
+                    </c:if>
+
+                    <br>    
+                    <!-- Lời mời từ Leader -->
+                    <c:if test="${not empty leaderInvites}">
+                        <h3>Lời mời từ thành viên nhóm</h3>
+                        <table>
+                            <tr>
+                                <th>Thành viên mời</th>
+                                <th>Người được mời</th>
+                                <th>Thời gian</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                            </tr>
+                            <c:forEach var="r" items="${leaderInvites}">
+                                <tr>
+                                    <td>${userMap[r.invited_by]}</td>
+                                    <td>${userMap[r.user_id]}</td>
+                                    <td><fmt:formatDate value="${r.requested_at}" pattern="dd/MM/yyyy HH:mm"/></td>
+                                    <td>${r.status}</td>
+                                   
+                                    <td>
+                                        <c:if test="${r.status eq 'INVITED' 
+                                                      && sessionScope.currentUser != null 
+                                                      && r.invited_by eq sessionScope.currentUser.user_id
+                                                      && r.reviewed_by == null}">
+                                              <form action="${pageContext.request.contextPath}/group/manage" method="post" style="display:inline">
+                                                  <input type="hidden" name="requestId" value="${r.request_id}" />
+                                                  <input type="hidden" name="groupId" value="${r.group_id}" />
+                                                  <button type="submit" class="btn-del" name="action" value="cancel">Thu hồi</button>
+                                              </form>
+                                        </c:if>
+
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </table>
+                    </c:if>
+
                 </div>
             </div>
         </div>
+        <!-- Popup hiển thị thông tin người dùng -->
+        <div id="userPopup" 
+             style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%);
+             background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.3);
+             z-index:999;">
+            <h3>Thông tin người yêu cầu</h3>
+            <p><strong>Tên:</strong> <span id="popupName"></span></p>
+            <p><strong>Email:</strong> <span id="popupEmail"></span></p>
+            <button onclick="closePopup()" class="btn">Đóng</button>
+        </div>
+
+        <!-- Overlay nền mờ -->
+        <div id="overlay" 
+             style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+             background:rgba(0,0,0,0.3); z-index:998;" 
+             onclick="closePopup()"></div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.user-info-link').forEach(link => {
+                    link.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const name = this.dataset.name;
+                        const email = this.dataset.email;
+                        document.getElementById('popupName').textContent = name || "Không có dữ liệu";
+                        document.getElementById('popupEmail').textContent = email || "Không có dữ liệu";
+                        document.getElementById('userPopup').style.display = 'block';
+                        document.getElementById('overlay').style.display = 'block';
+                    });
+                });
+            });
+
+            function closePopup() {
+                document.getElementById('userPopup').style.display = 'none';
+                document.getElementById('overlay').style.display = 'none';
+            }
+        </script>
+
 
     </body>
     <jsp:include page="/views/partials/footer.jsp"/>
