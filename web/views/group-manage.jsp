@@ -19,7 +19,6 @@
 
             .layout {
                 display: flex;
-                min-height: 100vh;
             }
 
             /* ==== SIDEBAR TRÁI ==== */
@@ -133,7 +132,7 @@
                     <li><a href="#">🕒 Time Line</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/manage?groupId=${groupId}" class="active">👥 Members</a></li>
                     <li><a href="#">🎯 Activities</a></li>
-                    <li><a href="#">🧾 Tasks</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/manage/tasks?groupId=${groupId}">🧾 Tasks</a></li>
                     <li><a href="#">💰 Expense</a></li>
                     <li><a href="${pageContext.request.contextPath}/group-memories?groupId=${groupId}">📸 Memories</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/notifications?groupId=${groupId}">🔔 Notification</a></li>

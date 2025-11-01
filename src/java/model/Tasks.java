@@ -12,11 +12,12 @@ public class Tasks {
     private Date deadline;
     private BigDecimal estimated_cost;
     private String status;
+    private String assignedUserName;
 
     public Tasks() {
     }
 
-    public Tasks(int task_id, int trip_id, Integer assigned_to, String description, Date deadline, BigDecimal estimated_cost, String status) {
+    public Tasks(int task_id, int trip_id, Integer assigned_to, String description, Date deadline, BigDecimal estimated_cost, String status, String assignedUserName) {
         this.task_id = task_id;
         this.trip_id = trip_id;
         this.assigned_to = assigned_to;
@@ -24,6 +25,7 @@ public class Tasks {
         this.deadline = deadline;
         this.estimated_cost = estimated_cost;
         this.status = status;
+        this.assignedUserName = assignedUserName;
     }
 
     public int getTask_id() {
@@ -80,6 +82,14 @@ public class Tasks {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+    
+    public String getAssignedUserName() {
+        return assignedUserName;
+    }
+
+    public void setAssignedUserName(String assignedUserName) {
+        this.assignedUserName = assignedUserName;
     }
 
     @Override
