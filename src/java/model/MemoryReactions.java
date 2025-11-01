@@ -6,8 +6,10 @@ public class MemoryReactions {
 
     private int memoryId;
     private int userId;
-    private String type; // Like, Love, Haha, ...
+    private String type; 
     private Date reactedAt;
+    
+    private String userReaction;
 
     public MemoryReactions() {
     }
@@ -50,4 +52,14 @@ public class MemoryReactions {
     public void setReactedAt(Date reactedAt) {
         this.reactedAt = reactedAt;
     }
+
+    public String getUserReaction() {
+        return userReaction;
+    }
+
+    public void setUserReaction(String userReaction) {
+        this.userReaction = userReaction;
+    }
+    
+    
 }
