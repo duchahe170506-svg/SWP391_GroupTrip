@@ -225,9 +225,9 @@
                     <li><a href="#">🕒 Time Line</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/manage?groupId=${groupId}">👥 Members</a></li>
                     <li><a href="#">🎯 Activities</a></li>
-                    <li><a href="#">🧾 Tasks</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/manage/tasks?groupId=${groupId}">🧾 Tasks</a></li>
                     <li><a href="#">💰 Expense</a></li>
-                    <li><a href="${pageContext.request.contextPath}/group-memories?groupId=${groupId}" class="active">📸 Memories</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/memories?groupId=${groupId}" class="active">📸 Memories</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/notifications?groupId=${groupId}">🔔 Notification</a></li>
                 </ul>
             </div>
@@ -287,7 +287,7 @@
                             </c:if>
                         </div>
 
-                        <form action="${pageContext.request.contextPath}/group-memories" method="post">
+                        <form action="${pageContext.request.contextPath}/group/memories" method="post">
                             <input type="hidden" name="action" value="react">
                             <input type="hidden" name="memoryId" value="${m.memoryId}">
                             <input type="hidden" name="groupId" value="${groupId}">
@@ -317,7 +317,7 @@
                                                 data-comment-id="${cmt.commentId}" 
                                                 data-content="${cmt.content}">✏️ Sửa</button>
 
-                                        <form method="post" action="${pageContext.request.contextPath}/group-memories" style="display:inline;" class="delete-comment-form">
+                                        <form method="post" action="${pageContext.request.contextPath}/group/memories" style="display:inline;" class="delete-comment-form">
                                             <input type="hidden" name="action" value="deleteComment">
                                             <input type="hidden" name="commentId" value="${cmt.commentId}">
                                             <input type="hidden" name="groupId" value="${groupId}">
@@ -326,7 +326,7 @@
                                         </form>
 
                                         <!-- Form ẩn để sửa comment -->
-                                        <form method="post" action="${pageContext.request.contextPath}/group-memories" class="edit-comment-form" style="display:none; margin-top:5px;">
+                                        <form method="post" action="${pageContext.request.contextPath}/group/memories" class="edit-comment-form" style="display:none; margin-top:5px;">
                                             <input type="hidden" name="action" value="editComment">
                                             <input type="hidden" name="commentId" value="${cmt.commentId}">
                                             <input type="hidden" name="memoryId" value="${m.memoryId}">
@@ -342,7 +342,7 @@
 
 
 
-                        <form class="comment-form" action="${pageContext.request.contextPath}/group-memories" method="post">
+                        <form class="comment-form" action="${pageContext.request.contextPath}/group/memories" method="post">
                             <input type="hidden" name="action" value="comment">
                             <input type="hidden" name="memoryId" value="${m.memoryId}">
                             <input type="hidden" name="groupId" value="${groupId}">
@@ -357,7 +357,7 @@
                                         data-title="${m.title}" 
                                         data-content="${m.content}" 
                                         data-img="${m.imageUrl}">✏️ Sửa</button>
-                                <form action="${pageContext.request.contextPath}/group-memories" method="post" style="display:inline;">
+                                <form action="${pageContext.request.contextPath}/group/memories" method="post" style="display:inline;">
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="memoryId" value="${m.memoryId}">
                                     <input type="hidden" name="groupId" value="${groupId}">
@@ -387,7 +387,7 @@
         <div id="modalMemory" class="modal">
             <div class="modal-content">
                 <h3 id="modalTitle">Thêm bài</h3>
-                <form id="memoryForm" method="post" action="${pageContext.request.contextPath}/group-memories"
+                <form id="memoryForm" method="post" action="${pageContext.request.contextPath}/group/memories"
                       enctype="multipart/form-data">
                     <input type="hidden" name="action" value="add">
                     <input type="hidden" name="groupId" value="${groupId}">
@@ -421,7 +421,7 @@
                 </div>
 
                 <!-- Form chọn privacy -->
-                <form id="shareForm" method="post" action="${pageContext.request.contextPath}/group-memories">
+                <form id="shareForm" method="post" action="${pageContext.request.contextPath}/group/memories">
                     <input type="hidden" name="action" value="share">
                     <input type="hidden" name="memoryId" id="shareMemoryId">
                     <input type="hidden" name="groupId" id="shareGroupId">
@@ -444,7 +444,7 @@
         <div id="modalComment" class="modal">
             <div class="modal-content">
                 <h3>Sửa bình luận</h3>
-                <form id="commentForm" method="post" action="${pageContext.request.contextPath}/group-memories">
+                <form id="commentForm" method="post" action="${pageContext.request.contextPath}/group/memories">
                     <input type="hidden" name="action" value="editComment">
                     <input type="hidden" name="commentId" id="commentId">
                     <input type="hidden" name="memoryId" id="commentMemoryId">

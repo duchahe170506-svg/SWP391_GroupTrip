@@ -40,19 +40,25 @@ public class GroupManageServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        int groupId = Integer.parseInt(req.getParameter("groupId"));
+        HttpSession session = req.getSession();
+        Users user = (Users) session.getAttribute("currentUser");
 
+        if (user == null) {
+            req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
+            return;
+        }
+
+        int groupId = Integer.parseInt(req.getParameter("groupId"));
+        String groupRole = memberDAO.getUserRoleInGroup(groupId, user.getUser_id());
+        
         Groups group = travelGroupsDAO.getGroupById(groupId);
         Trips trip = (group != null) ? tripDAO.getTripById(group.getGroup_id()) : null;
 
         List<GroupMembers> members = memberDAO.getMembersByGroup(groupId);
         List<GroupJoinRequests> userRequests = requestDAO.getUserRequests(groupId);
         List<GroupJoinRequests> leaderInvites = requestDAO.getLeaderInvites(groupId);
-
-        Users leader = memberDAO.getGroupLeader(groupId);
-        Integer leaderId = (leader != null) ? leader.getUser_id() : null;
-        req.setAttribute("leaderId", leaderId);
-
+        
+        req.setAttribute("groupRole", groupRole);
         req.setAttribute("groupId", groupId);
         req.setAttribute("members", members);
         req.setAttribute("trip", trip);
@@ -188,8 +194,8 @@ public class GroupManageServlet extends HttpServlet {
                         Notifications notification = new Notifications();
                         notification.setSenderId(actorId);
                         notification.setUserId(user.getUser_id());
-                        notification.setType("INVITE_CANCELLED"); 
-                        notification.setRelatedId(group.getGroup_id()); 
+                        notification.setType("INVITE_CANCELLED");
+                        notification.setRelatedId(group.getGroup_id());
                         notification.setMessage("Lời mời tham gia nhóm \"" + group.getName() + "\" đã bị thu hồi bởi " + currentUser.getName());
                         notification.setStatus("UNREAD");
                         notification.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));

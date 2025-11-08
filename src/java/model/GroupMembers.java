@@ -6,12 +6,12 @@ public class GroupMembers {
 
     private int group_id;
     private int user_id;
-    private String role;          // Leader / Member
-    private String status;        // Active / Removed / Left
+    private String role;        
+    private String status;      
     private Timestamp joined_at;
     private Timestamp removed_at;
 
-    // Thông tin bổ sung từ Users
+    
     private String name;
     private String email;
 

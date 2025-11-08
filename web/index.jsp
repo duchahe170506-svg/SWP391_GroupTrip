@@ -387,22 +387,31 @@
                     <div class="offcanvas-body align-items-center justify-content-center">
                         <ul class="navbar-nav align-items-center mb-2 mb-lg-0">
                             <li class="nav-item px-3">
-                                <a class="nav-link active p-0" aria-current="page" href="index.jsp">Home</a>
+                                <a class="nav-link active p-0" href="${pageContext.request.contextPath}/index.jsp">Home</a>
                             </li>
                             <li class="nav-item px-3">
-                                <a class="nav-link p-0" href="index.jsp">List Trip</a>
+                                <a class="nav-link p-0" href="${pageContext.request.contextPath}/trips">List Trip</a>
                             </li>
                             <li class="nav-item px-3">
-                                <a class="nav-link p-0" href="index.jsp">My Trip</a>
+                                <a class="nav-link p-0" href="${pageContext.request.contextPath}/mytrips">My Trip</a>
                             </li>
                             <li class="nav-item px-3">
                                 <a class="nav-link p-0" href="gallery.html">About Us</a>
                             </li>
-
+                            <c:if test="${not empty sessionScope.currentUser and sessionScope.currentUser.role eq 'Admin'}">
+                            <li class="nav-item px-3">
+                                <a class="nav-link p-0" href="${pageContext.request.contextPath}/admin">Dashboard</a>
+                            </li>
+                            </c:if>
                         </ul>
                     </div>
                 </div>
-                <div class="nav-icon">
+                <div class="nav-icon" style="
+                     position: absolute !important;
+                     right: 20px !important;
+                     top: 50% !important;
+                     transform: translateY(-50%) !important;
+                     ">
                     <ul class="list-unstyled d-flex justify-content-between align-items-center m-0">
                         <c:if test="${not empty sessionScope.currentUser}">
                             <li class="nav-icons pe-3 d-flex align-items-center text-black">
@@ -447,6 +456,7 @@
                         </c:if>
                     </ul>
                 </div>
+
             </div>
         </nav>
     </header>
