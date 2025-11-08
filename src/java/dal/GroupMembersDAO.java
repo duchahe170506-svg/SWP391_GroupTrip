@@ -306,7 +306,6 @@ public class GroupMembersDAO {
                 }
             }
 
-          
             if ("Leader".equals(role)) {
                 // Kiểm tra CoLeader còn tồn tại
                 String checkCoLeaderSql = "SELECT COUNT(*) FROM GroupMembers WHERE group_id=? AND role='CoLeader' AND status='Active'";
@@ -322,7 +321,7 @@ public class GroupMembersDAO {
 
                 if (coLeaderCount == 0) {
                     conn.rollback();
-                    return false; 
+                    return false;
                 }
 
                 // Kiểm tra đã có Leader mới chưa
@@ -397,19 +396,50 @@ public class GroupMembersDAO {
             }
         }
     }
-    
+
     public boolean updateRoleByRole(int groupId, String oldRole, String newRole) {
-    String sql = "UPDATE GroupMembers SET role=? WHERE group_id=? AND role=?";
-    try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setString(1, newRole);
-        ps.setInt(2, groupId);
-        ps.setString(3, oldRole);
-        return ps.executeUpdate() > 0;
-    } catch (Exception e) {
-        e.printStackTrace();
+        String sql = "UPDATE GroupMembers SET role=? WHERE group_id=? AND role=?";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newRole);
+            ps.setInt(2, groupId);
+            ps.setString(3, oldRole);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public String getUserRoleInGroup(int groupId, int userId) {
+        String role = null;
+        String sql = "SELECT role FROM GroupMembers "
+                + "WHERE group_id = ? AND user_id = ? AND status = 'Active'";
+
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, groupId);
+            ps.setInt(2, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                role = rs.getString("role");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return role;
+
+    }
+
+    public boolean isUserInGroup(int groupId, int userId) {
+        String sql = "SELECT * FROM GroupMembers WHERE group_id = ? AND user_id = ? AND status = 'Active'";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, groupId);
+            ps.setInt(2, userId);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return false;
     }
-}
-
 
 }

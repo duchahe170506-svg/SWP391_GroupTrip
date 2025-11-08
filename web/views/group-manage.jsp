@@ -134,7 +134,7 @@
                     <li><a href="#">🎯 Activities</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/manage/tasks?groupId=${groupId}">🧾 Tasks</a></li>
                     <li><a href="#">💰 Expense</a></li>
-                    <li><a href="${pageContext.request.contextPath}/group-memories?groupId=${groupId}">📸 Memories</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/memories?groupId=${groupId}">📸 Memories</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/notifications?groupId=${groupId}">🔔 Notification</a></li>
                 </ul>
             </div>
@@ -219,7 +219,7 @@
                             <th>Email</th>
                             <th>Vai trò</th>
                             <th>Ngày tham gia</th>
-                                <c:if test="${sessionScope.currentUser != null && sessionScope.currentUser.user_id == leaderId}">
+                                <c:if test="${sessionScope.currentUser != null && groupRole eq 'Leader'}">
                                 <th>Chỉnh sửa vai trò</th>
                                 <th>Xóa</th>
                                 </c:if>
@@ -230,7 +230,7 @@
                                 <td>${m.email}</td>
                                 <td>${m.role}</td>
                                 <td><fmt:formatDate value="${m.joined_at}" pattern="dd/MM/yyyy HH:mm"/></td>
-                                <c:if test="${sessionScope.currentUser != null && sessionScope.currentUser.user_id == leaderId && m.user_id != leaderId}">
+                                <c:if test="${sessionScope.currentUser != null && groupRole eq 'Leader'}">
                                     <td>
                                         <c:url var="toggleUrl" value="/group/edit-role">
                                             <c:param name="groupId" value="${groupId}"/>
@@ -298,18 +298,26 @@
                                         </c:choose>
                                     </td>
                                     <td>
-                                        <c:if test="${r.status eq 'PENDING' 
-                                                      && sessionScope.currentUser != null 
-                                                      && leaderId != null 
-                                                      && sessionScope.currentUser.user_id eq leaderId}">
+                                        <c:if test="${r.status eq 'PENDING'
+                                                      && sessionScope.currentUser != null
+                                                      && (groupRole eq 'Leader' or groupRole eq 'CoLeader')}">
                                               <form action="${pageContext.request.contextPath}/group/manage" method="post" style="display:inline">
                                                   <input type="hidden" name="requestId" value="${r.request_id}" />
                                                   <input type="hidden" name="groupId" value="${r.group_id}" />
                                                   <button type="submit" class="btn-edit" name="action" value="approve">Chấp nhận</button>
-                                                  <button type="submit" class="btn-del" name="action" value="reject">Từ chối</button>
                                               </form>
                                         </c:if>
 
+
+                                        <c:if test="${r.status eq 'PENDING'
+                                                      && sessionScope.currentUser != null
+                                                      && groupRole eq 'Leader'}">
+                                              <form action="${pageContext.request.contextPath}/group/manage" method="post" style="display:inline">
+                                                  <input type="hidden" name="requestId" value="${r.request_id}" />
+                                                  <input type="hidden" name="groupId" value="${r.group_id}" />
+                                                  <button type="submit" class="btn-del" name="action" value="reject">Từ chối</button>
+                                              </form>
+                                        </c:if>
                                     </td>
                                 </tr>
                             </c:forEach>
@@ -334,7 +342,7 @@
                                     <td>${userMap[r.user_id]}</td>
                                     <td><fmt:formatDate value="${r.requested_at}" pattern="dd/MM/yyyy HH:mm"/></td>
                                     <td>${r.status}</td>
-                                   
+
                                     <td>
                                         <c:if test="${r.status eq 'INVITED' 
                                                       && sessionScope.currentUser != null 

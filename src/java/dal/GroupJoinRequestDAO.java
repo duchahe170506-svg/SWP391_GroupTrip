@@ -29,15 +29,97 @@ public class GroupJoinRequestDAO extends DBConnect {
         return 0;
     }
 
-    public void createRequest(int tripId, int userId) {
-        String sql = "INSERT INTO GroupJoinRequests(group_id, user_id) "
-                + "SELECT group_id, ? FROM Trips WHERE trip_id=?";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            ps.setInt(2, tripId);
-            ps.executeUpdate();
+    public String createJoinRequest(int tripId, int userId) {
+        try (Connection conn = getConnection()) {
+
+            int groupId = 0;
+            java.sql.Date tripStart = null;
+            java.sql.Date tripEnd = null;
+            String tripQuery = "SELECT group_id, start_date, end_date FROM Trips WHERE trip_id = ?";
+            try (PreparedStatement ps = conn.prepareStatement(tripQuery)) {
+                ps.setInt(1, tripId);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    groupId = rs.getInt("group_id");
+                    tripStart = rs.getDate("start_date");
+                    tripEnd = rs.getDate("end_date");
+                } else {
+                    return "Chuyến đi không tồn tại!";
+                }
+            }
+
+          
+            String checkMember = "SELECT COUNT(*) FROM GroupMembers WHERE group_id = ? AND user_id = ? AND status = 'Active'";
+            try (PreparedStatement ps = conn.prepareStatement(checkMember)) {
+                ps.setInt(1, groupId);
+                ps.setInt(2, userId);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next() && rs.getInt(1) > 0) {
+                    return "Bạn đã là thành viên nhóm này.";
+                }
+            }
+
+          
+            String checkRequest = "SELECT status FROM GroupJoinRequests WHERE group_id = ? AND user_id = ? ORDER BY requested_at DESC LIMIT 1";
+            try (PreparedStatement ps = conn.prepareStatement(checkRequest)) {
+                ps.setInt(1, groupId);
+                ps.setInt(2, userId);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    String status = rs.getString("status");
+                    switch (status) {
+                        case "PENDING":
+                        case "INVITED":
+                        case "ACCEPTED":
+                            return "Bạn đã gửi yêu cầu tham gia rồi hoặc đã là thành viên.";
+                        case "REJECTED":
+                        case "EXPIRED":
+                            // Có thể gửi lại
+                            break;
+                    }
+                }
+            }
+
+          
+            String overlapCheck = """
+            SELECT t2.name, t2.start_date, t2.end_date
+            FROM Trips t2
+            JOIN GroupMembers gm2 ON gm2.group_id = t2.group_id
+            WHERE gm2.user_id = ?
+              AND t2.status = 'Active'
+              AND t2.start_date <= ?
+              AND t2.end_date >= ?
+            LIMIT 1
+        """;
+            try (PreparedStatement ps = conn.prepareStatement(overlapCheck)) {
+                ps.setInt(1, userId);
+                ps.setDate(2, tripEnd);
+                ps.setDate(3, tripStart);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    String tripName = rs.getString("name");
+                    java.sql.Date start = rs.getDate("start_date");
+                    java.sql.Date end = rs.getDate("end_date");
+                    return String.format(
+                            "Bạn đang tham gia chuyến \"%s\" từ %s đến %s trùng thời gian với chuyến này.",
+                            tripName, start.toString(), end.toString()
+                    );
+                }
+            }
+
+           
+            String insert = "INSERT INTO GroupJoinRequests(group_id, user_id) VALUES (?, ?)";
+            try (PreparedStatement ps = conn.prepareStatement(insert)) {
+                ps.setInt(1, groupId);
+                ps.setInt(2, userId);
+                ps.executeUpdate();
+            }
+
+            return "Yêu cầu tham gia đã được gửi thành công!";
+
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); 
+            return "Đã xảy ra lỗi khi gửi yêu cầu.";
         }
     }
 

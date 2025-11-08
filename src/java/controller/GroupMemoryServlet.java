@@ -9,7 +9,7 @@ import java.io.*;
 import java.util.*;
 import com.google.gson.Gson;
 
-@WebServlet("/group-memories")
+@WebServlet("/group/memories")
 @MultipartConfig(
         fileSizeThreshold = 1024 * 1024 * 1, // 1MB
         maxFileSize = 1024 * 1024 * 10, // 10MB
@@ -122,7 +122,7 @@ public class GroupMemoryServlet extends HttpServlet {
         req.getSession().setAttribute("successMessage", "Bạn đã " + type + " memory thành công!");
 
         int groupId = Integer.parseInt(req.getParameter("groupId"));
-        resp.sendRedirect(req.getContextPath() + "/group-memories?groupId=" + groupId);
+        resp.sendRedirect(req.getContextPath() + "/group/memories?groupId=" + groupId);
     }
 
     private void handleComment(HttpServletRequest req, HttpServletResponse resp, int userId) throws Exception {
@@ -137,7 +137,7 @@ public class GroupMemoryServlet extends HttpServlet {
             req.getSession().setAttribute("errorMessage", "❌ Bình luận thất bại!");
         }
 
-        resp.sendRedirect(req.getContextPath() + "/group-memories?groupId=" + groupId);
+        resp.sendRedirect(req.getContextPath() + "/group/memories?groupId=" + groupId);
     }
 
     private void handleAdd(HttpServletRequest req, HttpServletResponse resp, int userId) throws Exception {
@@ -166,7 +166,7 @@ public class GroupMemoryServlet extends HttpServlet {
             req.getSession().setAttribute("errorMessage", "❌ Đăng thất bại, vui lòng thử lại.");
         }
 
-        resp.sendRedirect(req.getContextPath() + "/group-memories?groupId=" + groupId);
+        resp.sendRedirect(req.getContextPath() + "/group/memories?groupId=" + groupId);
     }
 
     private void handleEdit(HttpServletRequest req, HttpServletResponse resp, int userId) throws Exception {
@@ -197,7 +197,7 @@ public class GroupMemoryServlet extends HttpServlet {
             req.getSession().setAttribute("errorMessage", "❌ Cập nhật thất bại, vui lòng thử lại!");
         }
 
-        resp.sendRedirect(req.getContextPath() + "/group-memories?groupId=" + groupId);
+        resp.sendRedirect(req.getContextPath() + "/group/memories?groupId=" + groupId);
     }
 
     private void handleDelete(HttpServletRequest req, HttpServletResponse resp) throws Exception {
@@ -210,7 +210,7 @@ public class GroupMemoryServlet extends HttpServlet {
             req.getSession().setAttribute("errorMessage", "❌ Xóa thất bại, vui lòng thử lại!");
         }
 
-        resp.sendRedirect(req.getContextPath() + "/group-memories?groupId=" + groupId);
+        resp.sendRedirect(req.getContextPath() + "/group/memories?groupId=" + groupId);
     }
 
     private void handleShare(HttpServletRequest req, HttpServletResponse resp, int userId) throws Exception {
@@ -229,7 +229,7 @@ public class GroupMemoryServlet extends HttpServlet {
             req.getSession().setAttribute("errorMessage", "❌ Không thể chia sẻ, vui lòng thử lại!");
         }
 
-        resp.sendRedirect(req.getContextPath() + "/group-memories?groupId=" + groupId);
+        resp.sendRedirect(req.getContextPath() + "/group/memories?groupId=" + groupId);
     }
 
     private void handleEditComment(HttpServletRequest req, HttpServletResponse resp, int userId) throws Exception {
@@ -244,7 +244,7 @@ public class GroupMemoryServlet extends HttpServlet {
         } else {
             req.getSession().setAttribute("errorMessage", "❌ Không thể cập nhật bình luận!");
         }
-        resp.sendRedirect(req.getContextPath() + "/group-memories?groupId=" + groupId);
+        resp.sendRedirect(req.getContextPath() + "/group/memories?groupId=" + groupId);
     }
 
     private void handleDeleteComment(HttpServletRequest req, HttpServletResponse resp, int userId) throws Exception {
@@ -258,7 +258,7 @@ public class GroupMemoryServlet extends HttpServlet {
         } else {
             req.getSession().setAttribute("errorMessage", "❌ Không thể xóa bình luận!");
         }
-        resp.sendRedirect(req.getContextPath() + "/group-memories?groupId=" + groupId);
+        resp.sendRedirect(req.getContextPath() + "/group/memories?groupId=" + groupId);
     }
 
 }

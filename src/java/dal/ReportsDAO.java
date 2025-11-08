@@ -267,7 +267,7 @@ public class ReportsDAO extends DBConnect {
         }
         return list;
     }
-    
+
     public List<ReportAttachments> getAllAttachmentsByReportId(int reportId) {
         List<ReportAttachments> list = new ArrayList<>();
         String sql = "SELECT attachment_id, file_name, file_path FROM ReportAttachments WHERE report_id=?";
@@ -334,6 +334,63 @@ public class ReportsDAO extends DBConnect {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }   
+    }
 
+    public int countReports() {
+        String sql = "SELECT COUNT(*) FROM Reports";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public Map<Integer, Integer> countReportsByMonthThisYear() {
+        Map<Integer, Integer> result = new HashMap<>();
+        String sql = "SELECT MONTH(created_at) AS month, COUNT(*) AS cnt "
+                + "FROM Reports "
+                + "WHERE YEAR(created_at) = YEAR(CURDATE()) "
+                + "GROUP BY MONTH(created_at)";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                result.put(rs.getInt("month"), rs.getInt("cnt"));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public int countReportsByUser(int userId) {
+        String sql = "SELECT COUNT(*) FROM Reports WHERE reporter_id = ?";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countReportsByStatus(String status) {
+        String sql = "SELECT COUNT(*) FROM Reports WHERE status = ?";
+        try (Connection con = DBConnect.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }

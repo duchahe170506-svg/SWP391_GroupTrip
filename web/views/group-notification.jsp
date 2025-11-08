@@ -179,9 +179,9 @@
                     <li><a href="#">🕒 Time Line</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/manage?groupId=${groupId}">👥 Members</a></li>
                     <li><a href="#">🎯 Activities</a></li>
-                    <li><a href="#">🧾 Tasks</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/manage/tasks?groupId=${groupId}">🧾 Tasks</a></li>
                     <li><a href="#">💰 Expense</a></li>
-                    <li><a href="${pageContext.request.contextPath}/group-memories?groupId=${groupId}">📸 Memories</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/memories?groupId=${groupId}">📸 Memories</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/notifications?groupId=${groupId}" class="active">🔔 Notification</a></li>
                 </ul>
             </div>

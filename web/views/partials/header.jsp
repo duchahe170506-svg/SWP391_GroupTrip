@@ -184,7 +184,7 @@
                     <div class="offcanvas-body align-items-center justify-content-center">
                         <ul class="navbar-nav align-items-center mb-2 mb-lg-0">
                             <li class="nav-item px-3">
-                                <a class="nav-link active p-0" aria-current="page" href="${pageContext.request.contextPath}/index.html">Home</a>
+                                <a class="nav-link active p-0" href="${pageContext.request.contextPath}/index.jsp">Home</a>
                             </li>
                             <li class="nav-item px-3">
                                 <a class="nav-link p-0" href="${pageContext.request.contextPath}/trips">List Trip</a>
@@ -195,7 +195,11 @@
                             <li class="nav-item px-3">
                                 <a class="nav-link p-0" href="gallery.html">About Us</a>
                             </li>
-
+                            <c:if test="${not empty sessionScope.currentUser and sessionScope.currentUser.role eq 'Admin'}">
+                            <li class="nav-item px-3">
+                                <a class="nav-link p-0" href="${pageContext.request.contextPath}/admin/dashboard">Dashboard</a>
+                            </li>
+                            </c:if>
                         </ul>
                     </div>
                 </div>

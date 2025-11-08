@@ -1,4 +1,3 @@
-
 package dal;
 
 import model.Trips;
@@ -6,7 +5,9 @@ import model.Trips;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TripDAO {
 
@@ -17,13 +18,12 @@ public class TripDAO {
      * Insert trip và trả về ID vừa tạo (>=0) hoặc -1 nếu lỗi
      */
     public int insertTrip(Trips trip) {
-        String sql = "INSERT INTO Trips (" +
-                "group_id, name, description, location, meeting_point, start_date, end_date, " +
-                "budget, cover_image, min_participants, max_participants, trip_type, status" +
-                ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO Trips ("
+                + "group_id, name, description, location, meeting_point, start_date, end_date, "
+                + "budget, cover_image, min_participants, max_participants, trip_type, status"
+                + ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, trip.getGroupId());
             ps.setString(2, trip.getName());
@@ -33,8 +33,11 @@ public class TripDAO {
             setNullableDate(ps, 6, trip.getStartDate());
             setNullableDate(ps, 7, trip.getEndDate());
 
-            if (trip.getBudget() != null) ps.setBigDecimal(8, trip.getBudget());
-            else ps.setNull(8, Types.DECIMAL);
+            if (trip.getBudget() != null) {
+                ps.setBigDecimal(8, trip.getBudget());
+            } else {
+                ps.setNull(8, Types.DECIMAL);
+            }
 
             ps.setString(9, trip.getCoverImage());
             ps.setInt(10, trip.getMin_participants());
@@ -45,7 +48,9 @@ public class TripDAO {
             int affected = ps.executeUpdate();
             if (affected > 0) {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (rs.next()) return rs.getInt(1);
+                    if (rs.next()) {
+                        return rs.getInt(1);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -60,8 +65,7 @@ public class TripDAO {
      * ========================================================= */
     public Trips getTripById(int tripId) {
         String sql = "SELECT * FROM Trips WHERE trip_id = ?";
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, tripId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -81,9 +85,7 @@ public class TripDAO {
     public List<Trips> getAllTrips() {
         String sql = "SELECT * FROM Trips WHERE status = 'Active' ORDER BY created_at DESC";
         List<Trips> list = new ArrayList<>();
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(map(rs));
             }
@@ -94,11 +96,12 @@ public class TripDAO {
     }
 
     /**
-     * Tìm kiếm theo khoảng ngân sách + ngày đi/khoảng ngày (tham số nào null sẽ bỏ qua)
+     * Tìm kiếm theo khoảng ngân sách + ngày đi/khoảng ngày (tham số nào null sẽ
+     * bỏ qua)
      */
     public List<Trips> searchTrips(BigDecimal minBudget, BigDecimal maxBudget,
-                                   java.util.Date departOn,
-                                   java.util.Date fromDate, java.util.Date toDate) {
+            java.util.Date departOn,
+            java.util.Date fromDate, java.util.Date toDate) {
 
         StringBuilder sql = new StringBuilder("SELECT * FROM Trips WHERE status = 'Active'");
         List<Object> params = new ArrayList<>();
@@ -127,8 +130,7 @@ public class TripDAO {
         sql.append(" ORDER BY created_at DESC");
 
         List<Trips> list = new ArrayList<>();
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 
             int idx = 1;
             for (Object p : params) {
@@ -156,9 +158,9 @@ public class TripDAO {
      * BỔ SUNG: Tìm kiếm theo ngân sách + ngày + loại chuyến đi
      */
     public List<Trips> searchTrips(BigDecimal minBudget, BigDecimal maxBudget,
-                                   java.util.Date departOn,
-                                   java.util.Date fromDate, java.util.Date toDate,
-                                   String tripType) {
+            java.util.Date departOn,
+            java.util.Date fromDate, java.util.Date toDate,
+            String tripType) {
 
         StringBuilder sql = new StringBuilder("SELECT * FROM Trips WHERE 1=1");
         List<Object> params = new ArrayList<>();
@@ -191,8 +193,7 @@ public class TripDAO {
         sql.append(" ORDER BY created_at DESC");
 
         List<Trips> list = new ArrayList<>();
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString())) {
 
             int idx = 1;
             for (Object p : params) {
@@ -220,10 +221,9 @@ public class TripDAO {
        UPDATE
      * ========================================================= */
     public boolean updateTrip(Trips trip) {
-        String sql = "UPDATE Trips SET group_id=?, name=?, description=?, location=?, meeting_point=?, start_date=?, end_date=?," +
-                " budget=?, cover_image=?, min_participants=?, max_participants=?, trip_type=?, status=? WHERE trip_id=?";
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        String sql = "UPDATE Trips SET group_id=?, name=?, description=?, location=?, meeting_point=?, start_date=?, end_date=?,"
+                + " budget=?, cover_image=?, min_participants=?, max_participants=?, trip_type=?, status=? WHERE trip_id=?";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, trip.getGroupId());
             ps.setString(2, trip.getName());
@@ -253,8 +253,7 @@ public class TripDAO {
      * ========================================================= */
     public boolean deleteTrip(int tripId) {
         String sql = "DELETE FROM Trips WHERE trip_id=?";
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, tripId);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
@@ -268,11 +267,10 @@ public class TripDAO {
      * ========================================================= */
     public int getParticipantCountByTrip(int tripId) {
         String sql = "SELECT COUNT(*) AS cnt "
-                   + "FROM GroupMembers gm "
-                   + "JOIN Trips t ON t.group_id = gm.group_id "
-                   + "WHERE t.trip_id = ? AND gm.role <> 'Leader'";
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                + "FROM GroupMembers gm "
+                + "JOIN Trips t ON t.group_id = gm.group_id "
+                + "WHERE t.trip_id = ? AND gm.role <> 'Leader'";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, tripId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -317,15 +315,16 @@ public class TripDAO {
     }
 
     public List<Trips> getTripsByMember(int userId) {
-        String sql = "SELECT t.* FROM Trips t " +
-                     "JOIN GroupMembers gm ON gm.group_id = t.group_id " +
-                     "WHERE gm.user_id = ? AND t.status = 'Active'";
+        String sql = "SELECT t.* FROM Trips t "
+                + "JOIN GroupMembers gm ON gm.group_id = t.group_id "
+                + "WHERE gm.user_id = ? AND t.status = 'Active'";
         List<Trips> list = new ArrayList<>();
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) list.add(map(rs));
+                while (rs.next()) {
+                    list.add(map(rs));
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -334,15 +333,16 @@ public class TripDAO {
     }
 
     public List<Trips> getTripsByLeader(int userId) {
-        String sql = "SELECT t.* FROM Trips t " +
-                     "JOIN TravelGroups g ON g.group_id = t.group_id " +
-                     "WHERE g.leader_id = ? AND t.status != 'Blocked'";
+        String sql = "SELECT t.* FROM Trips t "
+                + "JOIN TravelGroups g ON g.group_id = t.group_id "
+                + "WHERE g.leader_id = ? AND t.status != 'Blocked'";
         List<Trips> list = new ArrayList<>();
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) list.add(map(rs));
+                while (rs.next()) {
+                    list.add(map(rs));
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -356,8 +356,7 @@ public class TripDAO {
             JOIN Trips t ON gm.group_id = t.group_id
             WHERE gm.user_id = ? AND t.trip_id = ? AND gm.role = 'Leader'
         """;
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ps.setInt(2, tripId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -370,6 +369,7 @@ public class TripDAO {
         }
         return false;
     }
+
     public int getLeaderIdByTrip(int tripId) {
         String sql = "SELECT leader_id FROM TravelGroups tg "
                 + "JOIN Trips t ON tg.group_id = t.group_id WHERE t.trip_id=?";
@@ -384,4 +384,149 @@ public class TripDAO {
         }
         return -1;
     }
+
+    public int countAllTrips() {
+        String sql = "SELECT COUNT(*) FROM Trips";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public Map<Integer, Integer> countTripsByMonth(int year) {
+        String sql = """
+        SELECT MONTH(created_at) AS month, COUNT(*) AS trip_count
+        FROM Trips
+        WHERE YEAR(created_at) = ?
+        GROUP BY MONTH(created_at)
+        ORDER BY month
+    """;
+
+        Map<Integer, Integer> data = new LinkedHashMap<>();
+        for (int i = 1; i <= 12; i++) {
+            data.put(i, 0);
+        }
+
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, year);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    data.put(rs.getInt("month"), rs.getInt("trip_count"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return data;
+    }
+
+    public int countTripsCreatedByUser(int userId) {
+        String sql = """
+        SELECT COUNT(*)
+        FROM Trips t
+        JOIN TravelGroups g ON t.group_id = g.group_id
+        WHERE g.leader_id = ?
+    """;
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public Map<String, Integer> countTripsGroupByUser() {
+        String sql = """
+        SELECT u.name, COUNT(t.trip_id) AS trip_count
+        FROM Trips t
+        JOIN TravelGroups g ON t.group_id = g.group_id
+        JOIN Users u ON g.leader_id = u.user_id
+        GROUP BY u.user_id, u.name
+        ORDER BY trip_count DESC
+    """;
+
+        Map<String, Integer> data = new LinkedHashMap<>();
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                data.put(rs.getString("name"), rs.getInt("trip_count"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
+
+    public Map<Integer, Integer> countTripsByMonthThisYear() {
+        String sql = """
+        SELECT MONTH(created_at) AS month, COUNT(*) AS trip_count
+        FROM Trips
+        WHERE YEAR(created_at) = YEAR(CURRENT_DATE())
+        GROUP BY MONTH(created_at)
+        ORDER BY month
+    """;
+
+        Map<Integer, Integer> data = new LinkedHashMap<>();
+        // Khởi tạo 12 tháng = 0
+        for (int i = 1; i <= 12; i++) {
+            data.put(i, 0);
+        }
+
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                int month = rs.getInt("month");
+                int count = rs.getInt("trip_count");
+                data.put(month, count);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
+
+    public Trips getOverlappingTrip(int userId, int tripId) {
+        String sql = """
+        SELECT t2.*
+        FROM Trips t2
+        JOIN GroupMembers gm2 ON gm2.group_id = t2.group_id
+        WHERE gm2.user_id = ?
+          AND t2.status = 'Active'
+          AND (
+              (t2.start_date <= (SELECT end_date FROM Trips WHERE trip_id = ?))
+              AND (t2.end_date >= (SELECT start_date FROM Trips WHERE trip_id = ?))
+          )
+        LIMIT 1;
+    """;
+
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, tripId);
+            ps.setInt(3, tripId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Trips t = new Trips();
+                t.setTripId(rs.getInt("trip_id"));
+                t.setName(rs.getString("name"));
+                t.setLocation(rs.getString("location"));
+                t.setStartDate(rs.getDate("start_date"));
+                t.setEndDate(rs.getDate("end_date"));
+                return t;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
