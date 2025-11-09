@@ -22,6 +22,7 @@ public class Reports {
     private String reported_user_name;
     private String group_name;
     private List<String> attachments;
+    private boolean hasNewEvidence;
 
     public Reports() {
     }
@@ -160,6 +161,14 @@ public class Reports {
 
     public void setAttachments(List<String> attachments) {
         this.attachments = attachments;
+    }
+
+    public boolean isHasNewEvidence() {
+        return hasNewEvidence;
+    }
+
+    public void setHasNewEvidence(boolean hasNewEvidence) {
+        this.hasNewEvidence = hasNewEvidence;
     }
     
 }

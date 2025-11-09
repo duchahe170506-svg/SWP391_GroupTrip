@@ -1,4 +1,4 @@
-package filter;
+package controller;
 
 import dal.GroupMembersDAO;
 import jakarta.servlet.*;

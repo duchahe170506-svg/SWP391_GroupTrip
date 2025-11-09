@@ -1,4 +1,4 @@
-package filter;
+package controller;
 
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;

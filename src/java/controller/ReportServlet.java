@@ -109,7 +109,7 @@ public class ReportServlet extends HttpServlet {
         int reportId = Integer.parseInt(req.getParameter("reportId"));
         Reports old = dao.getReportById(reportId);
 
-        if (old == null || old.getReporter_id() != currentUser.getUser_id() || !"PENDING".equals(old.getStatus())) {
+        if (old == null || old.getReporter_id() != currentUser.getUser_id() || !( "PENDING".equals(old.getStatus()) || "IN_PROGRESS".equals(old.getStatus()))) {
             resp.sendRedirect("report?msg=unauthorized");
             return;
         }
@@ -145,7 +145,7 @@ public class ReportServlet extends HttpServlet {
         int reportId = Integer.parseInt(req.getParameter("reportId"));
         Reports r = dao.getReportById(reportId);
 
-        if (r == null || r.getReporter_id() != currentUser.getUser_id() || !"PENDING".equals(r.getStatus())) {
+        if (r == null || r.getReporter_id() != currentUser.getUser_id() || !( "PENDING".equals(r.getStatus()) || "IN_PROGRESS".equals(r.getStatus()))) {
             resp.sendRedirect("report?msg=unauthorized");
             return;
         }

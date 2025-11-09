@@ -356,4 +356,132 @@ public class UserDAO {
         return 0;
     }
 
+    public List<Users> getUsersWithStatsAndSearch(String keyword) {
+        List<Users> list = new ArrayList<>();
+        String sql = """
+            SELECT 
+                u.*,
+                COALESCE(r.report_count,0) AS report_count,
+                COALESCE(t.created_trip_count,0) AS created_trip_count,
+                COALESCE(j.joined_trip_count,0) AS joined_trip_count
+            FROM Users u
+            LEFT JOIN (
+                SELECT reported_user_id, COUNT(*) AS report_count
+                FROM Reports
+                WHERE reported_user_id IS NOT NULL
+                GROUP BY reported_user_id
+            ) r ON u.user_id = r.reported_user_id
+            LEFT JOIN (
+                SELECT u.user_id, COUNT(t.trip_id) AS created_trip_count
+                FROM Users u
+                JOIN TravelGroups g ON u.user_id = g.leader_id
+                JOIN Trips t ON g.group_id = t.group_id
+                GROUP BY u.user_id
+            ) t ON u.user_id = t.user_id
+            LEFT JOIN (
+                SELECT gm.user_id, COUNT(DISTINCT tr.trip_id) AS joined_trip_count
+                FROM GroupMembers gm
+                JOIN Trips tr ON gm.group_id = tr.group_id
+                WHERE gm.status = 'Active'
+                GROUP BY gm.user_id
+            ) j ON u.user_id = j.user_id
+            WHERE u.name LIKE ? OR u.email LIKE ? OR u.phone LIKE ?
+            ORDER BY u.user_id ASC
+        """;
+
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            String kw = "%" + keyword + "%";
+            ps.setString(1, kw);
+            ps.setString(2, kw);
+            ps.setString(3, kw);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Users u = new Users();
+                    u.setUser_id(rs.getInt("user_id"));
+                    u.setName(rs.getString("name"));
+                    u.setEmail(rs.getString("email"));
+                    u.setPhone(rs.getString("phone"));
+                    u.setDate_of_birth(rs.getDate("date_of_birth"));
+                    u.setAddress(rs.getString("address"));
+                    u.setStatus(rs.getString("status"));
+                    u.setReportCount(rs.getInt("report_count"));
+                    u.setCreatedTripCount(rs.getInt("created_trip_count"));
+                    u.setJoinedTripCount(rs.getInt("joined_trip_count"));
+                    list.add(u);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+    
+    public boolean updateStatus(int userId, String newStatus) {
+        String sql = "UPDATE Users SET status=? WHERE user_id=?";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newStatus);
+            ps.setInt(2, userId);
+            int affected = ps.executeUpdate();
+            return affected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    public List<Users> getAllLeaders() {
+        List<Users> leaders = new ArrayList<>();
+        String sql = "SELECT user_id, name, email, phone, role, status FROM Users WHERE role = 'Leader'";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Users u = new Users();
+                u.setUser_id(rs.getInt("user_id"));
+                u.setName(rs.getString("name"));
+                u.setEmail(rs.getString("email"));
+                u.setPhone(rs.getString("phone"));
+                u.setRole(rs.getString("role"));
+                u.setStatus(rs.getString("status"));
+                leaders.add(u);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return leaders;
+    }
+    
+    public List<Users> getUsersByTrip(int tripId) throws SQLException {
+        List<Users> list = new ArrayList<>();
+        String sql = "SELECT u.user_id, u.name, u.email, u.phone, u.avatar, u.role " +
+                     "FROM Users u " +
+                     "INNER JOIN GroupMembers gm ON u.user_id = gm.user_id " +
+                     "INNER JOIN Trips t ON gm.group_id = t.group_id " +
+                     "WHERE t.trip_id = ? AND gm.status = 'Active'";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, tripId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Users u = new Users();
+                    u.setUser_id(rs.getInt("user_id"));
+                    u.setName(rs.getString("name"));
+                    u.setEmail(rs.getString("email"));
+                    u.setPhone(rs.getString("phone"));
+                    u.setAvatar(rs.getString("avatar"));
+                    u.setRole(rs.getString("role"));
+                    list.add(u);
+                }
+            }
+        }
+        return list;
+    }
 }

@@ -269,7 +269,7 @@
 
                                             <!-- NÚT HÀNH ĐỘNG -->
                                             <div style="text-align:right; margin-top:8px;">
-                                                <c:if test="${r.status eq 'PENDING'}">
+                                                <c:if test="${r.status eq 'PENDING' || r.status eq 'IN_PROGRESS'}">
                                                     <button class="btn-edit"
                                                             data-id="${r.report_id}" 
                                                             data-title="${r.title}" 

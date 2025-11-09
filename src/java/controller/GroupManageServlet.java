@@ -132,13 +132,12 @@ public class GroupManageServlet extends HttpServlet {
             int currentMembers = memberDAO.countActiveMembers(groupId);
 
             if (currentMembers >= maxParticipants) {
-                // Không thể thêm, gửi thông báo lỗi
                 String msg = URLEncoder.encode("❌ Nhóm đã đủ số lượng tối đa của chuyến đi.", StandardCharsets.UTF_8.name());
                 resp.sendRedirect("manage?groupId=" + groupId + "&error=" + msg + "&showRequests=true");
                 return;
             }
 
-            requestDAO.updateStatusByUserAndGroup(userId, groupId, "ACCEPTED", reviewedBy);
+            requestDAO.updateStatusByUserAndGroup(requestId, groupId, "ACCEPTED", reviewedBy);
             memberDAO.addMemberIfNotExists(groupId, userId, "Member");
 
             if (user != null && group != null) {

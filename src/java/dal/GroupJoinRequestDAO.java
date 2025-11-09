@@ -69,12 +69,12 @@ public class GroupJoinRequestDAO extends DBConnect {
                     String status = rs.getString("status");
                     switch (status) {
                         case "PENDING":
+                            return "Bạn đã gửi yêu cầu tham gia trước đó rồi, chờ leader duyệt.";
                         case "INVITED":
                         case "ACCEPTED":
-                            return "Bạn đã gửi yêu cầu tham gia rồi hoặc đã là thành viên.";
                         case "REJECTED":
                         case "EXPIRED":
-                            // Có thể gửi lại
+                            
                             break;
                     }
                 }
@@ -86,7 +86,7 @@ public class GroupJoinRequestDAO extends DBConnect {
             FROM Trips t2
             JOIN GroupMembers gm2 ON gm2.group_id = t2.group_id
             WHERE gm2.user_id = ?
-              AND t2.status = 'Active'
+              AND gm2.status = 'Active'
               AND t2.start_date <= ?
               AND t2.end_date >= ?
             LIMIT 1
@@ -161,13 +161,13 @@ public class GroupJoinRequestDAO extends DBConnect {
         return list;
     }
 
-    // Cập nhật trạng thái cho tất cả request của 1 user trong group
-    public void updateStatusByUserAndGroup(int userId, int groupId, String status, int reviewedBy) {
-        String sql = "UPDATE GroupJoinRequests SET status=?, reviewed_at=NOW(), reviewed_by=? WHERE user_id=? AND group_id=?";
+   
+    public void updateStatusByUserAndGroup(int requestId, int groupId, String status, int reviewedBy) {
+        String sql = "UPDATE GroupJoinRequests SET status=?, reviewed_at=NOW(), reviewed_by=? WHERE request_id=? AND group_id=?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, status);
             ps.setInt(2, reviewedBy);
-            ps.setInt(3, userId);
+            ps.setInt(3, requestId);
             ps.setInt(4, groupId);
             ps.executeUpdate();
         } catch (Exception e) {

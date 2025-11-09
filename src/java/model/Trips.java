@@ -1,10 +1,10 @@
-
 package model;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
 public class Trips {
+
     private int tripId;
     private int groupId;
     private String name;
@@ -21,14 +21,18 @@ public class Trips {
     private String status;            // Active / Blocked / Private
     private Date createdAt;
 
+    private String group_name;
+    private String leader_name;
+
+
     public Trips() {
     }
 
     public Trips(int tripId, int groupId, String name, String description, String location,
-                 String meeting_point, Date startDate, Date endDate,
-                 BigDecimal budget, String coverImage,
-                 int min_participants, int max_participants,
-                 String tripType, String status, Date createdAt) {
+            String meeting_point, Date startDate, Date endDate,
+            BigDecimal budget, String coverImage,
+            int min_participants, int max_participants,
+            String tripType, String status, Date createdAt) {
         this.tripId = tripId;
         this.groupId = groupId;
         this.name = name;
@@ -166,25 +170,40 @@ public class Trips {
         this.createdAt = createdAt;
     }
 
+    public String getGroup_name() {
+        return group_name;
+    }
+
+    public void setGroup_name(String group_name) {
+        this.group_name = group_name;
+    }
+
+    public String getLeader_name() {
+        return leader_name;
+    }
+
+    public void setLeader_name(String leader_name) {
+        this.leader_name = leader_name;
+    }
+    
     @Override
     public String toString() {
-        return "Trips{" +
-                "tripId=" + tripId +
-                ", groupId=" + groupId +
-                ", name=" + name +
-                ", description=" + description +
-                ", location=" + location +
-                ", meeting_point=" + meeting_point +
-                ", startDate=" + startDate +
-                ", endDate=" + endDate +
-                ", budget=" + budget +
-                ", coverImage=" + coverImage +
-                ", min_participants=" + min_participants +
-                ", max_participants=" + max_participants +
-                ", tripType=" + tripType +
-                ", status=" + status +
-                ", createdAt=" + createdAt +
-                '}';
+        return "Trips{"
+                + "tripId=" + tripId
+                + ", groupId=" + groupId
+                + ", name=" + name
+                + ", description=" + description
+                + ", location=" + location
+                + ", meeting_point=" + meeting_point
+                + ", startDate=" + startDate
+                + ", endDate=" + endDate
+                + ", budget=" + budget
+                + ", coverImage=" + coverImage
+                + ", min_participants=" + min_participants
+                + ", max_participants=" + max_participants
+                + ", tripType=" + tripType
+                + ", status=" + status
+                + ", createdAt=" + createdAt
+                + '}';
     }
 }
-
