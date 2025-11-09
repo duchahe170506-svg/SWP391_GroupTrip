@@ -393,4 +393,25 @@ public class ReportsDAO extends DBConnect {
         }
         return 0;
     }
+
+    public boolean hasNewAttachmentsAfterReport(int reportId) {
+        String sql = """
+        SELECT COUNT(*) 
+        FROM ReportAttachments 
+        WHERE report_id = ? 
+          AND uploaded_at > (SELECT updated_at FROM Reports WHERE report_id = ?)
+    """;
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, reportId);
+            ps.setInt(2, reportId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }

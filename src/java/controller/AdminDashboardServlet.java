@@ -5,15 +5,17 @@ import dal.TripDAO;
 import dal.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import model.Reports;
-import model.Users;
 import java.util.List;
 import java.util.Map;
+import model.Reports;
+import model.Users;
 
-@WebServlet("/admin/reports")
-public class AdminReportServlet extends HttpServlet {
+@WebServlet("/admin/dashboard")
+public class AdminDashboardServlet extends HttpServlet {
 
     private UserDAO userDAO = new UserDAO();
     private TripDAO tripDAO = new TripDAO();
@@ -23,16 +25,18 @@ public class AdminReportServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
+        // Users
         req.setAttribute("totalUsers", userDAO.countUsers());
         req.setAttribute("users", userDAO.getAllUsers());
 
+        // Trips
         Map<Integer, Integer> tripsPerMonth = tripDAO.countTripsByMonthThisYear();
         int totalTripsThisYear = tripsPerMonth.values().stream().mapToInt(Integer::intValue).sum();
         req.setAttribute("tripsPerMonth", tripsPerMonth);
         req.setAttribute("totalTripsThisYear", totalTripsThisYear);
         req.setAttribute("allTrips", tripDAO.getAllTrips());
 
-  
+        // Reports
         req.setAttribute("pendingReports", reportDAO.countReportsByStatus("PENDING"));
         req.setAttribute("inProgressReports", reportDAO.countReportsByStatus("IN_PROGRESS"));
         req.setAttribute("resolvedReports", reportDAO.countReportsByStatus("RESOLVED"));
@@ -41,39 +45,10 @@ public class AdminReportServlet extends HttpServlet {
         List<Reports> reports = reportDAO.getAllReports();
         for (Reports r : reports) {
             r.setAttachments(reportDAO.getAttachmentsByReportId(r.getReport_id()));
-            boolean hasNewEvidence = reportDAO.hasNewAttachmentsAfterReport(r.getReport_id());
-            r.setHasNewEvidence(hasNewEvidence);
         }
         req.setAttribute("reports", reports);
 
-        req.getRequestDispatcher("/views/admin-reports.jsp").forward(req, resp);
+        req.getRequestDispatcher("/views/admin-dashboard.jsp").forward(req, resp);
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-
-        req.setCharacterEncoding("UTF-8");
-
-        String action = req.getParameter("action");
-        if ("updateReport".equals(action)) {
-            int reportId = Integer.parseInt(req.getParameter("report_id"));
-            String response = req.getParameter("admin_response");
-            String status = req.getParameter("status");
-
-            HttpSession session = req.getSession(false);
-            Users admin = (Users) (session != null ? session.getAttribute("currentUser") : null);
-            if (admin == null) {
-                resp.sendRedirect("login");
-                return;
-            }
-
-            boolean updated = reportDAO.updateAdminResponse(reportId, response, status, admin.getUser_id());
-            if (updated) {
-                resp.sendRedirect("dashboard?msg=updated_success");
-            } else {
-                resp.sendRedirect("dashboard?msg=updated_failed");
-            }
-        }
-    }
 }

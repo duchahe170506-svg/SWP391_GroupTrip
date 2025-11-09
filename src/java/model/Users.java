@@ -17,12 +17,15 @@ public class Users {
     private String role;
     private String status;
 
+    private int reportCount;
+    private int createdTripCount;
+    private int joinedTripCount;
 
     public Users() {
     }
-    
+
     public Users(int user_id, String name, String email, String phone, String password, Date date_of_birth,
-                 String gender, String avatar, String address, String role, String status) {
+            String gender, String avatar, String address, String role, String status) {
         this.user_id = user_id;
         this.name = name;
         this.email = email;
@@ -36,8 +39,6 @@ public class Users {
         this.status = status;
     }
 
-
-    
     public Users(int user_id, String name, String email, String password, String role, String status, Timestamp created_at) {
         this.user_id = user_id;
         this.name = name;
@@ -136,7 +137,30 @@ public class Users {
         this.status = status;
     }
 
+    public int getReportCount() {
+        return reportCount;
+    }
 
+    public void setReportCount(int reportCount) {
+        this.reportCount = reportCount;
+    }
 
+    public int getCreatedTripCount() {
+        return createdTripCount;
+    }
+
+    public void setCreatedTripCount(int createdTripCount) {
+        this.createdTripCount = createdTripCount;
+    }
+
+    public int getJoinedTripCount() {
+        return joinedTripCount;
+    }
+
+    public void setJoinedTripCount(int joinedTripCount) {
+        this.joinedTripCount = joinedTripCount;
+    }
     
+    
+
 }

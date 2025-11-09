@@ -5,6 +5,7 @@ import model.Trips;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -397,34 +398,6 @@ public class TripDAO {
         return 0;
     }
 
-    public Map<Integer, Integer> countTripsByMonth(int year) {
-        String sql = """
-        SELECT MONTH(created_at) AS month, COUNT(*) AS trip_count
-        FROM Trips
-        WHERE YEAR(created_at) = ?
-        GROUP BY MONTH(created_at)
-        ORDER BY month
-    """;
-
-        Map<Integer, Integer> data = new LinkedHashMap<>();
-        for (int i = 1; i <= 12; i++) {
-            data.put(i, 0);
-        }
-
-        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, year);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    data.put(rs.getInt("month"), rs.getInt("trip_count"));
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return data;
-    }
-
     public int countTripsCreatedByUser(int userId) {
         String sql = """
         SELECT COUNT(*)
@@ -466,35 +439,6 @@ public class TripDAO {
         return data;
     }
 
-    public Map<Integer, Integer> countTripsByMonthThisYear() {
-        String sql = """
-        SELECT MONTH(created_at) AS month, COUNT(*) AS trip_count
-        FROM Trips
-        WHERE YEAR(created_at) = YEAR(CURRENT_DATE())
-        GROUP BY MONTH(created_at)
-        ORDER BY month
-    """;
-
-        Map<Integer, Integer> data = new LinkedHashMap<>();
-        // Khởi tạo 12 tháng = 0
-        for (int i = 1; i <= 12; i++) {
-            data.put(i, 0);
-        }
-
-        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                int month = rs.getInt("month");
-                int count = rs.getInt("trip_count");
-                data.put(month, count);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return data;
-    }
-
     public Trips getOverlappingTrip(int userId, int tripId) {
         String sql = """
         SELECT t2.*
@@ -527,6 +471,124 @@ public class TripDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public List<Trips> getTripsWithSearch(String keyword) {
+        List<Trips> trips = new ArrayList<>();
+        String sql = """
+        SELECT t.trip_id, t.name, t.group_id, t.location, t.start_date, t.end_date, t.status,
+               u.name AS leader_name
+        FROM Trips t
+        LEFT JOIN TravelGroups g ON t.group_id = g.group_id
+        LEFT JOIN Users u ON g.leader_id = u.user_id
+        WHERE t.name LIKE ?
+        ORDER BY t.created_at DESC
+    """;
+
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Trips t = new Trips();
+                    t.setTripId(rs.getInt("trip_id"));
+                    t.setName(rs.getString("name"));
+                    t.setGroupId(rs.getInt("group_id"));
+                    t.setLocation(rs.getString("location"));
+                    t.setStartDate(rs.getDate("start_date"));
+                    t.setEndDate(rs.getDate("end_date"));
+                    t.setStatus(rs.getString("status"));
+                    t.setGroup_name(rs.getString("leader_name"));
+                    trips.add(t);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return trips;
+    }
+
+    public void updateStatus(int tripId, String newStatus) {
+        String sql = "UPDATE Trips SET status = ? WHERE trip_id = ?";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, newStatus);
+            ps.setInt(2, tripId);
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int countTrips() {
+        String sql = "SELECT COUNT(*) FROM trips";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int countTripsByMonth(int month, int year) {
+        String sql = "SELECT COUNT(*) FROM trips WHERE MONTH(created_at) = ? AND YEAR(created_at) = ?";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, month);
+            ps.setInt(2, year);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public Map<Integer, Integer> countTripsByMonthThisYear() {
+        Map<Integer, Integer> result = new LinkedHashMap<>();
+
+        for (int m = 1; m <= 12; m++) {
+            result.put(m, 0);
+        }
+
+        String sql = "SELECT MONTH(start_date) AS month, COUNT(*) AS total "
+                + "FROM Trips "
+                + "WHERE YEAR(start_date) = YEAR(CURDATE()) "
+                + "GROUP BY MONTH(start_date)";
+
+        try (Connection conn = new DBConnect().getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                int month = rs.getInt("month");
+                int total = rs.getInt("total");
+                result.put(month, total);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+    
+    public BigDecimal getBudgetByTripId(int tripId) throws SQLException {
+        String sql = "SELECT budget FROM Trips WHERE trip_id=?";
+        try (Connection conn = new DBConnect().getConnection();PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, tripId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getBigDecimal("budget") != null ? rs.getBigDecimal("budget") : BigDecimal.ZERO;
+            }
+        }
+        return BigDecimal.ZERO;
     }
 
 }

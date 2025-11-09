@@ -186,13 +186,30 @@ public class GroupMembersDAO {
     }
 
     public void addMemberIfNotExists(int groupId, int userId, String role) {
-        String check = "SELECT * FROM GroupMembers WHERE group_id=? AND user_id=? AND status='Active'";
+        String check = "SELECT status FROM GroupMembers WHERE group_id=? AND user_id=?";
         String insert = "INSERT INTO GroupMembers (group_id, user_id, role, status, joined_at) VALUES (?, ?, ?, 'Active', NOW())";
+        String reactivate = "UPDATE GroupMembers SET status='Active', role=?, joined_at=NOW() WHERE group_id=? AND user_id=?";
+
         try (Connection conn = DBConnect.getConnection(); PreparedStatement psCheck = conn.prepareStatement(check)) {
+
             psCheck.setInt(1, groupId);
             psCheck.setInt(2, userId);
+
             try (ResultSet rs = psCheck.executeQuery()) {
-                if (!rs.next()) {
+                if (rs.next()) {
+                    String status = rs.getString("status");
+                    if ("Removed".equalsIgnoreCase(status) || "Left".equalsIgnoreCase(status)) {
+                      
+                        try (PreparedStatement psUpdate = conn.prepareStatement(reactivate)) {
+                            psUpdate.setString(1, role);
+                            psUpdate.setInt(2, groupId);
+                            psUpdate.setInt(3, userId);
+                            psUpdate.executeUpdate();
+                        }
+                    }
+                   
+                } else {
+                   
                     try (PreparedStatement psInsert = conn.prepareStatement(insert)) {
                         psInsert.setInt(1, groupId);
                         psInsert.setInt(2, userId);
@@ -201,6 +218,7 @@ public class GroupMembersDAO {
                     }
                 }
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
