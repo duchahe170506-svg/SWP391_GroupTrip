@@ -201,7 +201,7 @@
                                 <td>${e.status}</td>
                                 <td><fmt:formatDate value="${e.createdAt}" pattern="dd/MM/yyyy HH:mm"/></td>
                                 <td><fmt:formatDate value="${e.updatedAt}" pattern="dd/MM/yyyy HH:mm"/></td>
-                                <c:if test="${e.status == 'Pending' && sessionScope.currentUser != null && groupRole eq 'Leader'}">
+                                <c:if test="${e.status == 'Pending'}">
                                     <td>
                                         <button class="btn btn-edit" onclick="openModal('edit', ${e.expenseId}, '${e.amount}', ${e.paidBy}, '${e.expenseType}', '${e.description}', '${e.status}')">Sửa</button>
                                         <form action="${pageContext.request.contextPath}/group/expense" method="post" style="display:inline;">
@@ -222,101 +222,85 @@
                 </table>
 
                 <!-- Modal Thêm/Sửa -->
-                <div id="expenseModal" class="modal">
-                    <div class="modal-content">
-                        <span class="close" onclick="closeModal()">&times;</span>
-                        <h3 id="modalTitle">Thêm khoản chi</h3>
-                        <form id="expenseForm" action="${pageContext.request.contextPath}/group/expense" method="post">
-                            <input type="hidden" name="action" id="action" value="add">
-                            <input type="hidden" name="tripId" value="${tripId}">
-                            <input type="hidden" name="groupId" value="${groupId}">
-                            <input type="hidden" name="expenseId" id="expenseId">
+<div id="expenseModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h3 id="modalTitle">Thêm khoản chi</h3>
 
-                            <label>Số tiền:</label>
-                            <input type="number" name="amount" id="amount" step="0.01" min="0.01" required>
-                            <c:choose>
-                                <c:when test="${groupRole eq 'Leader'}">
-                                    <label>Người chi trả:</label>
-                                    <select name="paidBy" id="paidBy" required>
-                                        <option value="">-- Chọn --</option>
-                                        <c:forEach var="u" items="${userList}">
-                                            <option value="${u.user_id}">${u.name}</option>
-                                        </c:forEach>
-                                    </select>
-                                </c:when>
-                                <c:otherwise>
-                                    <input type="hidden" name="paidBy" value="${sessionScope.currentUser.user_id}">
-                                    <p>Người chi trả: ${sessionScope.currentUser.name}</p>
-                                </c:otherwise>
-                            </c:choose>
+        <form id="expenseForm" action="${pageContext.request.contextPath}/group/expense" method="post">
+            <input type="hidden" name="action" id="action" value="add">
+            <input type="hidden" name="tripId" value="${tripId}">
+            <input type="hidden" name="groupId" value="${groupId}">
+            <input type="hidden" name="expenseId" id="expenseId">
 
-                            <label>Loại chi phí:</label>
-                            <select name="expenseType" id="expenseType">
-                                <option value="Ăn uống">Ăn uống</option>
-                                <option value="Di chuyển">Di chuyển</option>
-                                <option value="Vé tham quan">Vé tham quan</option>
-                                <option value="Lưu trú">Lưu trú</option>
-                                <option value="Khác">Khác</option>
-                            </select>
+            <label>Số tiền:</label>
+            <input type="number" name="amount" id="amount" step="0.01" min="0.01" required>
 
-                            <label>Mô tả:</label>
-                            <textarea name="description" id="description" rows="3"></textarea>
-                            <c:if test="${sessionScope.currentUser != null && groupRole eq 'Leader'}">
-                                <label>Trạng thái:</label>
-                                <select name="status" id="status"></select>
-                            </c:if>
-                            <button type="submit" class="btn btn-add">Lưu</button>
-                        </form>
-                    </div>
-                </div>
+            <c:choose>
+                <c:when test="${groupRole eq 'Leader'}">
+                    <label>Người chi trả:</label>
+                    <select name="paidBy" id="paidBy" required>
+                        <option value="">-- Chọn --</option>
+                        <c:forEach var="u" items="${userList}">
+                            <option value="${u.user_id}">${u.name}</option>
+                        </c:forEach>
+                    </select>
+                </c:when>
+                <c:otherwise>
+                    <input type="hidden" name="paidBy" value="${sessionScope.currentUser.user_id}">
+                    <p>Người chi trả: ${sessionScope.currentUser.name}</p>
+                </c:otherwise>
+            </c:choose>
 
-            </div>
-        </div>
+            <label>Loại chi phí:</label>
+            <select name="expenseType" id="expenseType">
+                <option value="Ăn uống">Ăn uống</option>
+                <option value="Di chuyển">Di chuyển</option>
+                <option value="Vé tham quan">Vé tham quan</option>
+                <option value="Lưu trú">Lưu trú</option>
+                <option value="Khác">Khác</option>
+            </select>
 
-        <script>
-            function openModal(mode, expenseId = '', amount = '', paidBy = '', expenseType = '', description = '', status = 'Pending') {
-                document.getElementById('expenseModal').style.display = 'block';
-                document.getElementById('expenseId').value = expenseId;
-                document.getElementById('amount').value = amount;
-                document.getElementById('paidBy').value = paidBy;
-                document.getElementById('expenseType').value = expenseType;
-                document.getElementById('description').value = description;
+            <label>Mô tả:</label>
+            <textarea name="description" id="description" rows="3"></textarea>
 
-                const statusSelect = document.getElementById('status');
-                statusSelect.innerHTML = '';
+            <c:if test="${groupRole eq 'Leader'}">
+                <label>Trạng thái:</label>
+                <select name="status" id="status">
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                </select>
+            </c:if>
 
-                if (mode === 'add') {
-                    document.getElementById('modalTitle').innerText = 'Thêm khoản chi';
-                    document.getElementById('action').value = 'add';
-                    const option = document.createElement('option');
-                    option.value = 'Pending';
-                    option.text = 'Pending';
-                    option.selected = true;
-                    statusSelect.add(option);
-                } else {
-                    document.getElementById('modalTitle').innerText = 'Sửa khoản chi';
-                    document.getElementById('action').value = 'update';
-                    ['Pending', 'Approved'].forEach(s => {
-                        const option = document.createElement('option');
-                        option.value = s;
-                        option.text = s;
-                        if (s === status)
-                            option.selected = true;
-                        statusSelect.add(option);
-                    });
-            }
-            }
+            <button type="submit" class="btn btn-add">Lưu</button>
+        </form>
+    </div>
+</div>
 
-            function closeModal() {
-                document.getElementById('expenseModal').style.display = 'none';
-            }
+<script>
+function openModal(mode, expenseId = '', amount = '', paidBy = '', expenseType = '', description = '', status = 'Pending') {
+    document.getElementById('expenseModal').style.display = 'block';
 
-            window.onclick = function (event) {
-                if (event.target === document.getElementById('expenseModal')) {
-                    closeModal();
-                }
-            }
-        </script>
+    document.getElementById('expenseId').value = expenseId;
+    document.getElementById('amount').value = amount;
+    document.getElementById('paidBy') && (document.getElementById('paidBy').value = paidBy);
+    document.getElementById('expenseType').value = expenseType;
+    document.getElementById('description').value = description;
+
+    if (mode === 'add') {
+        document.getElementById('modalTitle').innerText = 'Thêm khoản chi';
+        document.getElementById('action').value = 'add';
+    } else {
+        document.getElementById('modalTitle').innerText = 'Sửa khoản chi';
+        document.getElementById('action').value = 'update';
+        document.getElementById('status') && (document.getElementById('status').value = status);
+    }
+}
+
+function closeModal() {
+    document.getElementById('expenseModal').style.display = 'none';
+}
+</script>
 
         <jsp:include page="/views/partials/footer.jsp"/>
     </body>
