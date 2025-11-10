@@ -9,8 +9,8 @@
         <title>My Trips</title>
         <style>
             body {
-                font-family: Arial, sans-serif !important;
-                background: #f5f7fb !important;
+                font-family: 'Inter', Arial, sans-serif !important;
+                background: #f0f3f6 !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 min-height: 100vh !important;
@@ -18,81 +18,124 @@
                 flex-direction: column !important;
             }
 
+            /* Container chính */
             .wrap {
-                flex: 1 !important; /* Giúp footer luôn nằm dưới cùng */
-                max-width: 1000px !important;
-                margin: 24px auto !important;
-                padding: 0 16px !important;
+                flex: 1 !important;
+                max-width: 980px !important;
+                margin: 32px auto !important;
+                padding: 0 18px !important;
             }
 
+            /* Thẻ hiển thị chuyến đi */
             .card {
                 background: #fff !important;
-                border: 1px solid #e5e7ee !important;
-                border-radius: 12px !important;
+                border-radius: 14px !important;
                 padding: 20px !important;
-                margin-bottom: 16px !important;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
+                border: 1px solid #dde2eb !important;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.06) !important;
+                transition: 0.25s !important;
             }
 
+            .card:hover {
+                transform: translateY(-2px) !important;
+                box-shadow: 0 6px 16px rgba(0,0,0,0.08) !important;
+            }
+
+            /* Danh sách chuyến đi */
             .trip-list {
                 display: flex !important;
                 flex-direction: column !important;
-                gap: 14px !important;
+                gap: 16px !important;
             }
 
+            /* Nút */
             .btn {
                 padding: 8px 12px !important;
                 border-radius: 8px !important;
-                border: 1px solid #ccc !important;
+                border: none !important;
+                cursor: pointer !important;
                 text-decoration: none !important;
-                color: #333 !important;
-                background: #eee !important;
-                transition: background 0.2s ease !important;
-            }
-
-            .btn:hover {
-                background: #ddd !important;
+                font-size: 14px !important;
+                display: inline-block !important;
+                transition: 0.2s ease !important;
             }
 
             .btn.primary {
                 background: #77a096 !important;
                 color: #fff !important;
-                border: none !important;
             }
 
             .btn.primary:hover {
-                background: #77a096 !important;
+                background: #5d857c !important;
             }
 
             .btn.danger {
-                background: #dc2626 !important;
-                color: #fff !important;
-                border: none !important;
+                background: #e74c3c !important;
+                color: white !important;
             }
 
             .btn.danger:hover {
-                background: #b91c1c !important;
+                background: #c0392b !important;
             }
 
+            .btn:hover {
+                opacity: 0.9 !important;
+            }
+
+            /* Thông báo */
+            .message {
+                padding: 10px 14px !important;
+                border-radius: 6px !important;
+                margin-bottom: 18px !important;
+                font-size: 14px !important;
+            }
+
+            .message.success {
+                background: #d1fae5 !important;
+                color: #065f46 !important;
+            }
+            .message.warning {
+                background: #fff3cd !important;
+                color: #7a5c00 !important;
+            }
+            .message.error {
+                background: #fde2e1 !important;
+                color: #7f1d1d !important;
+            }
+
+            /* Section Title */
             h1, h2 {
-                color: #111827 !important;
+                color: #1b1f23 !important;
+                margin-bottom: 14px !important;
             }
 
             h2 {
-                margin-top: 32px !important;
-                border-bottom: 2px solid #ddd !important;
-                padding-bottom: 6px !important;
+                font-size: 18px !important;
+                border-left: 4px solid #77a096 !important;
+                padding-left: 10px !important;
+                margin-top: 34px !important;
             }
 
-            /* Đảm bảo footer luôn ở dưới */
+            /* Footer */
             footer {
                 margin-top: auto !important;
                 background: #fff !important;
                 border-top: 1px solid #e5e7eb !important;
-                padding: 12px 0 !important;
+                padding: 14px 0 !important;
                 text-align: center !important;
-                color: #555 !important;
+                color: #444 !important;
+                font-size: 14px !important;
             }
+
+            /* Action buttons row */
+            .actions {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+                margin-top: 12px !important;
+                align-items: center !important;
+            }
+
         </style>
 
     </head>
@@ -154,7 +197,10 @@
                                     <fmt:formatDate value="${t.startDate}" pattern="dd/MM/yyyy"/> →
                                     <fmt:formatDate value="${t.endDate}" pattern="dd/MM/yyyy"/>
                                 </div>
-                                <a class="btn primary" href="<c:url value='/trip/detail?id=${t.tripId}'/>">Xem chi tiết</a>
+                                <div class="actions">
+                                    <a class="btn primary" href="${pageContext.request.contextPath}/group/manage?groupId=${t.groupId}">Xem</a>
+                                    <a class="btn primary" href="<c:url value='/trip/detail?id=${t.tripId}'/>">Xem chi tiết</a>
+                                </div>
                             </div>
                         </c:forEach>
                     </div>

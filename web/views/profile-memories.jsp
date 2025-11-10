@@ -209,6 +209,7 @@
                 <ul class="menu-list">
                     <li><a href="profile" class="menu-item"><i class="fa fa-user"></i> Profile</a></li>
                     <li><a href="${pageContext.request.contextPath}/notifications" class="menu-item"><i class="fa fa-bell"></i> Notifications</a></li>
+                    <li><a href="${pageContext.request.contextPath}/report" class="menu-item"><i class="fa fa-pen"></i> My Report</a></li>
                     <li><a href="#" class="menu-item"><i class="fa fa-briefcase"></i> Trip History</a></li>
                     <li><a href="${pageContext.request.contextPath}/profile-memories" class="menu-item active"><i class="fa fa-images"></i> Nhật ký</a></li>
                     <li><a href="update_password" class="menu-item"><i class="fa fa-fingerprint"></i> Security</a></li>
