@@ -78,9 +78,9 @@ public class GroupExpenseServlet extends HttpServlet {
             req.getRequestDispatcher("/views/login.jsp").forward(req, resp);
             return;
         }
-        
+
         String groupRole = memberDAO.getUserRoleInGroup(groupId, currentUser.getUser_id());
-        
+
         try {
             BigDecimal tripBudget = tripDAO.getBudgetByTripId(tripId);
             BigDecimal totalExpense = expenseDAO.getTotalExpenseByTrip(tripId);
@@ -90,7 +90,6 @@ public class GroupExpenseServlet extends HttpServlet {
                     Expense newE = new Expense();
                     newE.setTripId(tripId);
 
-                   
                     if ("Leader".equals(groupRole)) {
                         newE.setPaidBy(Integer.parseInt(req.getParameter("paidBy")));
                     } else {
@@ -132,7 +131,12 @@ public class GroupExpenseServlet extends HttpServlet {
                     upE.setPaidBy(Integer.parseInt(req.getParameter("paidBy")));
                     upE.setExpenseType(req.getParameter("expenseType"));
                     upE.setDescription(req.getParameter("description"));
-                    upE.setStatus(req.getParameter("status"));
+
+                    String newStatus = req.getParameter("status");
+                    if (newStatus == null || newStatus.trim().isEmpty()) {
+                        newStatus = oldExpense.getStatus();
+                    }
+                    upE.setStatus(newStatus);
                     expenseDAO.updateExpense(upE);
                     break;
 

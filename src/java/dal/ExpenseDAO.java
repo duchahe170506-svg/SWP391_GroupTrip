@@ -67,7 +67,7 @@ public class ExpenseDAO extends DBConnect {
     }
 
     public BigDecimal getTotalExpenseByTrip(int tripId) throws SQLException {
-        String sql = "SELECT SUM(amount) AS total FROM Expenses WHERE trip_id=?";
+        String sql = "SELECT SUM(amount) AS total FROM Expenses WHERE trip_id=? AND status='Approved' ";
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, tripId);
             try (ResultSet rs = ps.executeQuery()) {
