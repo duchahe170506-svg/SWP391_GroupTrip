@@ -591,4 +591,21 @@ public class TripDAO {
         return BigDecimal.ZERO;
     }
 
+    public boolean hasUserRequested(int groupId, int userId) {
+        String sql = "SELECT COUNT(*) FROM GroupJoinRequests WHERE group_id=? AND user_id=? AND status='PENDING'";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, groupId);
+            ps.setInt(2, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int count = rs.getInt(1);
+                    return count > 0;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
 }

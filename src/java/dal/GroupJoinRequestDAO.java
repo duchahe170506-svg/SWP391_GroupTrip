@@ -48,7 +48,6 @@ public class GroupJoinRequestDAO extends DBConnect {
                 }
             }
 
-          
             String checkMember = "SELECT COUNT(*) FROM GroupMembers WHERE group_id = ? AND user_id = ? AND status = 'Active'";
             try (PreparedStatement ps = conn.prepareStatement(checkMember)) {
                 ps.setInt(1, groupId);
@@ -59,7 +58,6 @@ public class GroupJoinRequestDAO extends DBConnect {
                 }
             }
 
-          
             String checkRequest = "SELECT status FROM GroupJoinRequests WHERE group_id = ? AND user_id = ? ORDER BY requested_at DESC LIMIT 1";
             try (PreparedStatement ps = conn.prepareStatement(checkRequest)) {
                 ps.setInt(1, groupId);
@@ -74,13 +72,12 @@ public class GroupJoinRequestDAO extends DBConnect {
                         case "ACCEPTED":
                         case "REJECTED":
                         case "EXPIRED":
-                            
+
                             break;
                     }
                 }
             }
 
-          
             String overlapCheck = """
             SELECT t2.name, t2.start_date, t2.end_date
             FROM Trips t2
@@ -107,7 +104,6 @@ public class GroupJoinRequestDAO extends DBConnect {
                 }
             }
 
-           
             String insert = "INSERT INTO GroupJoinRequests(group_id, user_id) VALUES (?, ?)";
             try (PreparedStatement ps = conn.prepareStatement(insert)) {
                 ps.setInt(1, groupId);
@@ -118,7 +114,7 @@ public class GroupJoinRequestDAO extends DBConnect {
             return "Yêu cầu tham gia đã được gửi thành công!";
 
         } catch (Exception e) {
-            e.printStackTrace(); 
+            e.printStackTrace();
             return "Đã xảy ra lỗi khi gửi yêu cầu.";
         }
     }
@@ -161,7 +157,6 @@ public class GroupJoinRequestDAO extends DBConnect {
         return list;
     }
 
-   
     public void updateStatusByUserAndGroup(int requestId, int groupId, String status, int reviewedBy) {
         String sql = "UPDATE GroupJoinRequests SET status=?, reviewed_at=NOW(), reviewed_by=? WHERE request_id=? AND group_id=?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -511,6 +506,19 @@ public class GroupJoinRequestDAO extends DBConnect {
         } catch (SQLException e) {
             e.printStackTrace();
             return "❌ Lỗi hệ thống, vui lòng thử lại.";
+        }
+    }
+
+    public boolean cancelJoinRequest(int tripId, int userId) {
+        String sql = "DELETE FROM GroupJoinRequests WHERE group_id=? AND user_id=? AND status='PENDING'";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, tripId);
+            ps.setInt(2, userId);
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

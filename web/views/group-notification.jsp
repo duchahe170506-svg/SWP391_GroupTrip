@@ -240,7 +240,7 @@
                                                 <span class="user-name">${userMap[entry.log.user_id]}</span>
                                             </c:when>
                                             <c:when test="${entry.log.status eq 'ACCEPTED'}">
-                                                <span class="user-name">${userMap[entry.log.user_id]}</span> đã đồng ý tham gia nhóm qua lời mời của 
+                                                <span class="user-name">${userMap[entry.log.user_id]}</span> đã tham gia nhóm
                                                 <span class="user-name">${userMap[entry.log.invited_by]}</span>
                                             </c:when>
                                             <c:when test="${entry.log.status eq 'REJECTED'}">
