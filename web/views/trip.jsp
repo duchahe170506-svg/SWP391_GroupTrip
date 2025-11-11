@@ -330,8 +330,16 @@
                                         <c:url var="joinUrl" value="/trip/join">
                                             <c:param name="id" value="${t.tripId}"/>
                                         </c:url>
+                                        <c:url var="cancelUrl" value="/trip/join">
+                                            <c:param name="id" value="${t.tripId}"/>
+                                            <c:param name="action" value="cancel"/>
+                                        </c:url>
                                         <a class="btn" href="${detailUrl}">Xem chi tiết</a>
                                         <a class="btn primary" href="${joinUrl}">Tham gia chuyến đi</a>
+                                        <c:if test="${userRequestMap[t.tripId]}">
+                                            <a class="btn " href="${cancelUrl}">Hủy yêu cầu</a>
+                                        </c:if>
+
                                     </div>
                                 </div>
                             </div>

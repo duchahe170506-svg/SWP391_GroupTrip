@@ -1,3 +1,4 @@
+
 import dal.GroupJoinRequestDAO;
 import dal.TripDAO;
 import dal.UserDAO;
@@ -34,25 +35,39 @@ public class JoinTripServlet extends HttpServlet {
         int userId = currentUser.getUser_id();
         int tripId = Integer.parseInt(request.getParameter("id"));
 
-     
-        String message = joinDAO.createJoinRequest(tripId, userId);
-        request.setAttribute("message", message);
+        String action = request.getParameter("action");
 
-        
-        if (message.equals("Yêu cầu tham gia đã được gửi thành công!")) {
-            Trips trip = tripDAO.getTripById(tripId);
-            Users leader = userDAO.getUserById(trip.getGroupId());
-            String subject = "Yêu cầu tham gia chuyến đi";
-            String body = "Người dùng " + currentUser.getName() 
+        String message = "";
+
+        if ("cancel".equals(action)) {
+
+            boolean success = joinDAO.cancelJoinRequest(tripId, userId);
+            message = success ? "Bạn đã hủy yêu cầu tham gia chuyến đi thành công!"
+                    : "Không thể hủy yêu cầu tham gia!";
+            
+            request.setAttribute("message", message);
+            request.getRequestDispatcher("/trips").forward(request, response);
+            
+        } else {
+
+            message = joinDAO.createJoinRequest(tripId, userId);
+            request.setAttribute("message", message);
+
+            if (message.equals("Yêu cầu tham gia đã được gửi thành công!")) {
+                Trips trip = tripDAO.getTripById(tripId);
+                Users leader = userDAO.getUserById(trip.getGroupId());
+                String subject = "Yêu cầu tham gia chuyến đi";
+                String body = "Người dùng " + currentUser.getName()
                         + " đã gửi yêu cầu tham gia chuyến đi:\n\n"
                         + "Tên chuyến: " + trip.getName() + "\n"
                         + "Địa điểm: " + trip.getLocation() + "\n"
                         + "Thời gian: " + trip.getStartDate() + " đến " + trip.getEndDate() + "\n"
                         + "Ngân sách: " + trip.getBudget() + " VND\n\n"
                         + "Vui lòng xem xét và duyệt yêu cầu.";
-            emailService.sendEmail(leader.getEmail(), subject, body);
+                emailService.sendEmail(leader.getEmail(), subject, body);
+            }
+
+            request.getRequestDispatcher("/trips").forward(request, response);
         }
-        
-        request.getRequestDispatcher("/trips").forward(request, response);
     }
 }
