@@ -129,7 +129,7 @@
             <div class="sidebar">
                 <h3>Group Menu</h3>
                 <ul>
-                    <li><a href="#">🕒 Time Line</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/manage/timeline?groupId=${groupId}">🕒 Time Line</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/manage?groupId=${groupId}" class="active">👥 Members</a></li>
                     <li><a href="#">🎯 Activities</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/manage/tasks?groupId=${groupId}">🧾 Tasks</a></li>
