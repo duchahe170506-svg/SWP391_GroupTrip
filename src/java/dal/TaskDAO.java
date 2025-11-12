@@ -157,10 +157,34 @@ public class TaskDAO {
         }
     }
 
+    /**
+     * Xóa task - Không cho phép xóa task đã hoàn thành
+     * @param task_id ID của task cần xóa
+     * @return true nếu xóa thành công, false nếu thất bại hoặc task đã completed
+     */
     public Boolean removeTask(int task_id) {
-        String sql = "DELETE FROM tasks\n"
-                + "WHERE task_id = ?;";
-        try (java.sql.Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql.toString());) {
+        // Kiểm tra status trước khi xóa
+        String checkSql = "SELECT status FROM tasks WHERE task_id = ?";
+        try (java.sql.Connection conn = DBConnect.getConnection(); 
+             PreparedStatement checkPs = conn.prepareStatement(checkSql)) {
+            checkPs.setInt(1, task_id);
+            ResultSet rs = checkPs.executeQuery();
+            if (rs.next()) {
+                String status = rs.getString("status");
+                if ("Completed".equals(status)) {
+                    // Không cho phép xóa task đã hoàn thành
+                    return false;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        
+        // Nếu chưa completed thì cho phép xóa
+        String sql = "DELETE FROM tasks WHERE task_id = ?";
+        try (java.sql.Connection conn = DBConnect.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, task_id);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
