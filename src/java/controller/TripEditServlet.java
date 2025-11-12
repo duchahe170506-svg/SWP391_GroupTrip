@@ -563,6 +563,33 @@ public class TripEditServlet extends HttpServlet {
             req.getRequestDispatcher("/views/trip_edit.jsp").forward(req, resp);
             return;
         }
+        
+        // ===== Validate ngày =====
+        // Kiểm tra startDate >= today
+        Calendar today = Calendar.getInstance();
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+        
+        if (newStartDate.before(new java.sql.Date(today.getTimeInMillis()))) {
+            req.setAttribute("error", "❌ Ngày đi phải từ hôm nay trở đi.");
+            req.setAttribute("trip", oldTrip);
+            int pc = tripDAO.getParticipantCountByTrip(tripId);
+            putBannerAttrs(req, oldTrip, pc);
+            req.getRequestDispatcher("/views/trip_edit.jsp").forward(req, resp);
+            return;
+        }
+        
+        // Kiểm tra endDate >= startDate
+        if (newEndDate.before(newStartDate)) {
+            req.setAttribute("error", "❌ Ngày kết thúc phải sau hoặc bằng ngày đi.");
+            req.setAttribute("trip", oldTrip);
+            int pc = tripDAO.getParticipantCountByTrip(tripId);
+            putBannerAttrs(req, oldTrip, pc);
+            req.getRequestDispatcher("/views/trip_edit.jsp").forward(req, resp);
+            return;
+        }
 
         // ===== Parse số người tối thiểu =====
         int newMinParticipants = oldTrip.getMin_participants();

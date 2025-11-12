@@ -74,16 +74,18 @@
 
             <!-- Ngày đi -->
             <div>
-                <label for="startDate">Ngày đi</label>
-                <input type="date" id="startDate" name="startDate"
+                <label for="startDate">Ngày đi <span style="color:red;">*</span></label>
+                <input type="date" id="startDate" name="startDate" required
                        value="<c:out value='${form_startDate}'/>"/>
+                <div class="hint">Ngày đi phải từ hôm nay trở đi</div>
             </div>
 
             <!-- Ngày kết thúc -->
             <div>
-                <label for="endDate">Ngày kết thúc</label>
-                <input type="date" id="endDate" name="endDate"
+                <label for="endDate">Ngày kết thúc <span style="color:red;">*</span></label>
+                <input type="date" id="endDate" name="endDate" required
                        value="<c:out value='${form_endDate}'/>"/>
+                <div class="hint">Ngày kết thúc phải sau hoặc bằng ngày đi</div>
             </div>
 
             <!-- Ngân sách -->
@@ -136,7 +138,6 @@
                 <select id="status" name="status">
                     <c:set var="s" value="${empty form_status ? 'Active' : form_status}"/>
                     <option value="Active"  ${s=='Active' ? 'selected' : ''}>Active</option>
-                    <option value="Blocked" ${s=='Blocked' ? 'selected' : ''}>Blocked</option>
                     <option value="Private" ${s=='Private' ? 'selected' : ''}>Private</option>
                 </select>
             </div>
@@ -157,12 +158,71 @@
 </div>
 
 <script>
-    // Ràng buộc nhỏ phía client: endDate >= startDate
+    // Validation phía client
     const start = document.getElementById('startDate');
     const end = document.getElementById('endDate');
-    function syncMin() { end.min = start.value || ""; }
+    
+    // Set minimum date = today cho startDate
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const todayStr = yyyy + '-' + mm + '-' + dd;
+    
+    start.setAttribute('min', todayStr);
+    
+    // Khi startDate thay đổi, cập nhật min của endDate
+    function syncMin() { 
+        if (start.value) {
+            end.min = start.value;
+        } else {
+            end.min = todayStr;
+        }
+    }
+    
     start.addEventListener('change', syncMin);
-    syncMin();
+    syncMin(); // Gọi ngay khi load trang
+    
+    // Validate trước khi submit
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const startVal = start.value;
+        const endVal = end.value;
+        
+        if (!startVal) {
+            e.preventDefault();
+            alert('Vui lòng chọn ngày đi!');
+            start.focus();
+            return false;
+        }
+        
+        if (!endVal) {
+            e.preventDefault();
+            alert('Vui lòng chọn ngày kết thúc!');
+            end.focus();
+            return false;
+        }
+        
+        // Kiểm tra startDate >= today
+        const startDate = new Date(startVal);
+        const todayDate = new Date(todayStr);
+        if (startDate < todayDate) {
+            e.preventDefault();
+            alert('Ngày đi phải từ hôm nay trở đi!');
+            start.focus();
+            return false;
+        }
+        
+        // Kiểm tra endDate >= startDate
+        const endDate = new Date(endVal);
+        if (endDate < startDate) {
+            e.preventDefault();
+            alert('Ngày kết thúc phải sau hoặc bằng ngày đi!');
+            end.focus();
+            return false;
+        }
+        
+        return true;
+    });
 </script>
 
 </body>

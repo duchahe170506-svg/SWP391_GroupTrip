@@ -625,5 +625,63 @@ public class TripDAO {
         }
         return false;
     }
-
+    /**
+     * Kiểm tra xem user có phải là leader của group không
+     * @param userId ID của user cần check
+     * @param groupId ID của group (TravelGroup)
+     * @return true nếu user là leader của group, false nếu không
+     */
+   public boolean isUserLeaderOfGroup(int userId, int groupId) {
+        String sql = "SELECT count(*) FROM Trips t " +
+                     "JOIN TravelGroups g ON g.group_id = t.group_id " +
+                     "WHERE g.leader_id = ? AND t.group_id = ? AND t.status != 'Blocked'";
+        try (Connection conn = DBConnect.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, groupId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("❌ Error checking leader status: userId=" + userId + ", groupId=" + groupId);
+        }
+        return false;
+    }
+    public int getLeaderIdByTrip(int tripId) {
+        String sql = "SELECT leader_id FROM TravelGroups tg "
+                + "JOIN Trips t ON tg.group_id = t.group_id WHERE t.trip_id=?";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, tripId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("leader_id");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+    
+    public int getTripIdByGroupId(int groupId) {
+        String sql = "SELECT trip_id FROM trips WHERE group_id = ?";
+        try (Connection conn = DBConnect.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, groupId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("trip_id");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+    
+    public static void main(String[] args) {
+        TripDAO td = new TripDAO();
+        System.out.println(td.getTripIdByGroupId(1));
+    }
 }

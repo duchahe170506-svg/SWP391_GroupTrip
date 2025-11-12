@@ -5,6 +5,7 @@
 package controller;
 
 import dal.TaskDAO;
+import dal.TripDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -12,6 +13,10 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.Tasks;
+import model.Trips;
+import model.Users;
 
 /**
  *
@@ -100,15 +105,49 @@ public class TasksDeleteServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         try {
+            // Kiểm tra đăng nhập
+            HttpSession session = request.getSession(false);
+            if (session == null || session.getAttribute("currentUser") == null) {
+                out.print("{\"success\": false, \"message\": \"Bạn cần đăng nhập để thực hiện thao tác này\"}");
+                return;
+            }
+            
+            Users currentUser = (Users) session.getAttribute("currentUser");
+            int currentUserId = currentUser.getUser_id();
+            
             String taskIdParam = request.getParameter("task_id");
 
             if (taskIdParam == null || taskIdParam.isEmpty()) {
-                out.print("{\"success\": false, \"message\": \"Thiếu task_id hoặc group_id\"}");
+                out.print("{\"success\": false, \"message\": \"Thiếu task_id\"}");
                 return;
             }
 
             int task_id = Integer.parseInt(taskIdParam);
             TaskDAO task_dao = new TaskDAO();
+            TripDAO trip_dao = new TripDAO();
+            
+            // Lấy thông tin task để kiểm tra
+            Tasks task = task_dao.getTaskById(task_id);
+            if (task == null) {
+                out.print("{\"success\": false, \"message\": \"Task không tồn tại\"}");
+                return;
+            }
+            
+            // Kiểm tra xem user có phải là leader của trip không
+            int leaderId = trip_dao.getLeaderIdByTrip(task.getTrip_id());
+            boolean isLeader = (currentUserId == leaderId);
+            if (!isLeader) {
+                out.print("{\"success\": false, \"message\": \"Chỉ người tạo chuyến đi mới có quyền xóa task\"}");
+                return;
+            }
+            
+            // Kiểm tra status của task
+            if ("Completed".equals(task.getStatus())) {
+                out.print("{\"success\": false, \"message\": \"Không thể xóa task đã hoàn thành\"}");
+                return;
+            }
+            
+            // Thực hiện xóa
             boolean success = task_dao.removeTask(task_id);
 
             if (success) {

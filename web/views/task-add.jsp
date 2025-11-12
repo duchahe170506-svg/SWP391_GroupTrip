@@ -250,7 +250,7 @@
             <div class="sidebar">
                 <h3>Group Menu</h3>
                 <ul>
-                    <li><a href="#">🕒 Time Line</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/manage/timeline?groupId=${groupId}">🕒 Time Line</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/manage?groupId=${groupId}" class="active">👥 Members</a></li>
                     <li><a href="#">🎯 Activities</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/manage/tasks?groupId=${groupId}">🧾 Tasks</a></li>
@@ -266,6 +266,11 @@
                     <!-- Bảng hiển thị dữ liệu -->
                     <div class="content" style="margin:20px; padding:20px; max-width:600px; background:#fff; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
                         <h2>Thêm công việc</h2>
+                        <c:if test="${not empty errorMessage}">
+                            <div style="padding:10px; margin-bottom:15px; background-color:#ffebee; color:#c62828; border-radius:4px; border-left:4px solid #c62828;">
+                                ${errorMessage}
+                            </div>
+                        </c:if>
                         <form id="addTaskForm" action="${pageContext.request.contextPath}/group/manage/tasks-add" method="post">
                             <input type="hidden" name="group_id" value="${groupId}" />
 
@@ -276,12 +281,17 @@
 
                             <div style="margin-bottom:12px;">
                                 <label>Deadline<span class="required-star">*</span>:</label>
-                                <input type="date" name="deadline" style="padding:8px; border-radius:4px; width:100%;" required />
+                                <input type="date" id="deadline" name="deadline" style="padding:8px; border-radius:4px; width:100%;" required />
+                                <small style="color:#666;">
+                                    <c:if test="${trip != null && trip.startDate != null && trip.endDate != null}">
+                                        (Chuyến đi: <fmt:formatDate value="${trip.startDate}" pattern="dd/MM/yyyy"/> - <fmt:formatDate value="${trip.endDate}" pattern="dd/MM/yyyy"/>)
+                                    </c:if>
+                                </small>
                             </div>
 
                             <div style="margin-bottom:12px;">
                                 <label>Chi phí dự kiến (VNĐ)<span class="required-star">*</span>:</label>
-                                <input type="number" name="estimated_cost" style="padding:8px; border-radius:4px; width:100%;" required />
+                                <input type="number" name="estimated_cost" min="0" style="padding:8px; border-radius:4px; width:100%;" required />
                             </div>
 
                             <div style="margin-bottom:12px;">
@@ -316,6 +326,41 @@
         </div>
     </body>
     <script>
+         // Set minimum date to today (00:00:00)
+         const today = new Date();
+         today.setHours(0, 0, 0, 0); // Set về đầu ngày
+         const dd = String(today.getDate()).padStart(2, '0');
+         const mm = String(today.getMonth() + 1).padStart(2, '0');
+         const yyyy = today.getFullYear();
+         const todayStr = yyyy + '-' + mm + '-' + dd;
+        
+        const deadlineInput = document.getElementById('deadline');
+        deadlineInput.setAttribute('min', todayStr);
+        
+        // Set max date to trip end date if available
+        <c:if test="${trip != null && trip.endDate != null}">
+            const tripEndDate = new Date('${trip.endDate}');
+            const endDD = String(tripEndDate.getDate()).padStart(2, '0');
+            const endMM = String(tripEndDate.getMonth() + 1).padStart(2, '0');
+            const endYYYY = tripEndDate.getFullYear();
+            const endDateStr = endYYYY + '-' + endMM + '-' + endDD;
+            deadlineInput.setAttribute('max', endDateStr);
+        </c:if>
+        
+        // Set min date to trip start date if available
+        <c:if test="${trip != null && trip.startDate != null}">
+            const tripStartDate = new Date('${trip.startDate}');
+            const startDD = String(tripStartDate.getDate()).padStart(2, '0');
+            const startMM = String(tripStartDate.getMonth() + 1).padStart(2, '0');
+            const startYYYY = tripStartDate.getFullYear();
+            const startDateStr = startYYYY + '-' + startMM + '-' + startDD;
+            
+            // So sánh và chọn ngày lớn hơn giữa today và start date
+            if (tripStartDate > today) {
+                deadlineInput.setAttribute('min', startDateStr);
+            }
+        </c:if>
+        
         document.getElementById('addTaskForm').addEventListener('submit', function (e) {
             const fields = ['description', 'deadline', 'estimated_cost', 'status'];
             for (let i = 0; i < fields.length; i++) {
@@ -324,8 +369,46 @@
                     e.preventDefault();
                     field.focus();
                     alert('Vui lòng điền đầy đủ thông tin cho ' + fields[i].replace('_', ' '));
-                    break;
+                    return;
                 }
+            }
+            
+             // Validate deadline
+             const deadlineValue = deadlineInput.value;
+             if (deadlineValue) {
+                 const selectedDate = new Date(deadlineValue);
+                 selectedDate.setHours(0, 0, 0, 0); // Set về đầu ngày
+                 
+                 // Kiểm tra deadline không trong quá khứ (cho phép = hôm nay)
+                 if (selectedDate < today) {
+                     e.preventDefault();
+                     alert('Deadline không được trong quá khứ (phải từ hôm nay trở đi)!');
+                     deadlineInput.focus();
+                     return;
+                 }
+                
+                <c:if test="${trip != null}">
+                    // Kiểm tra deadline trong khoảng start_date và end_date
+                    <c:if test="${trip.startDate != null}">
+                        const tripStart = new Date('${trip.startDate}');
+                        if (selectedDate < tripStart) {
+                            e.preventDefault();
+                            alert('Deadline phải sau ngày bắt đầu chuyến đi!');
+                            deadlineInput.focus();
+                            return;
+                        }
+                    </c:if>
+                    
+                    <c:if test="${trip.endDate != null}">
+                        const tripEnd = new Date('${trip.endDate}');
+                        if (selectedDate > tripEnd) {
+                            e.preventDefault();
+                            alert('Deadline phải trước ngày kết thúc chuyến đi!');
+                            deadlineInput.focus();
+                            return;
+                        }
+                    </c:if>
+                </c:if>
             }
         });
     </script>

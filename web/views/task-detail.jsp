@@ -8,7 +8,9 @@
     <head>
         <title>Quản lý công việc</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     </head>
     <body>
         <style>
@@ -246,7 +248,7 @@
             <div class="sidebar">
                 <h3>Group Menu</h3>
                 <ul>
-                    <li><a href="#">🕒 Time Line</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/manage/timeline?groupId=${groupId}">🕒 Time Line</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/manage?groupId=${groupId}">👥 Members</a></li>
                     <li><a href="#">🎯 Activities</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/manage/tasks?groupId=${groupId}"  class="active">🧾 Tasks</a></li>
@@ -262,52 +264,168 @@
                     <!-- Bảng hiển thị dữ liệu -->
                     <div class="content" style="margin:20px; padding:20px; max-width:600px; background:#fff; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1);">
                         <h2>Chỉnh sửa công việc #${task.task_id}</h2>
-                        <form action="${pageContext.request.contextPath}/group/manage/tasks-edit" method="post">
-                            <input type="hidden" name="task_id" value="${task.task_id}" />
-                            <input type="hidden" name="group_id" value="${task.trip_id}" />
+                        <c:if test="${not empty errorMessage}">
+                            <div style="padding:10px; margin-bottom:15px; background-color:#ffebee; color:#c62828; border-radius:4px; border-left:4px solid #c62828;">
+                                ${errorMessage}
+                            </div>
+                        </c:if>
+                        <c:choose>
+                            <c:when test="${not isLeader}">
+                                <div style="padding:15px; background-color:#fff3cd; color:#856404; border-radius:4px; border-left:4px solid #ffc107;">
+                                    <strong>Thông báo:</strong> Bạn không có quyền chỉnh sửa task này. Chỉ người tạo chuyến đi mới có quyền này.
+                                </div>
+                                <br>
+                                <a href="${pageContext.request.contextPath}/group/manage/tasks?groupId=${groupId}" style="color:#2980b9;">&larr; Quay lại danh sách</a>
+                            </c:when>
+                            <c:otherwise>
+                                <form id="editTaskForm" action="${pageContext.request.contextPath}/group/manage/tasks-edit" method="post">
+                                    <input type="hidden" name="task_id" value="${task.task_id}" />
+                                    <input type="hidden" name="trip_id" value="${task.trip_id}" />
 
-                            <div style="margin-bottom:12px;">
-                                <label>Mô tả:</label>
-                                <textarea name="description" style="width:100%; padding:8px; border-radius:4px;">${task.description}</textarea>
-                            </div>
+                                    <div style="margin-bottom:12px;">
+                                        <label>Mô tả<span class="required-star">*</span>:</label>
+                                        <textarea name="description" style="width:100%; padding:8px; border-radius:4px;" required>${task.description}</textarea>
+                                    </div>
 
-                            <div style="margin-bottom:12px;">
-                                <label>Deadline:</label>
-                                <input type="date" name="deadline" value="${task.deadline}" style="padding:8px; border-radius:4px; width:100%;" />
-                            </div>
+                                    <div style="margin-bottom:12px;">
+                                        <label>Deadline<span class="required-star">*</span>:</label>
+                                        <input type="date" id="deadline" name="deadline" value="${task.deadline}" style="padding:8px; border-radius:4px; width:100%;" required />
+                                        <small style="color:#666;">
+                                            <c:if test="${trip != null && trip.startDate != null && trip.endDate != null}">
+                                                (Chuyến đi: <fmt:formatDate value="${trip.startDate}" pattern="dd/MM/yyyy"/> - <fmt:formatDate value="${trip.endDate}" pattern="dd/MM/yyyy"/>)
+                                            </c:if>
+                                        </small>
+                                    </div>
 
-                            <div style="margin-bottom:12px;">
-                                <label>Chi phí dự kiến (VNĐ):</label>
-                                <input type="number" name="estimated_cost" value="${task.estimated_cost}" style="padding:8px; border-radius:4px; width:100%;" />
-                            </div>
+                                    <div style="margin-bottom:12px;">
+                                        <label>Chi phí dự kiến (VNĐ)<span class="required-star">*</span>:</label>
+                                        <input type="number" name="estimated_cost" value="${task.estimated_cost}" min="0" style="padding:8px; border-radius:4px; width:100%;" required />
+                                    </div>
 
-                            <div style="margin-bottom:12px;">
-                                <label>Trạng thái:</label>
-                                <select name="status" style="padding:8px; border-radius:4px; width:100%;">
-                                    <option value="Pending" ${task.status == 'Pending' ? 'selected' : ''}>Pending</option>
-                                    <option value="InProgress" ${task.status == 'InProgress' ? 'selected' : ''}>In Progress</option>
-                                    <option value="Completed" ${task.status == 'Completed' ? 'selected' : ''}>Completed</option>
-                                </select>
-                            </div>
-                            <label for="assigned_to">Giao cho:</label><br>
-                            <select name="assigned_to" id="assigned_to" style="padding:5px; margin-bottom:10px;">
-                                <option value="">-- Chưa giao --</option>
-                                <c:forEach var="member" items="${listMember}">
-                                    <option value="${member.user_id}" ${task.assigned_to == member.user_id ? 'selected' : ''}>
-                                        ${member.name}
-                                    </option>
-                                </c:forEach>
-                            </select>
-                            <div style="text-align:right;">
-                                <button type="submit" style="padding:8px 16px; background:#4CAF50; color:white; border:none; border-radius:6px;">Cập nhật</button>
-                            </div>
-                        </form>
-                        <br>
-                        <a href="${pageContext.request.contextPath}/group/manage/tasks?groupId=${task.trip_id}" style="color:#2980b9;">&larr; Quay lại danh sách</a>
+                                    <div style="margin-bottom:12px;">
+                                        <label>Trạng thái<span class="required-star">*</span>:</label>
+                                        <select name="status" style="padding:8px; border-radius:4px; width:100%;" required>
+                                            <option value="Pending" ${task.status == 'Pending' ? 'selected' : ''}>Pending</option>
+                                            <option value="InProgress" ${task.status == 'InProgress' ? 'selected' : ''}>In Progress</option>
+                                            <option value="Completed" ${task.status == 'Completed' ? 'selected' : ''}>Completed</option>
+                                        </select>
+                                    </div>
+                                    <label for="assigned_to">Giao cho:</label><br>
+                                    <select name="assigned_to" id="assigned_to" style="padding:5px; margin-bottom:10px;">
+                                        <option value="">-- Chưa giao --</option>
+                                        <c:forEach var="member" items="${listMember}">
+                                            <option value="${member.user_id}" ${task.assigned_to == member.user_id ? 'selected' : ''}>
+                                                ${member.name}
+                                            </option>
+                                        </c:forEach>
+                                    </select>
+                                    <div style="text-align:right;">
+                                        <button type="submit" style="padding:8px 16px; background:#4CAF50; color:white; border:none; border-radius:6px;">Cập nhật</button>
+                                    </div>
+                                </form>
+                                <br>
+                                <a href="${pageContext.request.contextPath}/group/manage/tasks?groupId=${groupId}" style="color:#2980b9;">&larr; Quay lại danh sách</a>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </div>
             </div>
         </div>
     </body>
+    <script>
+        <c:if test="${isLeader}">
+            // Set minimum date to today (00:00:00)
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Set về đầu ngày
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const yyyy = today.getFullYear();
+            const todayStr = yyyy + '-' + mm + '-' + dd;
+            
+            const deadlineInput = document.getElementById('deadline');
+            if (deadlineInput) {
+                deadlineInput.setAttribute('min', todayStr);
+                
+                // Set max date to trip end date if available
+                <c:if test="${trip != null && trip.endDate != null}">
+                    const tripEndDate = new Date('${trip.endDate}');
+                    const endDD = String(tripEndDate.getDate()).padStart(2, '0');
+                    const endMM = String(tripEndDate.getMonth() + 1).padStart(2, '0');
+                    const endYYYY = tripEndDate.getFullYear();
+                    const endDateStr = endYYYY + '-' + endMM + '-' + endDD;
+                    deadlineInput.setAttribute('max', endDateStr);
+                </c:if>
+                
+                // Set min date to trip start date if available
+                <c:if test="${trip != null && trip.startDate != null}">
+                    const tripStartDate = new Date('${trip.startDate}');
+                    const startDD = String(tripStartDate.getDate()).padStart(2, '0');
+                    const startMM = String(tripStartDate.getMonth() + 1).padStart(2, '0');
+                    const startYYYY = tripStartDate.getFullYear();
+                    const startDateStr = startYYYY + '-' + startMM + '-' + startDD;
+                    
+                    // So sánh và chọn ngày lớn hơn giữa today và start date
+                    if (tripStartDate > today) {
+                        deadlineInput.setAttribute('min', startDateStr);
+                    }
+                </c:if>
+                
+                const editForm = document.getElementById('editTaskForm');
+                if (editForm) {
+                    editForm.addEventListener('submit', function (e) {
+                        // Validate required fields
+                        const fields = ['description', 'deadline', 'estimated_cost', 'status'];
+                        for (let i = 0; i < fields.length; i++) {
+                            const field = this.elements[fields[i]];
+                            if (!field.value) {
+                                e.preventDefault();
+                                field.focus();
+                                alert('Vui lòng điền đầy đủ thông tin cho ' + fields[i].replace('_', ' '));
+                                return;
+                            }
+                        }
+                        
+                        // Validate deadline
+                        const deadlineValue = deadlineInput.value;
+                        if (deadlineValue) {
+                            const selectedDate = new Date(deadlineValue);
+                            selectedDate.setHours(0, 0, 0, 0); // Set về đầu ngày
+                            
+                            // Kiểm tra deadline không trong quá khứ (cho phép = hôm nay)
+                            if (selectedDate < today) {
+                                e.preventDefault();
+                                alert('Deadline không được trong quá khứ (phải từ hôm nay trở đi)!');
+                                deadlineInput.focus();
+                                return;
+                            }
+                            
+                            <c:if test="${trip != null}">
+                                // Kiểm tra deadline trong khoảng start_date và end_date
+                                <c:if test="${trip.startDate != null}">
+                                    const tripStart = new Date('${trip.startDate}');
+                                    if (selectedDate < tripStart) {
+                                        e.preventDefault();
+                                        alert('Deadline phải sau ngày bắt đầu chuyến đi!');
+                                        deadlineInput.focus();
+                                        return;
+                                    }
+                                </c:if>
+                                
+                                <c:if test="${trip.endDate != null}">
+                                    const tripEnd = new Date('${trip.endDate}');
+                                    if (selectedDate > tripEnd) {
+                                        e.preventDefault();
+                                        alert('Deadline phải trước ngày kết thúc chuyến đi!');
+                                        deadlineInput.focus();
+                                        return;
+                                    }
+                                </c:if>
+                            </c:if>
+                        }
+                    });
+                }
+            }
+        </c:if>
+    </script>
     <jsp:include page="/views/partials/footer.jsp"/>
 </html>

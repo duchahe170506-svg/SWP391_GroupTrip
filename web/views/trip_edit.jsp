@@ -237,28 +237,34 @@
                     <div class="row">
                         <!-- Ngày đi -->
                         <div>
-                            <label>Ngày đi</label>
+                            <label>Ngày đi <span style="color:red;">*</span></label>
                             <c:choose>
                                 <c:when test="${not allowEditDate}">
                                     <input type="date" value="<fmt:formatDate value='${trip.startDate}' pattern='yyyy-MM-dd'/>" disabled/>
                                     <input type="hidden" name="startDate" value="<fmt:formatDate value='${trip.startDate}' pattern='yyyy-MM-dd'/>"/>
                                 </c:when>
                                 <c:otherwise>
-                                    <input type="date" name="startDate" value="<fmt:formatDate value='${trip.startDate}' pattern='yyyy-MM-dd'/>"/>
+                                    <input type="date" id="startDate" name="startDate" value="<fmt:formatDate value='${trip.startDate}' pattern='yyyy-MM-dd'/>" required/>
+                                    <small style="color:#6b7280;font-size:12px;display:block;margin-top:-8px;margin-bottom:8px;">
+                                        Ngày đi phải từ hôm nay trở đi
+                                    </small>
                                 </c:otherwise>
                             </c:choose>
                         </div>
 
                         <!-- Ngày kết thúc -->
                         <div>
-                            <label>Ngày kết thúc</label>
+                            <label>Ngày kết thúc <span style="color:red;">*</span></label>
                             <c:choose>
                                 <c:when test="${not allowEditDate}">
                                     <input type="date" value="<fmt:formatDate value='${trip.endDate}' pattern='yyyy-MM-dd'/>" disabled/>
                                     <input type="hidden" name="endDate" value="<fmt:formatDate value='${trip.endDate}' pattern='yyyy-MM-dd'/>"/>
                                 </c:when>
                                 <c:otherwise>
-                                    <input type="date" name="endDate" value="<fmt:formatDate value='${trip.endDate}' pattern='yyyy-MM-dd'/>"/>
+                                    <input type="date" id="endDate" name="endDate" value="<fmt:formatDate value='${trip.endDate}' pattern='yyyy-MM-dd'/>" required/>
+                                    <small style="color:#6b7280;font-size:12px;display:block;margin-top:-8px;margin-bottom:8px;">
+                                        Ngày kết thúc phải sau hoặc bằng ngày đi
+                                    </small>
                                 </c:otherwise>
                             </c:choose>
                         </div>
@@ -300,15 +306,19 @@
                     <c:choose>
                         <c:when test="${not allowNameDescImageStatus}">
                             <select disabled>
-                                <option ${trip.status == 'Active' ? 'selected' : ''}>Active</option>
-                                <option ${trip.status == 'Private' ? 'selected' : ''}>Private</option>
+                                <option ${trip.status == 'Blocked' ? 'selected' : ''}>Blocked</option>
+                                <option ${trip.status == 'Continuous' ? 'selected' : ''}>Continuous</option>
+                                <option ${trip.status == 'Completed' ? 'selected' : ''}>Completed</option>
+                                <option ${trip.status == 'Postponed' ? 'selected' : ''}>Postponed</option>
                             </select>
                             <input type="hidden" name="status" value="${trip.status}"/>
                         </c:when>
                         <c:otherwise>
                             <select name="status">
-                                <option value="Active" ${trip.status == 'Active' ? 'selected' : ''}>Active</option>
-                                <option value="Private" ${trip.status == 'Private' ? 'selected' : ''}>Private</option>
+                                <option ${trip.status == 'Blocked' ? 'selected' : ''}>Blocked</option>
+                                <option ${trip.status == 'Continuous' ? 'selected' : ''}>Continuous</option>
+                                <option ${trip.status == 'Completed' ? 'selected' : ''}>Completed</option>
+                                <option ${trip.status == 'Postponed' ? 'selected' : ''}>Postponed</option>
                             </select>
                         </c:otherwise>
                     </c:choose>
@@ -333,5 +343,78 @@
             </div>
         </div>
     </body>
+    
+    <script>
+        // Validation cho date nếu được phép edit
+        <c:if test="${allowEditDate}">
+            const startInput = document.getElementById('startDate');
+            const endInput = document.getElementById('endDate');
+            
+            if (startInput && endInput) {
+                // Set minimum date = today
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                const todayStr = yyyy + '-' + mm + '-' + dd;
+                
+                startInput.setAttribute('min', todayStr);
+                
+                // Sync min date cho endDate
+                function syncEndMin() {
+                    if (startInput.value) {
+                        endInput.min = startInput.value;
+                    } else {
+                        endInput.min = todayStr;
+                    }
+                }
+                
+                startInput.addEventListener('change', syncEndMin);
+                syncEndMin();
+                
+                // Validate trước khi submit
+                document.querySelector('form').addEventListener('submit', function(e) {
+                    const startVal = startInput.value;
+                    const endVal = endInput.value;
+                    
+                    if (!startVal) {
+                        e.preventDefault();
+                        alert('Vui lòng chọn ngày đi!');
+                        startInput.focus();
+                        return false;
+                    }
+                    
+                    if (!endVal) {
+                        e.preventDefault();
+                        alert('Vui lòng chọn ngày kết thúc!');
+                        endInput.focus();
+                        return false;
+                    }
+                    
+                    // Kiểm tra startDate >= today
+                    const startDate = new Date(startVal);
+                    const todayDate = new Date(todayStr);
+                    if (startDate < todayDate) {
+                        e.preventDefault();
+                        alert('Ngày đi phải từ hôm nay trở đi!');
+                        startInput.focus();
+                        return false;
+                    }
+                    
+                    // Kiểm tra endDate >= startDate
+                    const endDate = new Date(endVal);
+                    if (endDate < startDate) {
+                        e.preventDefault();
+                        alert('Ngày kết thúc phải sau hoặc bằng ngày đi!');
+                        endInput.focus();
+                        return false;
+                    }
+                    
+                    return true;
+                });
+            }
+        </c:if>
+    </script>
+    
      <jsp:include page="partials/footer.jsp"/>
 </html>
