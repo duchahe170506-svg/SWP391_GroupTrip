@@ -60,8 +60,8 @@ public class TasksEditServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/group/manage/tasks");
             return;
         }
-        
-        int groupId = trip.getGroupId();
+        String groupParam = request.getParameter("groupId");
+        int groupId = Integer.parseInt(groupParam);
         
         // Check if current user is leader
         boolean isLeader = tripDAO.isUserLeaderOfGroup(currentUserId, groupId);
@@ -115,7 +115,8 @@ public class TasksEditServlet extends HttpServlet {
             return;
         }
         
-        int groupId = trip.getGroupId();
+        String groupParam = request.getParameter("groupId");
+        int groupId = Integer.parseInt(groupParam);
         
         // Lấy thông tin task hiện tại
         Tasks currentTask = taskDAO.getTaskById(taskId);

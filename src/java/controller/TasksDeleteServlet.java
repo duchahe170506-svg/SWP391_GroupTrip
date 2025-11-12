@@ -68,7 +68,7 @@ public class TasksDeleteServlet extends HttpServlet {
 
         try (PrintWriter out = response.getWriter()) {
             int task_id = Integer.parseInt(request.getParameter("task_id"));
-            int group_id = Integer.parseInt(request.getParameter("group_id"));
+            int groupId = Integer.parseInt(request.getParameter("groupId"));
 
             TaskDAO task_dao = new TaskDAO();
             boolean status = task_dao.removeTask(task_id);

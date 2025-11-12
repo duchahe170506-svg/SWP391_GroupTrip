@@ -72,7 +72,7 @@ public class TasksAddServlet extends HttpServlet {
         Users currentUser = (Users) session.getAttribute("currentUser");
         int currentUserId = currentUser.getUser_id();
         
-        String groupParam = request.getParameter("group_id");
+        String groupParam = request.getParameter("groupId");
         if (groupParam == null || groupParam.isEmpty()) {
             response.sendRedirect(request.getContextPath() + "/group/manage/tasks");
             return;
@@ -127,7 +127,7 @@ public class TasksAddServlet extends HttpServlet {
         Users currentUser = (Users) session.getAttribute("currentUser");
         int currentUserId = currentUser.getUser_id();
         
-        int groupId = Integer.parseInt(request.getParameter("group_id"));
+        int groupId = Integer.parseInt(request.getParameter("groupId"));
         String description = request.getParameter("description");
         String deadline = request.getParameter("deadline");
         String estimatedCost = request.getParameter("estimated_cost");
