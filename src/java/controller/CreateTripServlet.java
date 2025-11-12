@@ -80,6 +80,19 @@ public class CreateTripServlet extends HttpServlet {
         }
         Date startDate = parseDate(startDateStr, "Ngày đi không hợp lệ (yyyy-MM-dd).", errors);
         Date endDate = parseDate(endDateStr, "Ngày kết thúc không hợp lệ (yyyy-MM-dd).", errors);
+        
+        // Validate ngày đi phải >= hôm nay
+        if (startDate != null) {
+            Calendar today = Calendar.getInstance();
+            today.set(Calendar.HOUR_OF_DAY, 0);
+            today.set(Calendar.MINUTE, 0);
+            today.set(Calendar.SECOND, 0);
+            today.set(Calendar.MILLISECOND, 0);
+            
+            if (startDate.before(today.getTime())) {
+                errors.add("Ngày đi phải từ hôm nay trở đi.");
+            }
+        }
 
         BigDecimal budget = null;
         if (!budgetStr.isEmpty()) {
