@@ -1,4 +1,4 @@
-
+package controller;
 
 import dal.ItineraryDAO;
 import dal.TripDAO;
