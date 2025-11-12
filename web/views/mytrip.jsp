@@ -172,14 +172,26 @@
                                     <fmt:formatDate value="${t.endDate}" pattern="dd/MM/yyyy"/>
                                 </div>
                                 <div class="pill">Trạng thái: <c:out value="${t.status}"/></div>
-                                <div class="actions">
-                                    <a class="btn primary" href="${pageContext.request.contextPath}/group/manage?groupId=${t.groupId}">
-                                        Xem
-                                    </a>
-                                    <a class="btn" href="<c:url value='/trip/edit?id=${t.tripId}'/>">Sửa</a>
-                                    <a class="btn danger" href="<c:url value='/trip/delete?id=${t.tripId}'/>"
-                                       onclick="return confirm('Bạn có chắc muốn xóa chuyến đi này?')">Xóa</a>
-                                </div>
+
+                                <c:choose>
+                                    <c:when test="${t.status == 'Blocked'}">
+                                        <div class="message warning">
+                                            ⚠️ Chuyến đi vi phạm đã bị Admin khóa.
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+
+                                        <div class="actions">
+                                            <a class="btn primary" href="${pageContext.request.contextPath}/group/manage?groupId=${t.groupId}">
+                                                Xem
+                                            </a>
+                                            <a class="btn" href="<c:url value='/trip/edit?id=${t.tripId}'/>">Sửa</a>
+                                            <a class="btn danger" href="<c:url value='/trip/delete?id=${t.tripId}'/>"
+                                               onclick="return confirm('Bạn có chắc muốn xóa chuyến đi này?')">Xóa</a>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>       
+
                             </div>
                         </c:forEach>
                     </div>
@@ -197,10 +209,21 @@
                                     <fmt:formatDate value="${t.startDate}" pattern="dd/MM/yyyy"/> →
                                     <fmt:formatDate value="${t.endDate}" pattern="dd/MM/yyyy"/>
                                 </div>
-                                <div class="actions">
-                                    <a class="btn primary" href="${pageContext.request.contextPath}/group/manage?groupId=${t.groupId}">Xem</a>
-                                    <a class="btn primary" href="<c:url value='/trip/detail?id=${t.tripId}'/>">Xem chi tiết</a>
-                                </div>
+
+                                <c:choose>
+                                    <c:when test="${t.status == 'Blocked'}">
+                                        <div class="message warning">
+                                            ⚠️ Chuyến đi vi phạm đã bị admin khóa.
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="actions">
+                                            <a class="btn primary" href="${pageContext.request.contextPath}/group/manage?groupId=${t.groupId}">Xem</a>
+                                            <a class="btn primary" href="<c:url value='/trip/detail?id=${t.tripId}'/>">Xem chi tiết</a>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose> 
+
                             </div>
                         </c:forEach>
                     </div>
