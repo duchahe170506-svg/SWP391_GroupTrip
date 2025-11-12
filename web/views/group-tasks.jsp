@@ -277,7 +277,7 @@
 
                         <c:if test="${isLeader}">
                             <div>
-                                <a href="${pageContext.request.contextPath}/group/manage/tasks-add?group_id=${groupId}" class="btn">+ Add Tasks</a>
+                                <a href="${pageContext.request.contextPath}/group/manage/tasks-add?groupId=${groupId}" class="btn">+ Add Tasks</a>
                             </div>
                         </c:if>
                     </form>
@@ -337,11 +337,11 @@
                                                 </td>
                                                 <c:if test="${isLeader}">
                                                     <td style="text-align:center;">
-                                                        <a href="${pageContext.request.contextPath}/group/manage/tasks-edit?task_id=${t.task_id}" class="btn-icon" title="Edit">
+                                                        <a href="${pageContext.request.contextPath}/group/manage/tasks-edit?task_id=${t.task_id}&groupId=${groupId}" class="btn-icon" title="Edit">
                                                             <i class="fa-solid fa-pen-to-square"></i>
                                                         </a>
                                                         <c:if test="${t.status ne 'Completed'}">
-                                                            <a href="#" class="btn-icon delete-btn" title="Delete" data-task-id="${t.task_id}">
+                                                            <a href="#" class="btn-icon delete-btn" title="Delete" data-task-id="${t.task_id}" data-group-id="${groupId}">
                                                                 <i class="fa-solid fa-trash"></i>
                                                             </a>
                                                         </c:if>
@@ -413,6 +413,7 @@
                 if (deleteBtn) {
                     e.preventDefault();
                     taskIdToDelete = deleteBtn.getAttribute("data-task-id");
+                    groupIdToDelete = deleteBtn.getAttribute("data-group-id");
                     // Hiện modal confirm
                     document.getElementById("deleteConfirmModal").style.display = "block";
                 }
@@ -424,7 +425,7 @@ document.getElementById("confirmDeleteBtn").addEventListener("click", function (
 
     const params = new URLSearchParams();
     params.append("task_id", taskIdToDelete);
-
+    params.append("groupId", groupIdToDelete);
     fetch(`${window.location.origin}/group-trip/group/manage/tasks-delete`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },

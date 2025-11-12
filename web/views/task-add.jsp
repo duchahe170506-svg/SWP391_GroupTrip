@@ -251,12 +251,11 @@
                 <h3>Group Menu</h3>
                 <ul>
                     <li><a href="${pageContext.request.contextPath}/group/manage/timeline?groupId=${groupId}">🕒 Time Line</a></li>
-                    <li><a href="${pageContext.request.contextPath}/group/manage?groupId=${groupId}" class="active">👥 Members</a></li>
-                    <li><a href="#">🎯 Activities</a></li>
-                    <li><a href="${pageContext.request.contextPath}/group/manage/tasks?groupId=${groupId}">🧾 Tasks</a></li>
-                    <li><a href="#">💰 Expense</a></li>
-                    <li><a href="${pageContext.request.contextPath}/group-memories">📸 Memories</a></li>
-                    <li><a href="#">🔔 Notification</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/manage?groupId=${groupId}" >👥 Members</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/manage/tasks?groupId=${groupId}" class="active">🧾 Tasks</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/expense?groupId=${groupId}">💰 Expense</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/memories?groupId=${groupId}">📸 Memories</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/notifications?groupId=${groupId}">🔔 Notification</a></li>
                 </ul>
             </div>
 
@@ -272,7 +271,7 @@
                             </div>
                         </c:if>
                         <form id="addTaskForm" action="${pageContext.request.contextPath}/group/manage/tasks-add" method="post">
-                            <input type="hidden" name="group_id" value="${groupId}" />
+                            <input type="hidden" name="groupId" value="${groupId}" />
 
                             <div style="margin-bottom:12px;">
                                 <label>Mô tả<span class="required-star">*</span>:</label>
