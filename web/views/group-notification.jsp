@@ -176,12 +176,12 @@
             <div class="sidebar">
                 <h3>Group Menu</h3>
                 <ul>
-                    <li><a href="#">🕒 Time Line</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/manage/timeline?groupId=${groupId}">🕒 Time Line</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/manage?groupId=${groupId}">👥 Members</a></li>
                     <li><a href="#">🎯 Activities</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/manage/tasks?groupId=${groupId}">🧾 Tasks</a></li>
-                    <li><a href="${pageContext.request.contextPath}/group/expense?groupId=${groupId}">💰 Expense</a></li>
-                    <li><a href="${pageContext.request.contextPath}/group/memories?groupId=${groupId}">📸 Memories</a></li>
+                    <li><a href="#">💰 Expense</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group-memories?groupId=${groupId}">📸 Memories</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/notifications?groupId=${groupId}" class="active">🔔 Notification</a></li>
                 </ul>
             </div>

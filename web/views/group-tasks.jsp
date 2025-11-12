@@ -246,13 +246,13 @@
             <div class="sidebar">
                 <h3>Group Menu</h3>
                 <ul>
-                    <li><a href="#">🕒 Time Line</a></li>
-                    <li><a href="${pageContext.request.contextPath}/group/manage?groupId=${groupId}">👥 Members</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/manage/timeline?groupId=${groupId}">🕒 Time Line</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/manage?groupId=${tripId}">👥 Members</a></li>
                     <li><a href="#">🎯 Activities</a></li>
-                    <li><a href="${pageContext.request.contextPath}/group/manage/tasks?groupId=${groupId}" class="active">🧾 Tasks</a></li>
-                    <li><a href="${pageContext.request.contextPath}/group/expense?groupId=${groupId}">💰 Expense</a></li>
-                    <li><a href="${pageContext.request.contextPath}/group/memories?groupId=${groupId}" >📸 Memories</a></li>
-                    <li><a href="${pageContext.request.contextPath}/group/notifications?groupId=${groupId}">🔔 Notification</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/manage/tasks?groupId=${groupId}"  class="active">🧾 Tasks</a></li>
+                    <li><a href="#">💰 Expense</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group-memories">📸 Memories</a></li>
+                    <li><a href="#">🔔 Notification</a></li>
                 </ul>
             </div>
 
@@ -276,9 +276,11 @@
                             <button type="button" class="btn btn-del" onclick="clearFilters()">Clear</button>
                         </div>
 
-                        <div>
-                            <a href="${pageContext.request.contextPath}/group/manage/tasks-add?group_id=${groupId}" class="btn">+ Add Tasks</a>
-                        </div>
+                        <c:if test="${isLeader}">
+                            <div>
+                                <a href="${pageContext.request.contextPath}/group/manage/tasks-add?group_id=${groupId}" class="btn">+ Add Tasks</a>
+                            </div>
+                        </c:if>
                     </form>
 
                     <!-- Bảng hiển thị dữ liệu -->
@@ -286,12 +288,15 @@
                         <table>
                             <thead>
                                 <tr>
+                                    <th style="width: 50px;">No</th>
                                     <th>Tiêu đề</th>
                                     <th>Thời hạn</th>
                                     <th>Được giao cho</th>
                                     <th>Ngân sách</th>
                                     <th>Trạng thái</th>
-                                    <th>Hành động</th>
+                                    <c:if test="${isLeader}">
+                                        <th>Hành động</th>
+                                    </c:if>
                                 </tr>
                             </thead>
                             <tbody>
@@ -305,6 +310,7 @@
                                                     <c:when test='${t.status eq "InProgress"}'>background-color:#fff9e6;</c:when>
                                                     <c:otherwise>background-color:#ffffff;</c:otherwise>
                                                 </c:choose>">
+                                                <td style="text-align:center;">${t.task_id}</td>
                                                 <td>
                                                     <a href="#" class="task-link" data-task-id="${t.task_id}">
                                                         ${t.description}
@@ -330,19 +336,28 @@
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </td>
-                                                <td style="text-align:center;">
-                                                    <a href="${pageContext.request.contextPath}/group/manage/tasks-edit?task_id=${t.task_id}&&group_id=${groupId}" class="btn-icon" title="Edit">
-                                                        <i class="fa-solid fa-pen-to-square"></i>
-                                                    </a>
-                                                    <a href="#" class="btn-icon delete-btn" title="Delete" data-task-id="${t.task_id}">
-                                                        <i class="fa-solid fa-trash"></i>
-                                                    </a>
-                                                </td>
+                                                <c:if test="${isLeader}">
+                                                    <td style="text-align:center;">
+                                                        <a href="${pageContext.request.contextPath}/group/manage/tasks-edit?task_id=${t.task_id}" class="btn-icon" title="Edit">
+                                                            <i class="fa-solid fa-pen-to-square"></i>
+                                                        </a>
+                                                        <c:if test="${t.status ne 'Completed'}">
+                                                            <a href="#" class="btn-icon delete-btn" title="Delete" data-task-id="${t.task_id}">
+                                                                <i class="fa-solid fa-trash"></i>
+                                                            </a>
+                                                        </c:if>
+                                                        <c:if test="${t.status eq 'Completed'}">
+                                                            <span class="btn-icon" style="color:#ccc; cursor:not-allowed;" title="Không thể xóa task đã hoàn thành">
+                                                                <i class="fa-solid fa-trash"></i>
+                                                            </span>
+                                                        </c:if>
+                                                    </td>
+                                                </c:if>
                                             </tr>
                                         </c:forEach>
                                     </c:when>
                                     <c:otherwise>
-                                        <tr><td colspan="6" style="text-align:center; color:#777;">Không có công việc nào.</td></tr>
+                                        <tr><td colspan="${isLeader ? '7' : '6'}" style="text-align:center; color:#777;">Không có công việc nào.</td></tr>
                                     </c:otherwise>
                                 </c:choose>
                             </tbody>
