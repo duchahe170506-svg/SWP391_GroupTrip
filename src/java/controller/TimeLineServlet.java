@@ -15,7 +15,7 @@ import model.Trips;
 import model.Users;
 
 @WebServlet("/group/manage/timeline")
-public class TimelineServlet extends HttpServlet {
+public class TimeLineServlet extends HttpServlet {
 
     private final TripDAO tripDAO = new TripDAO();
     private final ItineraryDAO itineraryDAO = new ItineraryDAO();

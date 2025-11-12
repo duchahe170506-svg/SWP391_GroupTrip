@@ -193,7 +193,7 @@
                                 <a class="nav-link p-0" href="${pageContext.request.contextPath}/mytrips">My Trip</a>
                             </li>
                             <li class="nav-item px-3">
-                                <a class="nav-link p-0" href="gallery.html">About Us</a>
+                                <a class="nav-link p-0" href="#">About Us</a>
                             </li>
                             <c:if test="${not empty sessionScope.currentUser and sessionScope.currentUser.role eq 'Admin'}">
                             <li class="nav-item px-3">
