@@ -650,20 +650,7 @@ public class TripDAO {
         }
         return false;
     }
-    public int getLeaderIdByTrip(int tripId) {
-        String sql = "SELECT leader_id FROM TravelGroups tg "
-                + "JOIN Trips t ON tg.group_id = t.group_id WHERE t.trip_id=?";
-        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, tripId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("leader_id");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
+   
     
     public int getTripIdByGroupId(int groupId) {
         String sql = "SELECT trip_id FROM trips WHERE group_id = ?";

@@ -157,11 +157,10 @@
                 <ul>
                     <li><a href="${pageContext.request.contextPath}/group/manage/timeline?groupId=${groupId}" class="active">🕒 Time Line</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/manage?groupId=${groupId}">👥 Members</a></li>
-                    <li><a href="#">🎯 Activities</a></li>
                     <li><a href="${pageContext.request.contextPath}/group/manage/tasks?groupId=${groupId}">🧾 Tasks</a></li>
-                    <li><a href="#">💰 Expense</a></li>
-                    <li><a href="${pageContext.request.contextPath}/group-memories?groupId=${groupId}">📸 Memories</a></li>
-                    <li><a href="#">🔔 Notification</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/expense?groupId=${groupId}">💰 Expense</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/memories?groupId=${groupId}">📸 Memories</a></li>
+                    <li><a href="${pageContext.request.contextPath}/group/notifications?groupId=${groupId}">🔔 Notification</a></li>
                 </ul>
             </div>
 
