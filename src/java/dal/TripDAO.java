@@ -316,40 +316,38 @@ public class TripDAO {
     }
 
     public List<Trips> getTripsByMember(int userId) {
-    String sql = "SELECT t.* " +
-                 "FROM Trips t " +
-                 "JOIN GroupMembers gm ON gm.group_id = t.group_id " +
-                 "JOIN TravelGroups g ON g.group_id = t.group_id " +
-                 "WHERE gm.user_id = ? " +     
-                 "AND gm.status = 'Active' " +   
-                 "AND g.leader_id != ?";      
+        String sql = "SELECT t.* "
+                + "FROM Trips t "
+                + "JOIN GroupMembers gm ON gm.group_id = t.group_id "
+                + "JOIN TravelGroups g ON g.group_id = t.group_id "
+                + "WHERE gm.user_id = ? "
+                + "AND gm.status = 'Active' "
+                + "AND g.leader_id != ?";
 
-    List<Trips> list = new ArrayList<>();
-    try (Connection conn = DBConnect.getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
+        List<Trips> list = new ArrayList<>();
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-        ps.setInt(1, userId);
-        ps.setInt(2, userId); 
+            ps.setInt(1, userId);
+            ps.setInt(2, userId);
 
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Trips t = new Trips();
-                t.setTripId(rs.getInt("trip_id"));
-                t.setName(rs.getString("name"));
-                t.setLocation(rs.getString("location"));
-                t.setStartDate(rs.getDate("start_date"));
-                t.setEndDate(rs.getDate("end_date"));
-                t.setGroupId(rs.getInt("group_id"));
-                t.setStatus(rs.getString("status"));
-                list.add(t);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Trips t = new Trips();
+                    t.setTripId(rs.getInt("trip_id"));
+                    t.setName(rs.getString("name"));
+                    t.setLocation(rs.getString("location"));
+                    t.setStartDate(rs.getDate("start_date"));
+                    t.setEndDate(rs.getDate("end_date"));
+                    t.setGroupId(rs.getInt("group_id"));
+                    t.setStatus(rs.getString("status"));
+                    list.add(t);
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        return list;
     }
-    return list;
-}
-
 
     public List<Trips> getTripsByLeader(int userId) {
         String sql = "SELECT t.* FROM Trips t "
@@ -625,18 +623,19 @@ public class TripDAO {
         }
         return false;
     }
+
     /**
      * Kiểm tra xem user có phải là leader của group không
+     *
      * @param userId ID của user cần check
      * @param groupId ID của group (TravelGroup)
      * @return true nếu user là leader của group, false nếu không
      */
-   public boolean isUserLeaderOfGroup(int userId, int groupId) {
-        String sql = "SELECT count(*) FROM Trips t " +
-                     "JOIN TravelGroups g ON g.group_id = t.group_id " +
-                     "WHERE g.leader_id = ? AND t.group_id = ? AND t.status != 'Blocked'";
-        try (Connection conn = DBConnect.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+    public boolean isUserLeaderOfGroup(int userId, int groupId) {
+        String sql = "SELECT count(*) FROM Trips t "
+                + "JOIN TravelGroups g ON g.group_id = t.group_id "
+                + "WHERE g.leader_id = ? AND t.group_id = ? AND t.status != 'Blocked'";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, userId);
             ps.setInt(2, groupId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -650,12 +649,10 @@ public class TripDAO {
         }
         return false;
     }
-   
-    
+
     public int getTripIdByGroupId(int groupId) {
         String sql = "SELECT trip_id FROM trips WHERE group_id = ?";
-        try (Connection conn = DBConnect.getConnection(); 
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, groupId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -666,9 +663,33 @@ public class TripDAO {
         }
         return -1;
     }
-    
+
     public static void main(String[] args) {
         TripDAO td = new TripDAO();
         System.out.println(td.getTripIdByGroupId(1));
     }
+
+    public List<Trips> getTripsByUser(int userId) {
+        List<Trips> list = new ArrayList<>();
+        String sql = "SELECT t.* FROM Trips t "
+                + "JOIN GroupMembers gm ON t.group_id = gm.group_id "
+                + "WHERE gm.user_id = ? AND gm.status = 'Active'";
+        try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Trips trip = new Trips();
+                    trip.setTripId(rs.getInt("trip_id"));
+                    trip.setName(rs.getString("name"));
+                    trip.setStartDate(rs.getDate("start_date"));
+                    trip.setEndDate(rs.getDate("end_date"));
+                    list.add(trip);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
 }
