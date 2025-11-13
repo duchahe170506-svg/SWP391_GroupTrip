@@ -420,7 +420,7 @@ public class GroupJoinRequestDAO extends DBConnect {
             Date end = rs.getDate("end_date");
             int maxParticipants = rs.getInt("max_participants");
 
-            // Lấy tên người dùng hiện tại
+         
             String userName = null;
             try (PreparedStatement psUser = conn.prepareStatement("SELECT name FROM Users WHERE user_id=?")) {
                 psUser.setInt(1, userId);
@@ -452,7 +452,7 @@ public class GroupJoinRequestDAO extends DBConnect {
                 return "❌ Bạn đã từ chối lời mời.";
             }
 
-            // Kiểm tra số lượng thành viên
+         
             try (PreparedStatement psCount = conn.prepareStatement(
                     "SELECT COUNT(*) FROM GroupMembers WHERE group_id=? AND status='Active'")) {
                 psCount.setInt(1, groupId);
@@ -462,7 +462,7 @@ public class GroupJoinRequestDAO extends DBConnect {
                 }
             }
 
-            // Kiểm tra trùng thời gian
+           
             try (PreparedStatement psOverlap = conn.prepareStatement(
                     "SELECT COUNT(*) FROM Trips t "
                     + "JOIN GroupMembers gm ON t.group_id = gm.group_id "

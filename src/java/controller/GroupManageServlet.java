@@ -50,14 +50,14 @@ public class GroupManageServlet extends HttpServlet {
 
         int groupId = Integer.parseInt(req.getParameter("groupId"));
         String groupRole = memberDAO.getUserRoleInGroup(groupId, user.getUser_id());
-        
+
         Groups group = travelGroupsDAO.getGroupById(groupId);
         Trips trip = (group != null) ? tripDAO.getTripById(group.getGroup_id()) : null;
 
         List<GroupMembers> members = memberDAO.getMembersByGroup(groupId);
         List<GroupJoinRequests> userRequests = requestDAO.getUserRequests(groupId);
         List<GroupJoinRequests> leaderInvites = requestDAO.getLeaderInvites(groupId);
-        
+
         req.setAttribute("groupRole", groupRole);
         req.setAttribute("groupId", groupId);
         req.setAttribute("members", members);
@@ -137,6 +137,17 @@ public class GroupManageServlet extends HttpServlet {
                 return;
             }
 
+            List<Trips> joinedTrips = tripDAO.getTripsByUser(userId);
+            for (Trips t : joinedTrips) {
+                if (t.getStartDate().compareTo(trip.getEndDate()) <= 0
+                        && t.getEndDate().compareTo(trip.getStartDate()) >= 0) {
+                    String msg = URLEncoder.encode("❌ Người dùng này đã tham gia chuyến đi khác trùng thời gian ("
+                            + t.getName() + ").", StandardCharsets.UTF_8.name());
+                    resp.sendRedirect("manage?groupId=" + groupId + "&error=" + msg + "&showRequests=true");
+                    return;
+                }
+            }
+
             requestDAO.updateStatusByUserAndGroup(requestId, groupId, "ACCEPTED", reviewedBy);
             memberDAO.addMemberIfNotExists(groupId, userId, "Member");
 
@@ -155,7 +166,7 @@ public class GroupManageServlet extends HttpServlet {
             }
 
         } else if ("reject".equals(action)) {
-            requestDAO.updateStatusByUserAndGroup(userId, groupId, "REJECTED", reviewedBy);
+            requestDAO.updateStatusByUserAndGroup(requestId, groupId, "REJECTED", reviewedBy);
 
             if (user != null && group != null) {
                 String leaderName = (leader != null) ? leader.getName() : "Leader";

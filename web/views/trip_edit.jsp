@@ -306,7 +306,8 @@
                     <c:choose>
                         <c:when test="${not allowNameDescImageStatus}">
                             <select disabled>
-                                <option ${trip.status == 'Blocked' ? 'selected' : ''}>Blocked</option>
+                                <option ${trip.status == 'Active' ? 'selected' : ''}>Active</option>
+                                <option ${trip.status == 'Private' ? 'selected' : ''}>Private</option>
                                 <option ${trip.status == 'Continuous' ? 'selected' : ''}>Continuous</option>
                                 <option ${trip.status == 'Completed' ? 'selected' : ''}>Completed</option>
                                 <option ${trip.status == 'Postponed' ? 'selected' : ''}>Postponed</option>
@@ -315,7 +316,8 @@
                         </c:when>
                         <c:otherwise>
                             <select name="status">
-                                <option ${trip.status == 'Blocked' ? 'selected' : ''}>Blocked</option>
+                                <option ${trip.status == 'Active' ? 'selected' : ''}>Active</option>
+                                <option ${trip.status == 'Private' ? 'selected' : ''}>Private</option>
                                 <option ${trip.status == 'Continuous' ? 'selected' : ''}>Continuous</option>
                                 <option ${trip.status == 'Completed' ? 'selected' : ''}>Completed</option>
                                 <option ${trip.status == 'Postponed' ? 'selected' : ''}>Postponed</option>
