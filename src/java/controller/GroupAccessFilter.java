@@ -1,12 +1,14 @@
 package controller;
 
 import dal.GroupMembersDAO;
+import dal.TripDAO;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import model.Trips;
 import model.Users;
 
 @WebFilter({"/group/*"}) 
@@ -37,6 +39,7 @@ public class GroupAccessFilter implements Filter {
         int userId = currentUser.getUser_id();
 
         GroupMembersDAO dao = new GroupMembersDAO();
+        TripDAO tripDAO = new TripDAO();
 
       
         boolean isMember = dao.isUserInGroup(groupId, userId);
@@ -48,6 +51,14 @@ public class GroupAccessFilter implements Filter {
             return;
         }
 
+        Trips trip = tripDAO.getTripById(groupId); 
+
+        if (trip != null && "Blocked".equalsIgnoreCase(trip.getStatus())
+                && !"Admin".equals(currentUser.getRole())) {
+            req.setAttribute("error", "Chuyến đi này đã bị khóa. Chỉ Admin có quyền truy cập.");
+            req.getRequestDispatcher("/views/403.jsp").forward(req, resp);
+            return;
+        }
        
         chain.doFilter(request, response);
     }
