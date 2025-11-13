@@ -47,7 +47,8 @@ public class ItineraryDeleteServlet extends HttpServlet {
             return;
         }
 
-        int groupId = trip.getGroupId();
+        String groupParam = request.getParameter("groupId");
+        int groupId = Integer.parseInt(groupParam);
         boolean isLeader = tripDAO.isUserLeaderOfGroup(currentUser.getUser_id(), groupId);
         if (!isLeader) {
             response.sendRedirect(request.getContextPath() + "/group/manage/timeline?groupId=" + groupId + "&error=permission");

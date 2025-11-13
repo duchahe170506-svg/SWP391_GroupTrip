@@ -230,13 +230,14 @@
                                             <td>${fn:length(itinerary.description) > 0 ? itinerary.description : '-'}</td>
                                             <c:if test="${isLeader}">
                                                 <td style="text-align:center;">
-                                                    <a href="${pageContext.request.contextPath}/group/manage/itinerary-edit?itinerary_id=${itinerary.itineraryId}"
+                                                    <a href="${pageContext.request.contextPath}/group/manage/itinerary-edit?itinerary_id=${itinerary.itineraryId}&groupId=${groupId}"
                                                        class="btn-icon" title="Chỉnh sửa">
                                                         <i class="fa-solid fa-pen-to-square"></i>
                                                     </a>
                                                     <form action="${pageContext.request.contextPath}/group/manage/itinerary-delete"
                                                           method="post" class="inline-form">
                                                         <input type="hidden" name="itinerary_id" value="${itinerary.itineraryId}"/>
+                                                        <input type="hidden" name="groupId" value="${groupId}"/>
                                                         <button type="submit" class="btn-icon delete-btn" title="Xóa"
                                                                 onclick="return confirm('Bạn chắc chắn muốn xóa lịch trình này?');">
                                                             <i class="fa-solid fa-trash"></i>
