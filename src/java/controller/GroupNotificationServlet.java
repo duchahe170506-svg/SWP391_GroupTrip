@@ -45,7 +45,7 @@ public class GroupNotificationServlet extends HttpServlet {
         boolean isLeader = travelGroupsDAO.isLeader(currentUser.getUser_id(), groupId);
 
         try {
-            // Lấy tất cả log
+            
             List<GroupRoleHistory> roleLogs = logDAO.getRoleHistory(groupId);
             List<GroupJoinRequests> joinLogs = logDAO.getJoinRequestsHistory(groupId);
             List<MemberRemovals> removalLogs = logDAO.getRemovalHistory(groupId);

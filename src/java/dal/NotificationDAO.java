@@ -46,19 +46,47 @@ public class NotificationDAO extends DBConnect {
     }
 
     public void createNotification(Notifications n) {
-        String sql = "INSERT INTO Notifications(sender_id, user_id, type, related_id, message, status) "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setObject(1, n.getSenderId());
-            ps.setInt(2, n.getUserId());
-            ps.setString(3, n.getType());
-            ps.setObject(4, n.getRelatedId());
-            ps.setString(5, n.getMessage());
-            ps.setString(6, n.getStatus() != null ? n.getStatus() : "UNREAD");
-            ps.executeUpdate();
+        String sqlCheck = "SELECT COUNT(*) FROM Notifications WHERE sender_id = ? AND user_id = ? AND type = ? AND related_id = ? AND message = ?";
+        String sqlInsert = "INSERT INTO Notifications(sender_id, user_id, type, related_id, message, status) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = getConnection()) {
+          
+            try (PreparedStatement psCheck = conn.prepareStatement(sqlCheck)) {
+                psCheck.setObject(1, n.getSenderId());
+                psCheck.setInt(2, n.getUserId());
+                psCheck.setString(3, n.getType());
+                psCheck.setObject(4, n.getRelatedId());
+                psCheck.setString(5, n.getMessage());
+                ResultSet rs = psCheck.executeQuery();
+                if (rs.next() && rs.getInt(1) > 0) {
+                    return;
+                }
+            }
+
+            try (PreparedStatement psInsert = conn.prepareStatement(sqlInsert)) {
+                psInsert.setObject(1, n.getSenderId());
+                psInsert.setInt(2, n.getUserId());
+                psInsert.setString(3, n.getType());
+                psInsert.setObject(4, n.getRelatedId());
+                psInsert.setString(5, n.getMessage());
+                psInsert.setString(6, n.getStatus() != null ? n.getStatus() : "UNREAD");
+                psInsert.executeUpdate();
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean deleteNotification(int notificationId) {
+        String sql = "DELETE FROM Notifications WHERE notification_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, notificationId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Error deleting notification: " + e.getMessage());
+        }
+        return false;
     }
 
     public boolean createBulkNotifications(Integer senderId, List<Integer> userIds, String type, Integer relatedId, String message) {
@@ -119,7 +147,7 @@ public class NotificationDAO extends DBConnect {
                 noti.setUserId(rs.getInt("user_id"));
                 noti.setType(rs.getString("type"));
                 noti.setRelatedId((Integer) rs.getObject("related_id"));
-                noti.setRelatedRequestId((Integer) rs.getObject("related_request_id")); 
+                noti.setRelatedRequestId((Integer) rs.getObject("related_request_id"));
                 noti.setMessage(rs.getString("message"));
                 noti.setStatus(rs.getString("status"));
                 noti.setCreatedAt(rs.getTimestamp("created_at"));
@@ -241,16 +269,4 @@ public class NotificationDAO extends DBConnect {
         }
         return false;
     }
-
-    public boolean deleteNotification(int notificationId) {
-        String sql = "DELETE FROM Notifications WHERE notification_id = ?";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, notificationId);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.out.println("Error deleting notification: " + e.getMessage());
-        }
-        return false;
-    }
-
 }

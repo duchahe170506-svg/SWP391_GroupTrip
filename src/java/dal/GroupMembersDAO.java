@@ -290,12 +290,12 @@ public class GroupMembersDAO {
     }
 
     public boolean isMember(int groupId, int userId) {
-        String sql = "SELECT 1 FROM GroupMembers WHERE group_id=? AND user_id=? LIMIT 1";
+        String sql = "SELECT * FROM GroupMembers WHERE group_id=? AND status = 'Active' AND user_id=? LIMIT 1";
         try (Connection conn = DBConnect.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, groupId);
             ps.setInt(2, userId);
             ResultSet rs = ps.executeQuery();
-            return rs.next(); // nếu có record, user là thành viên
+            return rs.next(); 
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

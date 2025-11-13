@@ -145,24 +145,24 @@
                     <br>
 
                     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
+                        <c:if test="${trip.status ne 'Continuous' and trip.status ne 'Completed'}">
+                            <form action="${pageContext.request.contextPath}/group/invite" method="post"
+                                  style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; max-width:450px;">
+                                <input type="hidden" name="groupId" value="${groupId}" />
+                                <input type="email" name="email" placeholder="Nhập email người được mời" required
+                                       style="flex:1; min-width:200px; padding:6px 10px; border:1px solid #ccc; border-radius:4px;">
+                                <button type="submit" class="btn" style="padding:6px 14px; flex:0 0 auto;">Mời thành viên</button>
+                            </form>
 
-                        <form action="${pageContext.request.contextPath}/group/invite" method="post"
-                              style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; max-width:450px;">
-                            <input type="hidden" name="groupId" value="${groupId}" />
-                            <input type="email" name="email" placeholder="Nhập email người được mời" required
-                                   style="flex:1; min-width:200px; padding:6px 10px; border:1px solid #ccc; border-radius:4px;">
-                            <button type="submit" class="btn" style="padding:6px 14px; flex:0 0 auto;">Mời thành viên</button>
-                        </form>
-
-                        <form action="${pageContext.request.contextPath}/group/leave" method="post"
-                              onsubmit="return confirmLeave();" style="display:flex; align-items:center; gap:8px;">
-                            <input type="hidden" name="groupId" value="${groupId}" />
-                            <input type="hidden" name="userId" value="${sessionScope.currentUser.user_id}" />
-                            <input type="text" name="reason" placeholder="Lý do rời nhóm" required
-                                   style="width:250px; padding:6px; border:1px solid #ccc; border-radius:4px;">
-                            <button type="submit" class="btn btn-del">Rời nhóm</button>
-                        </form>
-
+                            <form action="${pageContext.request.contextPath}/group/leave" method="post"
+                                  onsubmit="return confirmLeave();" style="display:flex; align-items:center; gap:8px;">
+                                <input type="hidden" name="groupId" value="${groupId}" />
+                                <input type="hidden" name="userId" value="${sessionScope.currentUser.user_id}" />
+                                <input type="text" name="reason" placeholder="Lý do rời nhóm" required
+                                       style="width:250px; padding:6px; border:1px solid #ccc; border-radius:4px;">
+                                <button type="submit" class="btn btn-del">Rời nhóm</button>
+                            </form>
+                        </c:if>    
                     </div>
 
 
@@ -218,9 +218,11 @@
                             <th>Email</th>
                             <th>Vai trò</th>
                             <th>Ngày tham gia</th>
-                                <c:if test="${sessionScope.currentUser != null && groupRole eq 'Leader'}">
-                                <th>Chỉnh sửa vai trò</th>
-                                <th>Xóa</th>
+                                <c:if test="${trip.status ne 'Continuous' and trip.status ne 'Completed'}">
+                                    <c:if test="${sessionScope.currentUser != null && groupRole eq 'Leader'}">
+                                    <th>Chỉnh sửa vai trò</th>
+                                    <th>Xóa</th>
+                                    </c:if>
                                 </c:if>
                         </tr>
                         <c:forEach var="m" items="${members}">
@@ -229,33 +231,35 @@
                                 <td>${m.email}</td>
                                 <td>${m.role}</td>
                                 <td><fmt:formatDate value="${m.joined_at}" pattern="dd/MM/yyyy HH:mm"/></td>
-                                <c:if test="${sessionScope.currentUser != null && groupRole eq 'Leader'}">
-                                    <td>
-                                        <c:url var="toggleUrl" value="/group/edit-role">
-                                            <c:param name="groupId" value="${groupId}"/>
-                                            <c:param name="userId" value="${m.user_id}"/>
-                                            <c:param name="action" value="toggle"/>
-                                        </c:url>
-                                        <a class="btn btn-edit" href="${toggleUrl}" onclick="return confirm('Bạn có chắc muốn đổi role người này không?');">Đổi role</a>
+                                <c:if test="${trip.status ne 'Continuous' and trip.status ne 'Completed'}">
+                                    <c:if test="${sessionScope.currentUser != null && groupRole eq 'Leader'}">
+                                        <td>
+                                            <c:url var="toggleUrl" value="/group/edit-role">
+                                                <c:param name="groupId" value="${groupId}"/>
+                                                <c:param name="userId" value="${m.user_id}"/>
+                                                <c:param name="action" value="toggle"/>
+                                            </c:url>
+                                            <a class="btn btn-edit" href="${toggleUrl}" onclick="return confirm('Bạn có chắc muốn đổi role người này không?');">Đổi role</a>
 
-                                        <c:url var="promoteUrl" value="/group/edit-role">
-                                            <c:param name="groupId" value="${groupId}"/>
-                                            <c:param name="userId" value="${m.user_id}"/>
-                                            <c:param name="action" value="promoteLeader"/>
-                                        </c:url>
-                                        <a class="btn btn-edit" href="${promoteUrl}" 
-                                           onclick="return confirm('Bạn có chắc muốn phong người này làm Leader không?');">Phong Leader</a>
-                                    </td>
-                                    <td>
+                                            <c:url var="promoteUrl" value="/group/edit-role">
+                                                <c:param name="groupId" value="${groupId}"/>
+                                                <c:param name="userId" value="${m.user_id}"/>
+                                                <c:param name="action" value="promoteLeader"/>
+                                            </c:url>
+                                            <a class="btn btn-edit" href="${promoteUrl}" 
+                                               onclick="return confirm('Bạn có chắc muốn phong người này làm Leader không?');">Phong Leader</a>
+                                        </td>
+                                        <td>
 
-                                        <form action="${pageContext.request.contextPath}/group/remove-member" method="post" style="display:inline;"
-                                              onsubmit="return confirm('Bạn có chắc muốn xóa thành viên này?');">
-                                            <input type="hidden" name="groupId" value="${groupId}">
-                                            <input type="hidden" name="userId" value="${m.user_id}">
-                                            <input type="hidden" name="removedBy" value="${leaderId}">
-                                            <input type="text" name="reason" placeholder="Lý do xóa" required style="width:120px;">
-                                            <button type="submit" class="btn btn-del">Xóa</button>
-                                        </form>
+                                            <form action="${pageContext.request.contextPath}/group/remove-member" method="post" style="display:inline;"
+                                                  onsubmit="return confirm('Bạn có chắc muốn xóa thành viên này?');">
+                                                <input type="hidden" name="groupId" value="${groupId}">
+                                                <input type="hidden" name="userId" value="${m.user_id}">
+                                                <input type="hidden" name="removedBy" value="${leaderId}">
+                                                <input type="text" name="reason" placeholder="Lý do xóa" required style="width:120px;">
+                                                <button type="submit" class="btn btn-del">Xóa</button>
+                                            </form>
+                                        </c:if>
                                     </c:if>
                                 </td>
                             </tr>
@@ -273,7 +277,9 @@
                                 <th>Thời gian</th>
                                 <th>Trạng thái</th>
                                 <th>Người duyệt</th>
-                                <th>Hành động</th>
+                                    <c:if test="${trip.status ne 'Continuous' and trip.status ne 'Completed'}">
+                                    <th>Hành động</th>
+                                    </c:if>
                             </tr>
                             <c:forEach var="r" items="${userRequests}">
                                 <tr>
@@ -296,28 +302,25 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td>
-                                        <c:if test="${r.status eq 'PENDING'
-                                                      && sessionScope.currentUser != null
-                                                      && (groupRole eq 'Leader' or groupRole eq 'CoLeader')}">
-                                              <form action="${pageContext.request.contextPath}/group/manage" method="post" style="display:inline">
-                                                  <input type="hidden" name="requestId" value="${r.request_id}" />
-                                                  <input type="hidden" name="groupId" value="${r.group_id}" />
-                                                  <button type="submit" class="btn-edit" name="action" value="approve">Chấp nhận</button>
-                                              </form>
-                                        </c:if>
+                                    <c:if test="${trip.status ne 'Continuous' and trip.status ne 'Completed'}">
+                                        <td>
+                                            <c:if test="${r.status eq 'PENDING'
+                                                          && sessionScope.currentUser != null
+                                                          && (groupRole eq 'Leader' or groupRole eq 'CoLeader')}">
+                                                  <form action="${pageContext.request.contextPath}/group/manage" method="post" style="display:inline">
+                                                      <input type="hidden" name="requestId" value="${r.request_id}" />
+                                                      <input type="hidden" name="groupId" value="${r.group_id}" />
+                                                      <button type="submit" class="btn-edit" name="action" value="approve">Chấp nhận</button>
+                                                  </form>
 
-
-                                        <c:if test="${r.status eq 'PENDING'
-                                                      && sessionScope.currentUser != null
-                                                      && groupRole eq 'Leader'}">
-                                              <form action="${pageContext.request.contextPath}/group/manage" method="post" style="display:inline">
-                                                  <input type="hidden" name="requestId" value="${r.request_id}" />
-                                                  <input type="hidden" name="groupId" value="${r.group_id}" />
-                                                  <button type="submit" class="btn-del" name="action" value="reject">Từ chối</button>
-                                              </form>
-                                        </c:if>
-                                    </td>
+                                                  <form action="${pageContext.request.contextPath}/group/manage" method="post" style="display:inline">
+                                                      <input type="hidden" name="requestId" value="${r.request_id}" />
+                                                      <input type="hidden" name="groupId" value="${r.group_id}" />
+                                                      <button type="submit" class="btn-del" name="action" value="reject">Từ chối</button>
+                                                  </form>
+                                            </c:if>
+                                        </td>
+                                    </c:if>
                                 </tr>
                             </c:forEach>
                         </table>
