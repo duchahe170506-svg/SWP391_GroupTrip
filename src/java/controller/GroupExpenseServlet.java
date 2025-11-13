@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.List;
+import model.Trips;
 import model.Users;
 
 @WebServlet(name = "GroupExpenseServlet", urlPatterns = {"/group/expense"})
@@ -48,7 +49,9 @@ public class GroupExpenseServlet extends HttpServlet {
             BigDecimal tripBudget = tripDAO.getBudgetByTripId(tripId);
             List<Users> userList = userDAO.getUsersByTrip(tripId);
             String groupRole = memberDAO.getUserRoleInGroup(groupId, user.getUser_id());
-
+            Trips trip = tripDAO.getTripById(tripId);
+            
+            
             req.setAttribute("groupRole", groupRole);
             req.setAttribute("expenses", expenses);
             req.setAttribute("totalExpense", totalExpense);
@@ -56,6 +59,8 @@ public class GroupExpenseServlet extends HttpServlet {
             req.setAttribute("tripId", tripId);
             req.setAttribute("groupId", groupId);
             req.setAttribute("userList", userList);
+            req.setAttribute("trip", trip);
+
 
             req.getRequestDispatcher("/views/group-expenses.jsp").forward(req, resp);
 

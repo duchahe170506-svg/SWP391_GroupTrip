@@ -397,10 +397,10 @@ public class GroupJoinRequestDAO extends DBConnect {
 
     public String respondToInvite(int requestId, int userId, String action) {
         String sqlGet = """
-        SELECT gjr.group_id, gjr.invited_by, t.name AS trip_name, t.start_date, t.end_date, t.max_participants
+        SELECT gjr.group_id, gjr.invited_by, t.name AS trip_name, t.start_date, t.end_date, t.max_participants, t.status 
         FROM GroupJoinRequests gjr
         JOIN Trips t ON gjr.group_id = t.group_id
-        WHERE gjr.request_id = ? AND gjr.user_id = ?
+        WHERE gjr.request_id = ? AND gjr.user_id = ? 
     """;
 
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sqlGet)) {
@@ -419,8 +419,13 @@ public class GroupJoinRequestDAO extends DBConnect {
             Date start = rs.getDate("start_date");
             Date end = rs.getDate("end_date");
             int maxParticipants = rs.getInt("max_participants");
+            String status = rs.getString("status");
 
-         
+            if (!action.equalsIgnoreCase("REJECT")
+                    && ("Continuous".equalsIgnoreCase(status) || "Completed".equalsIgnoreCase(status))) {
+                return "❌ Chuyến đi đã bắt đầu hoặc kết thúc, không thể chấp nhận lời mời.";
+            }
+
             String userName = null;
             try (PreparedStatement psUser = conn.prepareStatement("SELECT name FROM Users WHERE user_id=?")) {
                 psUser.setInt(1, userId);
@@ -452,7 +457,6 @@ public class GroupJoinRequestDAO extends DBConnect {
                 return "❌ Bạn đã từ chối lời mời.";
             }
 
-         
             try (PreparedStatement psCount = conn.prepareStatement(
                     "SELECT COUNT(*) FROM GroupMembers WHERE group_id=? AND status='Active'")) {
                 psCount.setInt(1, groupId);
@@ -462,7 +466,6 @@ public class GroupJoinRequestDAO extends DBConnect {
                 }
             }
 
-           
             try (PreparedStatement psOverlap = conn.prepareStatement(
                     "SELECT COUNT(*) FROM Trips t "
                     + "JOIN GroupMembers gm ON t.group_id = gm.group_id "
