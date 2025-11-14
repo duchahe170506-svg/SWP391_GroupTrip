@@ -32,7 +32,6 @@ public class GroupRoleHistoryDAO extends DBConnect {
         return false;
     }
 
-    // 2️⃣ Lấy lịch sử đổi role theo group
     public List<GroupRoleHistory> getHistoryByGroup(int groupId) {
         List<GroupRoleHistory> list = new ArrayList<>();
         String sql = "SELECT * FROM GroupRoleHistory WHERE group_id = ? ORDER BY changed_at DESC";
@@ -48,7 +47,6 @@ public class GroupRoleHistoryDAO extends DBConnect {
         return list;
     }
 
-    // 3️⃣ Lấy lịch sử đổi role theo user
     public List<GroupRoleHistory> getHistoryByUser(int userId) {
         List<GroupRoleHistory> list = new ArrayList<>();
         String sql = "SELECT * FROM GroupRoleHistory WHERE user_id = ? ORDER BY changed_at DESC";
@@ -64,7 +62,7 @@ public class GroupRoleHistoryDAO extends DBConnect {
         return list;
     }
 
-    // Map ResultSet sang model
+ 
     private GroupRoleHistory mapResultSet(ResultSet rs) throws SQLException {
         GroupRoleHistory history = new GroupRoleHistory();
         history.setHistory_id(rs.getInt("history_id"));
@@ -75,17 +73,6 @@ public class GroupRoleHistoryDAO extends DBConnect {
         history.setChanged_by(rs.getInt("changed_by"));
         history.setChanged_at(rs.getTimestamp("changed_at"));
         return history;
-    }
-
-    public boolean changeMemberRole(int groupId, int userId, String oldRole, String newRole, int changedBy) {
-        GroupRoleHistoryDAO roleDao = new GroupRoleHistoryDAO();
-        NotificationDAO notiDao = new NotificationDAO();
-        boolean success = roleDao.addHistory(new GroupRoleHistory(0, groupId, userId, oldRole, newRole, changedBy, null));
-        if (success) {
-            String message = "Your role in group #" + groupId + " has been changed from " + oldRole + " to " + newRole + ".";
-            notiDao.createNotification(changedBy, userId, "ROLE_CHANGE", groupId, message);
-        }
-        return success;
     }
 
 }
