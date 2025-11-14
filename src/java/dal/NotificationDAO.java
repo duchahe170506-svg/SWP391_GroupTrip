@@ -22,45 +22,34 @@ public class NotificationDAO extends DBConnect {
         return n;
     }
 
-    public boolean createNotification(Integer senderId, int userId, String type, Integer relatedId, String message) {
-        String sql = "INSERT INTO Notifications (sender_id, user_id, type, related_id, message) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            if (senderId != null) {
-                ps.setInt(1, senderId);
-            } else {
-                ps.setNull(1, Types.INTEGER);
-            }
-            ps.setInt(2, userId);
-            ps.setString(3, type);
-            if (relatedId != null) {
-                ps.setInt(4, relatedId);
-            } else {
-                ps.setNull(4, Types.INTEGER);
-            }
-            ps.setString(5, message);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.out.println("Error creating notification: " + e.getMessage());
-        }
-        return false;
-    }
-
     public void createNotification(Notifications n) {
-        String sqlCheck = "SELECT COUNT(*) FROM Notifications WHERE sender_id = ? AND user_id = ? AND type = ? AND related_id = ? AND message = ?";
+        String sqlCheck = "SELECT notification_id FROM Notifications WHERE sender_id = ? AND user_id = ? AND type = ? AND related_id = ? AND message = ?";
+        String sqlUpdate = "UPDATE Notifications SET created_at = NOW(), status = ? WHERE notification_id = ?";
         String sqlInsert = "INSERT INTO Notifications(sender_id, user_id, type, related_id, message, status) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = getConnection()) {
-          
+
+            int existingId = -1;
             try (PreparedStatement psCheck = conn.prepareStatement(sqlCheck)) {
                 psCheck.setObject(1, n.getSenderId());
                 psCheck.setInt(2, n.getUserId());
                 psCheck.setString(3, n.getType());
                 psCheck.setObject(4, n.getRelatedId());
                 psCheck.setString(5, n.getMessage());
+
                 ResultSet rs = psCheck.executeQuery();
-                if (rs.next() && rs.getInt(1) > 0) {
-                    return;
+                if (rs.next()) {
+                    existingId = rs.getInt("notification_id");
                 }
+            }
+
+            if (existingId != -1) {
+                try (PreparedStatement psUpdate = conn.prepareStatement(sqlUpdate)) {
+                    psUpdate.setString(1, "UNREAD");
+                    psUpdate.setInt(2, existingId);
+                    psUpdate.executeUpdate();
+                }
+                return;
             }
 
             try (PreparedStatement psInsert = conn.prepareStatement(sqlInsert)) {
